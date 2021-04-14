@@ -1,0 +1,195 @@
+1.	LOGIN REQUEST
+
+{
+   "requestType":"LoginRequest",
+   "data":{
+      "password":"b",
+      "username":"a"
+   },
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1"
+}
+
+2.	LOGOUT REQUEST
+
+{
+   "requestType":"LogoutRequest",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "username":"a"
+}
+
+3.	BUY COIN REQUEST
+
+{
+   "requestType":"BuyCoin",
+   "data":{
+      "method":"Bkash",
+      "value":25,
+      "transactionId":"lol"
+   },
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "username":"c"
+}
+
+4.	REQUEST FRIENDS LIST
+
+{
+   "requestType":"FriendsListRequest",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "username":"aa"
+}
+
+5.	REQUEST JOIN GAME
+
+{
+   "requestType":"JoinRequest",
+   "data":{
+      "isOwner":false,
+      "requestIn":true,
+      "roomCode":-1
+   },
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "username":"a"
+}
+
+6.	REQUEST ABORT JOIN REQUEST
+
+{
+   "requestType":"JoinRequest",
+   "data":{
+      "requestIn":false,
+      "roomCode":-1
+   },
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "username":"a"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+GAMEROOM STUFFS
+
+1.	CALL REQUEST
+
+{
+   "requestType":"GameThread",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "gameData":{
+      "gameId":-1,
+      "roundCount":1,
+      "callData":{
+         "call":"Call",
+         "cost":10000
+      },
+      "turnCount":0,
+      "gameCode":0
+   },
+   "username":"a"
+}
+
+2.	RAISE REQUEST
+
+{
+   "requestType":"GameThread",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "gameData":{
+      "gameId":-1,
+      "roundCount":1,
+      "callData":{
+         "call":"Raise",
+         "cost":20000
+      },
+      "turnCount":1,
+      "gameCode":0
+   },
+   "username":"b"
+}
+
+3.	CHECK REQUEST
+
+{
+   "requestType":"GameThread",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "gameData":{
+      "gameId":-1,
+      "roundCount":1,
+      "callData":{
+         "call":"Check",
+         "cost":0
+      },
+      "turnCount":0,
+      "gameCode":0
+   },
+   "username":"a"
+}
+
+4.	FOLD REQUEST
+
+{
+   "requestType":"GameThread",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "gameData":{
+      "gameId":-1,
+      "roundCount":1,
+      "callData":{
+         "call":"Fold",
+         "cost":0
+      },
+      "turnCount":1,
+      "gameCode":0
+   },
+   "username":"b"
+}
+
+
+5.	ALL IN REQUEST
+
+{
+   "requestType":"GameThread",
+   "sender":"Client",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "gameData":{
+      "gameId":-1,
+      "roundCount":1,
+      "callData":{
+         "call":"AllIn",
+         "cost":90000
+      },
+      "turnCount":2,
+      "gameCode":0
+   },
+   "username":"c"
+}
+
+
+
+
+

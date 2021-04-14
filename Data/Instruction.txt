@@ -1,0 +1,7 @@
+
+1.	Create database with name PokerServer
+2.	Run database
+3.	Go to resources > application.properties 
+	and set username and password for database
+4.	Then run spring server
+5.	Now open client side.
