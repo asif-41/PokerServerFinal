@@ -50,6 +50,8 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
     private void closeServerToClient(WebSocketSession session) {
 
+        System.out.println("closing");
+
         ServerToClient s = Server.pokerServer.getServerToClient(session);
         s.closeEverything();
         s = null;

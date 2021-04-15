@@ -95,7 +95,10 @@ GAMEROOM STUFFS
    "gameData":{
       "code":2812,
       "gameRequest":"WelcomeMessage",
-      "id":0
+      "id":0,
+	  "roomType":"Normal",
+	  "entryCoinAmount":10000,
+	  "seatPosition":0
    }
 }
 
@@ -412,3 +415,16 @@ GAMEROOM STUFFS
    }
 }
 
+16.	LEAVE GAME ROOM
+
+{
+   "requestType":"GameRoom",
+   "sender":"Server",
+   "port":8080,
+   "ip":"192.168.192.1",
+   "gameData":{
+      "code":485,
+      "gameRequest":"LeaveGame",
+      "id":0
+   }
+}

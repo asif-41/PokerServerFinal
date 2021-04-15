@@ -149,7 +149,7 @@ public class ServerToClient implements Runnable {
                 requestAbort();
             }
         } else if (jsonIncoming.get("requestType").equals("GameThread")) {
-            gameThread.incomingMessage(temp);
+            gameThread.incomingMessage(temp, this);
         }
     }
 
@@ -174,6 +174,12 @@ public class ServerToClient implements Runnable {
         } catch (Exception e) {
             Server.pokerServer.addTextInGui("Error in closing connection in Server side, error -> " + e);
         }
+    }
+
+    public void leaveGameRoom() {
+
+        gameThread = null;
+        getUser().setSeatPosition(-1);
     }
 
     //===========================================================================================

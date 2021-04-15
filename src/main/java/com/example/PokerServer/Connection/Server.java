@@ -114,11 +114,15 @@ public class Server extends JFrame {
 
         int id, code;
 
+        int temp1[] = new int[gameThreads.size()];
+        for (int i = 0; i < gameThreads.size(); i++) temp1[i] = ((GameThread) gameThreads.get(i)).getGameId();
+
+        id = Randomizer.randomUnique(temp1, gameThreads.size() + 1);
+
         int temp2[] = new int[gameThreads.size()];
         for (int i = 0; i < gameThreads.size(); i++) temp2[i] = ((GameThread) gameThreads.get(i)).getGameCode();
 
         code = Randomizer.randomUnique(temp2, 10000);
-        id = gameThreads.size();
 
 
         //Making and starting game thread
@@ -219,10 +223,16 @@ public class Server extends JFrame {
 
     public void removeGameThread(GameThread g) {
 
+        gameThreads.remove(g);
+        g = null;
     }
 
     public void removeFromGameThread(ServerToClient s) {
 
+        GameThread gg = s.getGameThread();
+
+        if (gg == null) return;
+        gg.exitGameResponse(s);
     }
 
     public void removeFromPendingQueue(ServerToClient s) {
