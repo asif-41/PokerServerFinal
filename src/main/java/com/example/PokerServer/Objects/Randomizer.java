@@ -60,6 +60,28 @@ public class Randomizer {
         return ret;
     }
 
+    public static int randomUnique(ArrayList val, int limit) {
+
+        if (val.size() == 0) return random.nextInt(limit);
+
+        int ret = 0;
+        boolean ase = true;
+
+        while (ase) {
+            ret = random.nextInt(limit);
+            ase = false;
+
+            for (Object x : val) {
+                if (ret == (int) x) {
+                    ase = true;
+                    break;
+                }
+            }
+        }
+
+        return ret;
+    }
+
     //
     //===============================================================
 

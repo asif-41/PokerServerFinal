@@ -143,8 +143,8 @@ public class ServerToClient implements Runnable {
             //JOIN GAME REQUEST TO SERVER
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
 
-            if (tempJson.getBoolean("requestIn")) {
-                requestJoin(true);
+            if (tempJson.getBoolean("requestIn") == true) {
+                requestJoin(true, tempJson);
             } else {
                 requestAbort();
             }
@@ -168,8 +168,8 @@ public class ServerToClient implements Runnable {
 
         try {
             Server.pokerServer.addTextInGui("A Connection got removed");
-            session.close();
             Server.pokerServer.removeFromCasualConnections(this);
+            session.close();
 
         } catch (Exception e) {
             Server.pokerServer.addTextInGui("Error in closing connection in Server side, error -> " + e);
@@ -180,6 +180,8 @@ public class ServerToClient implements Runnable {
 
         gameThread = null;
         getUser().setSeatPosition(-1);
+
+        updateGameDataOnJoinRequest(false, null);
     }
 
     //===========================================================================================
@@ -232,6 +234,28 @@ public class ServerToClient implements Runnable {
     //
     //===================================================================================
 
+    private void updateGameDataOnJoinRequest(boolean isJoin, JSONObject temp) {
+
+        if (user == null) return;
+
+        if (isJoin) {
+            user.setRoomCode(temp.getInt("roomCode"));
+            user.setRoomId(temp.getInt("roomId"));
+            user.setBoardType(temp.getString("boardType"));
+            user.setBoardCoin(temp.getInt("entryAmount"));
+        } else {
+            user.setRoomCode(-1);
+            user.setRoomId(-1);
+            user.setBoardType("");
+            user.setBoardCoin(-1);
+        }
+    }
+
+
+
+
+
+
     private JSONObject initiateResponse() {
 
         JSONObject send = new JSONObject();
@@ -272,16 +296,24 @@ public class ServerToClient implements Runnable {
         return friends;
     }
 
-    public void requestJoin(boolean add) {
-        if (add) Server.pokerServer.addInPendingQueue(this);
+    public void requestJoin(boolean addInQueue, JSONObject temp) {
+
+        if (addInQueue) {
+
+            updateGameDataOnJoinRequest(true, temp);
+            Server.pokerServer.addInPendingQueue(this);
+        }
+
         joinResponse("Join", "waiting in the queue", false);
     }
 
     public void requestAbort() {
-        Server.pokerServer.removeFromPendingQueue(this);
-        joinResponse("Abort", "Abort request granted", false);
-    }
 
+        boolean done = Server.pokerServer.removeFromPendingQueue(this);
+
+        updateGameDataOnJoinRequest(false, null);
+        if (done) joinResponse("Abort", "Abort request granted", false);
+    }
 
     private void loginRequestResponse(String username, String password) {
 

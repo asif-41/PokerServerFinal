@@ -27,6 +27,13 @@ public class User {
     private int winStreak;              //      CURRENT WIN STREAK
     private int level;                  //      LEVEL GENERATED FROM COIN WON IN WHOLE CAREER
 
+
+    //==================================================================================
+    //
+    //          IN GAME DATA
+    //
+    //==================================================================================
+
     private boolean inGame;             //      IDENTIFIES IF USER IS IN GAME
     private ArrayList playerCards;      //      PLAYER CARDS IN ROUND
     private ArrayList boardCards;       //      BOARD CARDS IN A ROUND,     NOT STORED IN CLIENT SIDE, SENT BY
@@ -35,8 +42,10 @@ public class User {
     //      BECAUSE, FOR ALL PLAYERS, SAME BOARD CARDS
     //      RATHER USED AN ARRAYLIST FOR BOARD CARDS
 
-    private int prevLevelCoin;          //      NEEDED TO DETERMINE LEVEL
-    private int nextLevelCoin;          //      NEEDED TO DETERMINE LEVEL
+    private int roomId;                 //      GAME ROOM ID
+    private int roomCode;               //      GAME ROOM CODE
+    private String boardType;           //      ROOM TYPE
+    private int boardCoin;              //      ENTRY COIN AMOUNT
     private int seatPosition;           //      SEAT POSITION IN GAME
     //      UNNECESSARY IF LEVEL IS SENT FROM DATABASE
 
@@ -61,14 +70,16 @@ public class User {
         this.currentCoin = currentCoin;
         this.coinWon = coinWon;
 
+        roomId = -1;
+        roomCode = -1;
+        boardType = "";
+        boardCoin = -1;
         seatPosition = -1;
         inGame = false;
 
         boardCards = new ArrayList<Card>();
-        boardCards.clear();
-
         playerCards = new ArrayList<Card>();
-        playerCards.clear();
+
 
         initializeOtherValues();
     }
@@ -90,8 +101,6 @@ public class User {
         //algo to set level
 
         level = 3;
-        prevLevelCoin = 1000000;
-        nextLevelCoin = 10000000;
     }
 
     //===========================================================================
@@ -153,22 +162,6 @@ public class User {
         this.level = level;
     }
 
-    public int getPrevLevelCoin() {
-        return prevLevelCoin;
-    }
-
-    public void setPrevLevelCoin(int prevLevelCoin) {
-        this.prevLevelCoin = prevLevelCoin;
-    }
-
-    public int getNextLevelCoin() {
-        return nextLevelCoin;
-    }
-
-    public void setNextLevelCoin(int nextLevelCoin) {
-        this.nextLevelCoin = nextLevelCoin;
-    }
-
     public ArrayList getPlayerCards() {
         return playerCards;
     }
@@ -191,6 +184,70 @@ public class User {
 
     public void setSeatPosition(int seatPosition) {
         this.seatPosition = seatPosition;
+    }
+
+    public int getRoundsWon() {
+        return roundsWon;
+    }
+
+    public void setRoundsWon(int roundsWon) {
+        this.roundsWon = roundsWon;
+    }
+
+    public int getRoundsPlayed() {
+        return roundsPlayed;
+    }
+
+    public void setRoundsPlayed(int roundsPlayed) {
+        this.roundsPlayed = roundsPlayed;
+    }
+
+    public int getWinPercentage() {
+        return winPercentage;
+    }
+
+    public void setWinPercentage(int winPercentage) {
+        this.winPercentage = winPercentage;
+    }
+
+    public int getWinStreak() {
+        return winStreak;
+    }
+
+    public void setWinStreak(int winStreak) {
+        this.winStreak = winStreak;
+    }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public int getRoomCode() {
+        return roomCode;
+    }
+
+    public void setRoomCode(int roomCode) {
+        this.roomCode = roomCode;
+    }
+
+    public String getBoardType() {
+        return boardType;
+    }
+
+    public void setBoardType(String boardType) {
+        this.boardType = boardType;
+    }
+
+    public int getBoardCoin() {
+        return boardCoin;
+    }
+
+    public void setBoardCoin(int boardCoin) {
+        this.boardCoin = boardCoin;
     }
 
     //===========================================================================

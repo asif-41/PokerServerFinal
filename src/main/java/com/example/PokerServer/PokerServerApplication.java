@@ -9,7 +9,7 @@ public class PokerServerApplication {
 
     public static void main(String[] args) {
 
-        Server.pokerServer = new Server(3, 120);
+        Server.pokerServer = new Server(2, 5, 120);
 
         SpringApplication.run(PokerServerApplication.class, args);
     }

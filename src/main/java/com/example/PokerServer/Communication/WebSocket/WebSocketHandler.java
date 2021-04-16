@@ -45,12 +45,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private void receiveMessage(WebSocketSession session, String message) {
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
-        s.incomingMsg(message);
+
+        if (s != null) s.incomingMsg(message);
     }
 
     private void closeServerToClient(WebSocketSession session) {
-
-        System.out.println("closing");
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
         s.closeEverything();

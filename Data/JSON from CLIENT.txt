@@ -51,8 +51,9 @@
 {
    "requestType":"JoinRequest",
    "data":{
-      "isOwner":false,
+      "boardType":"board1",
       "requestIn":true,
+      "entryAmount":100000,
       "roomCode":-1
    },
    "sender":"Client",
