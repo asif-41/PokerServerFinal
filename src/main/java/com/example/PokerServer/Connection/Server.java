@@ -209,16 +209,10 @@ public class Server extends JFrame {
             for (int j = 0; j < waitingRoom[i].size(); j++) {
 
                 WaitingRoom w = (WaitingRoom) waitingRoom[i].get(j);
-
-                if (w.getGameCode() == code) {
-                    if (w.getPlayerCount() == w.getMaxPlayerCount()) return null;
-                    else return w;
-                }
+                if (w.getGameCode() == code) return w;
             }
         }
-
         return null;
-
     }
 
 

@@ -484,6 +484,7 @@ WAITING ROOM STUFFS
    "waitingRoomData":{
       "requestType":"JoinWaitingRoomResponse",
       "success":false,
+	  "message":"Joined room",
       "roomCode":8054
    },
    "ip":"192.168.192.1"

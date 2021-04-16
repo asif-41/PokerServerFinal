@@ -192,8 +192,19 @@ public class ServerToClient implements Runnable {
 
         WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
 
-        sendRoomJoinRequestResponse(w != null, code);
-        if (w != null) w.addInvitedUser(this);
+        String msg = "";
+
+        if (w == null) {
+            msg = "Could not find waiting room";
+            sendRoomJoinRequestResponse(false, code, msg);
+        } else if (w.getMaxPlayerCount() == w.getPlayerCount()) {
+            msg = "Waiting room full";
+            sendRoomJoinRequestResponse(false, code, msg);
+        } else {
+            msg = "Joining waiting room";
+            sendRoomJoinRequestResponse(true, code, msg);
+            w.addInvitedUser(this);
+        }
     }
 
     //==============================================================================
@@ -472,7 +483,7 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
-    private void sendRoomJoinRequestResponse(boolean joining, int code) {
+    private void sendRoomJoinRequestResponse(boolean joining, int code, String msg) {
 
         JSONObject send = initiateResponse();
 
@@ -483,6 +494,7 @@ public class ServerToClient implements Runnable {
         temp.put("requestType", "JoinWaitingRoomResponse");
         temp.put("roomCode", code);
         temp.put("success", joining);
+        temp.put("message", msg);
 
         send.put("waitingRoomData", temp);
         sendMessage(send.toString());
