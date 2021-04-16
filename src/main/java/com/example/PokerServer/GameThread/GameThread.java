@@ -218,7 +218,7 @@ public class GameThread implements Runnable {
 
     private void sendMessageToAllExceptOne(String s, int loc, String exceptionMsg) {
 
-        sendMessage(loc, exceptionMsg);
+        if (!exceptionMsg.equals("")) sendMessage(loc, exceptionMsg);
 
         for (int i = 0; i < maxPlayerCount; i++) {
 
@@ -1858,7 +1858,7 @@ public class GameThread implements Runnable {
         return isPrivate;
     }
 
-//==================================================================================================================
+    //==================================================================================================================
     //
     //==================================================================================================================
 

@@ -1,7 +1,9 @@
 package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
+import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.Randomizer;
+import org.json.JSONArray;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.swing.*;
@@ -34,11 +36,13 @@ public class Server extends JFrame {
     private int leastPlayerCount;               //      LEAST NUMBER OF PLAYER FOR A GAME
 
 
+    public ArrayList[] waitingRoom;
     public ArrayList[] pendingQueue;
     public ArrayList[] queueTimeCount;            //      TIME COUNTER FOR EACH OBJECT IN QUEUE
     public ArrayList[] gameThreads;             //      GAME THREADS
+    public int minCallValue[] = {10000, 10000, 10000, 10000, 10000};
     public String boardType[] = {"board1", "board2", "board3", "board4", "board5"};
-    public int minCoin[] = {10000, 10000, 10000, 10000, 10000};
+    public int minEntryValue[] = {100000, 100000, 100000, 100000, 100000};
     private int boardTypeCount;
 
     //====================================================
@@ -80,6 +84,7 @@ public class Server extends JFrame {
         casualConnections = new ArrayList<ServerToClient>();
         loggedInUsers = new ArrayList<ServerToClient>();
 
+        waitingRoom = new ArrayList[boardTypeCount];
         gameThreads = new ArrayList[boardTypeCount];
         pendingQueue = new ArrayList[boardTypeCount];
         queueTimeCount = new ArrayList[boardTypeCount];
@@ -87,6 +92,7 @@ public class Server extends JFrame {
             gameThreads[i] = new ArrayList<GameThread>();
             pendingQueue[i] = new ArrayList<ServerToClient>();
             queueTimeCount[i] = new ArrayList<Integer>();
+            waitingRoom[i] = new ArrayList<WaitingRoom>();
         }
 
 
@@ -124,6 +130,18 @@ public class Server extends JFrame {
     //
     //================================================================================
 
+
+    //================================================================================
+    //
+    //================================================================================
+
+
+    //================================================================================
+    //
+    //              MAKING GAMETHREADS/WAITING ROOM STUFF
+    //
+    //================================================================================
+
     private int roomIdGenerator() {
         int id;
 
@@ -136,6 +154,14 @@ public class Server extends JFrame {
                 temp.add(((GameThread) gameThreads[i].get(j)).getGameId());
             }
         }
+
+        for (int i = 0; i < boardTypeCount; i++) {
+            sz += waitingRoom[i].size();
+            for (int j = 0; j < waitingRoom[i].size(); j++) {
+                temp.add(((WaitingRoom) waitingRoom[i].get(j)).getGameId());
+            }
+        }
+
         id = Randomizer.randomUnique(temp, sz + 1);
 
         return id;
@@ -150,6 +176,13 @@ public class Server extends JFrame {
 
             for (int j = 0; j < gameThreads[i].size(); j++) {
                 temp.add(((GameThread) gameThreads[i].get(j)).getGameCode());
+            }
+        }
+
+        for (int i = 0; i < boardTypeCount; i++) {
+
+            for (int j = 0; j < waitingRoom[i].size(); j++) {
+                temp.add(((WaitingRoom) waitingRoom[i].get(j)).getGameCode());
             }
         }
         code = Randomizer.randomUnique(temp, 10000);
@@ -170,6 +203,121 @@ public class Server extends JFrame {
         return ret;
     }
 
+    public WaitingRoom findWaitingRoomByCode(int code) {
+
+        for (int i = 0; i < boardTypeCount; i++) {
+            for (int j = 0; j < waitingRoom[i].size(); j++) {
+
+                WaitingRoom w = (WaitingRoom) waitingRoom[i].get(j);
+
+                if (w.getGameCode() == code) {
+                    if (w.getPlayerCount() == w.getMaxPlayerCount()) return null;
+                    else return w;
+                }
+            }
+        }
+
+        return null;
+
+    }
+
+
+    //================================================================================
+    //
+    //================================================================================
+
+
+    //================================================================================
+    //
+    //              MAKING WAITING ROOM
+    //
+    //================================================================================
+
+    public ServerToClient getConnectionThroughUsername(String username) {
+
+        for (int i = 0; i < loggedInUsers.size(); i++) {
+
+            ServerToClient s = (ServerToClient) loggedInUsers.get(i);
+            String tempUser = s.getUser().getUsername();
+
+            if (tempUser.equals(username)) return s;
+        }
+        return null;
+    }
+
+    private void createWaitingRoom(ArrayList<ServerToClient> invitedUsers, ServerToClient owner, int boardKey) {
+
+        int id = roomIdGenerator();
+        int code = roomCodeGenerator();
+
+        WaitingRoom w = new WaitingRoom(invitedUsers, owner, id, code, maxPlayerCount, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey]);
+        waitingRoom[boardKey].add(w);
+
+        new Thread(w).start();
+
+        String bleh = "Game thread created. id: " + id + " code: " + code + "\n";
+        bleh += "        users: ";
+        for (int i = 0; i < invitedUsers.size(); i++) bleh += invitedUsers.get(i).getUser().getUsername() + " ";
+
+        addTextInGui(bleh);
+    }
+
+    public void createWaitingRoom(JSONArray usernames, ServerToClient owner, String boardName) {
+
+        ArrayList invitedUsers = new ArrayList<ServerToClient>();
+
+        for (int i = 0; i < usernames.length(); i++) {
+
+            String temp = usernames.getString(i);
+            ServerToClient temp2 = getConnectionThroughUsername(temp);
+
+            if (temp2 != null) invitedUsers.add(temp2);
+        }
+        createWaitingRoom(invitedUsers, owner, getBoardKey(boardName));
+    }
+
+    private void addInWaitingRoom() {
+
+    }
+
+    private void removeFromWaitingRoom(ServerToClient s) {
+
+        WaitingRoom w = s.getWaitingRoom();
+        if (w == null) return;
+
+        w.exitRequestResponse(s, false, null);
+    }
+
+    private void addWaitingRoom(WaitingRoom w) {
+
+        String boardName = w.getBoardType();
+        int k = getBoardKey(boardName);
+
+        waitingRoom[k].add(w);
+    }
+
+    public void removeWaitingRoom(WaitingRoom w) {
+
+        String boardName = w.getBoardType();
+        int k = getBoardKey(boardName);
+
+        waitingRoom[k].remove(w);
+        w = null;
+    }
+
+    //================================================================================
+    //
+    //================================================================================
+
+
+    //================================================================================
+    //
+    //              MAKING GAMETHREADS
+    //
+    //================================================================================
+
+
+
     private void makeGameThread(ArrayList<ServerToClient> clients, int boardKey) {
 
         int id = roomIdGenerator();
@@ -177,7 +325,7 @@ public class Server extends JFrame {
 
         //Making and starting game thread
 
-        GameThread g = new GameThread(clients, id, code, boardType[boardKey], minCoin[boardKey], maxPlayerCount, false);
+        GameThread g = new GameThread(clients, id, code, boardType[boardKey], minCallValue[boardKey], maxPlayerCount, false);
         addGameThread(g);
 
         //setting gameThreads in serverToClient side
@@ -355,6 +503,7 @@ public class Server extends JFrame {
 
     public void removeFromLoggedUsers(ServerToClient s) {
 
+        removeFromWaitingRoom(s);
         removeFromGameThread(s);
         s.requestAbort();
         loggedInUsers.remove(s);
@@ -419,11 +568,27 @@ public class Server extends JFrame {
 
     }
 
+    private void printWaitingRoom() {
+
+        String ret = "Currently running waiting rooms: ";
+
+        for (int i = 0; i < boardTypeCount; i++) {
+
+            ret += "Type -> " + boardType[i] + "\n";
+            for (int j = 0; j < waitingRoom[i].size(); j++)
+                ret += "        number " + i + " " + waitingRoom[i].get(j).toString();
+
+        }
+        addTextInGui(ret);
+
+    }
+
     private void printAll() {
         printConnections();
         printLoggedInUsers();
         printQueue();
         printGameThread();
+        printWaitingRoom();
     }
 
     //

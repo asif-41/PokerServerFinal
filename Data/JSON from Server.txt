@@ -428,3 +428,78 @@ GAMEROOM STUFFS
       "id":0
    }
 }
+
+
+
+
+
+
+
+
+
+WAITING ROOM STUFFS
+
+1.	INITIALIZATION DATA
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":8080,
+   "waitingRoomData":{
+      "boardType":"board1",
+      "seatPosition":0,
+      "requestType":"SetWaitingRoomData",
+      "roomCode":8828,
+      "userEntryAmount":100000,
+      "roomId":0
+   },
+   "ip":"192.168.192.1"
+}
+
+2.	ASKING FOR INVITATION APPROVAL
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":8080,
+   "waitingRoomData":{
+      "minCallValue":10000,
+      "boardType":"board1",
+      "requestType":"JoinWaitingRoom",
+      "roomCode":8071,
+      "minEntryAmount":100000,
+      "roomId":0
+   },
+   "ip":"192.168.192.1"
+}
+
+3.	ACCEPT REQUEST RESPONSE 
+
+{
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":58539,
+   "waitingRoomData":{
+      "requestType":"JoinWaitingRoomResponse",
+      "success":false,
+      "roomCode":8054
+   },
+   "ip":"192.168.192.1"
+}
+
+4.	REMOVE FROM ROOM RESPONSE
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"RemoveFromWaitingRoomResponse",
+      "roomCode":5759,
+	  "message":"You were removed by room owner"
+   },
+   "ip":"192.168.192.1"
+}

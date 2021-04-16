@@ -54,7 +54,8 @@
       "boardType":"board1",
       "requestIn":true,
       "entryAmount":100000,
-      "roomCode":-1
+      "roomCode":-1,
+	  
    },
    "sender":"Client",
    "port":8080,
@@ -225,4 +226,111 @@ GAMEROOM STUFFS
    },
    "username":"a"
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+WAITING ROOM STUFFS
+
+1.	CREATE ( OWNER )
+
+{
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "boardType":"board1",
+      "requestType":"Create",
+      "roomData":[
+         "b",
+         "c",
+         "d"
+      ],
+      "entryAmount":100000,
+      "roomCode":-1,
+      "userEntryAmount":100000,
+      "roomId":-1
+   },
+   "ip":"192.168.192.1",
+   "owner":"a"
+}
+
+2.	INVITATION ACCEPTED ( OWNER'S INVITATION )
+
+{
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "boardType":"board1",
+      "requestType":"AcceptInvitation",
+      "roomCode":4275,
+      "userEntryAmount":0
+   },
+   "ip":"192.168.192.1"
+}
+
+3.	ADD IN WAITING ROOM REQUEST ( OWNER INVITED SOMEONE )
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"AddInWaitingRoom",
+      "roomData":[
+         "d",
+         "c"
+      ]
+   },
+   "ip":"192.168.192.1"
+}
+
+4.	REMOVE FROM WAITING ROOM REQUEST ( OWNER'S REQUEST )
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"RemoveFromWaitingRoom",
+      "roomData":[
+         "c"
+      ]
+   },
+   "ip":"192.168.192.1"
+}
+
+5.	REMOVE ME FROM WAITING ROOM REQUEST ( ANYONE'S REMOVE REQUEST FROM CURRENT ROOM )
+
+{
+   "owner":"c",
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"RemoveMeFromWaitingRoom"
+   },
+   "ip":"192.168.192.1"
+}
+
+6.	JOIN REQUEST BY GIVEN CODE ( OTHER THAN OWNER )
 

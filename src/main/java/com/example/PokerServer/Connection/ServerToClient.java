@@ -1,6 +1,7 @@
 package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
+import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,6 +38,7 @@ public class ServerToClient implements Runnable {
     private JSONObject jsonIncoming;
     private User user;                                  //      USER, NULL IF NOT LOGGED IN
     private GameThread gameThread;                      //      GAME THREAD, NULL IF NOT IN ANY GAME
+    private WaitingRoom waitingRoom;
 
     //============================================================
     //
@@ -56,6 +58,7 @@ public class ServerToClient implements Runnable {
         jsonIncoming = null;
         user = null;
         gameThread = null;
+        waitingRoom = null;
 
 
         this.session = session;
@@ -106,7 +109,6 @@ public class ServerToClient implements Runnable {
 
         try {
             jsonIncoming = new JSONObject(temp);
-
             System.out.println(jsonIncoming);
 
         } catch (Exception e) {
@@ -150,7 +152,48 @@ public class ServerToClient implements Runnable {
             }
         } else if (jsonIncoming.get("requestType").equals("GameThread")) {
             gameThread.incomingMessage(temp, this);
+        } else if (jsonIncoming.get("requestType").equals("WaitingRoom")) {
+
+            JSONObject waitingRoomData = jsonIncoming.getJSONObject("waitingRoomData");
+
+            if (waitingRoomData.get("requestType").equals("Create")) {
+
+                createWaitingRoom(waitingRoomData);
+            } else if (waitingRoomData.get("requestType").equals("AcceptInvitation")) {
+
+                int code = waitingRoomData.getInt("roomCode");
+                joinWaitingRoomByCode(code);
+
+            } else waitingRoom.incomingMsg(temp, this);
+
         }
+    }
+
+    //==============================================================================
+    //
+    //==============================================================================
+
+    //==============================================================================
+    //
+    //          WAITING ROOM STUFF
+    //
+    //==============================================================================
+
+    private void createWaitingRoom(JSONObject waitingRoomData) {
+
+        String boardType = waitingRoomData.getString("boardType");
+        JSONArray usernames = waitingRoomData.getJSONArray("roomData");
+
+        Server.pokerServer.createWaitingRoom(usernames, this, boardType);
+
+    }
+
+    private void joinWaitingRoomByCode(int code) {
+
+        WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
+
+        sendRoomJoinRequestResponse(w != null, code);
+        if (w != null) w.addInvitedUser(this);
     }
 
     //==============================================================================
@@ -221,6 +264,14 @@ public class ServerToClient implements Runnable {
 
     public void setGameThread(GameThread gameThread) {
         this.gameThread = gameThread;
+    }
+
+    public WaitingRoom getWaitingRoom() {
+        return waitingRoom;
+    }
+
+    public void setWaitingRoom(WaitingRoom waitingRoom) {
+        this.waitingRoom = waitingRoom;
     }
 
     //==============================================================================
@@ -418,6 +469,22 @@ public class ServerToClient implements Runnable {
         send.put("requestType", type);
         send.put("data", msg);
 
+        sendMessage(send.toString());
+    }
+
+    private void sendRoomJoinRequestResponse(boolean joining, int code) {
+
+        JSONObject send = initiateResponse();
+
+        send.put("requestType", "WaitingRoom");
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("requestType", "JoinWaitingRoomResponse");
+        temp.put("roomCode", code);
+        temp.put("success", joining);
+
+        send.put("waitingRoomData", temp);
         sendMessage(send.toString());
     }
 
