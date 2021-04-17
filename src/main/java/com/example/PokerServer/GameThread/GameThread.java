@@ -117,6 +117,8 @@ public class GameThread implements Runnable {
 
     private Timer closeTimer;
 
+    private ServerToClient owner;
+
     //=======================================================================================================================
     //
     //=======================================================================================================================
@@ -128,12 +130,14 @@ public class GameThread implements Runnable {
     //
     //==================================================================================================================
 
-    public GameThread(ArrayList<ServerToClient> s, int id, int code, String boardname, int minCoin, int maxPlayerCount, boolean privacy) {
+    public GameThread(ArrayList<ServerToClient> s, int id, int code, String boardname, int minCoin, int maxPlayerCount, boolean privacy, ServerToClient owner) {
 
         this.maxPlayerCount = maxPlayerCount;
         closeTimer = null;
 
         isPrivate = privacy;
+        this.owner = owner;
+
         gameCode = code;
         gameId = id;
         minCoinBoard = minCoin;
@@ -1135,6 +1139,19 @@ public class GameThread implements Runnable {
         return ret;
     }
 
+    private void setOwner() {
+
+        if (isPrivate == false) return;
+
+        owner = null;
+
+        for (int i = 0; i < maxPlayerCount; i++)
+            if (inGamePlayers[i] != null) {
+                owner = inGamePlayers[i];
+                return;
+            }
+    }
+
     public void exitGameResponse(ServerToClient s) {
 
         int seatPosition = s.getUser().getSeatPosition();
@@ -1159,6 +1176,8 @@ public class GameThread implements Runnable {
         isActiveInRound[seatPosition] = false;
 
         s.leaveGameRoom();
+        setOwner();
+
         if (gameRunning == false) {
             return;
         }

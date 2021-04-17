@@ -2,10 +2,13 @@ package com.example.PokerServer.GameThread;
 
 import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Connection.ServerToClient;
+import com.example.PokerServer.Objects.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class WaitingRoom implements Runnable {
 
@@ -18,6 +21,8 @@ public class WaitingRoom implements Runnable {
     private int playerCount;
     private int maxPlayerCount;
 
+    private boolean closing;
+
     private ArrayList waitingForApproval;
     private ServerToClient owner;
     private ServerToClient seat[];
@@ -26,6 +31,8 @@ public class WaitingRoom implements Runnable {
 
 
     public WaitingRoom(ArrayList<ServerToClient> invitedFriends, ServerToClient owner, int gameId, int gameCode, int maxPlayerCount, String boardType, int minBoardCoin, int minCallValue) {
+
+        closing = false;
 
         this.gameId = gameId;
         this.gameCode = gameCode;
@@ -49,7 +56,6 @@ public class WaitingRoom implements Runnable {
 
         initializeUser(0);
         sendInvitation();
-        sendRoomData();
 
     }
 
@@ -134,6 +140,9 @@ public class WaitingRoom implements Runnable {
             } else if (waitingRoomData.get("requestType").equals("RemoveMeFromWaitingRoom")) {
 
                 exitRequestResponse(from, false, null);
+            } else if (waitingRoomData.get("requestType").equals("StartGame")) {
+
+                startGame();
             }
 
         }
@@ -144,6 +153,33 @@ public class WaitingRoom implements Runnable {
     //==================================================================================================================
     //
     //==================================================================================================================
+
+    private void startGame() {
+
+        String msg;
+        boolean willStart = false;
+
+        if (playerCount > 1) willStart = true;
+
+        if (willStart == false) msg = "In sufficient players, player count must be greater than 1";
+        else msg = "Will start game in 10 seconds";
+
+        sendStartGameResponse(willStart, msg);
+
+        if (willStart) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    makeGame();
+                }
+            }, 15000);
+        }
+    }
+
+    private void makeGame() {
+        Server.pokerServer.makeGameThread(this);
+    }
+
 
 
     private void setServerSideData(int k) {
@@ -158,6 +194,8 @@ public class WaitingRoom implements Runnable {
 
         setServerSideData(k);
         sendInitialData(k);
+
+        sendRoomData();
     }
 
     public void addInvitedUser(ServerToClient s) {
@@ -198,6 +236,8 @@ public class WaitingRoom implements Runnable {
         playerCount--;
         s.setWaitingRoom(null);
         if (s.getUser() != null) s.getUser().setSeatPosition(-1);
+
+        if (closing == false) sendRoomData();
     }
 
     public void removeInvitedUser(ServerToClient s, boolean sendMsg, String msg) {
@@ -209,8 +249,6 @@ public class WaitingRoom implements Runnable {
                 break;
             }
         }
-
-        System.out.println("lcc " + loc);
 
         if (loc != -1) removeServerSideData(loc);
         if (sendMsg) sendRemovalMessage(s, msg);
@@ -235,17 +273,13 @@ public class WaitingRoom implements Runnable {
 
     private void closeEverything() {
 
+        closing = true;
+
         for (int i = 1; i < maxPlayerCount; i++) {
             if (seat[i] != null) removeInvitedUser(seat[i], true, "Owner closed the room");
         }
         removeInvitedUser(owner, false, null);
-
         Server.pokerServer.removeWaitingRoom(this);
-    }
-
-
-    private void sendRoomData() {
-
     }
 
 
@@ -264,6 +298,41 @@ public class WaitingRoom implements Runnable {
         send.put("owner", owner.getUser().getUsername());
 
         return send;
+    }
+
+    private void sendRoomData() {
+
+        JSONObject send = initiateJson();
+        JSONObject data = new JSONObject();
+
+        data.put("boardType", boardType);
+        data.put("minCallValue", minCallValue);
+        data.put("minBoardCoin", minBoardCoin);
+        data.put("roomId", gameId);
+        data.put("roomCode", gameCode);
+        data.put("requestType", "AllRoomData");
+
+        JSONArray info = new JSONArray();
+
+        for (int i = 0; i < maxPlayerCount; i++) {
+
+            if (seat[i] == null) continue;
+
+            User s = seat[i].getUser();
+            JSONObject temp = new JSONObject();
+
+            temp.put("username", s.getUsername());
+            temp.put("seatPosition", s.getSeatPosition());
+            temp.put("currentCoin", s.getCurrentCoin());
+            temp.put("boardCoin", s.getBoardCoin());
+
+            info.put(temp);
+        }
+
+
+        data.put("roomData", info);
+        send.put("waitingRoomData", data);
+        sendMessageToAll(send.toString());
     }
 
     private void sendInitialData(int k) {
@@ -304,8 +373,25 @@ public class WaitingRoom implements Runnable {
         waitingForApproval.clear();
     }
 
+    public void sendAskOwnerForApproval(ServerToClient s) {
 
-    public void sendRemovalMessage(ServerToClient s, String msg) {
+        JSONObject send = initiateJson();
+        JSONObject data = new JSONObject();
+
+        String message = s.getUser().getUsername() + " wants your approval to join waiting room";
+
+        data.put("boardType", boardType);
+        data.put("roomId", gameId);
+        data.put("roomCode", gameCode);
+        data.put("username", s.getUser().getUsername());
+        data.put("requestType", "ApproveJoinByCodeRequest");
+        data.put("message", message);
+
+        send.put("waitingRoomData", data);
+        sendMessage(owner, send.toString());
+    }
+
+    private void sendRemovalMessage(ServerToClient s, String msg) {
 
         JSONObject send = initiateJson();
 
@@ -319,6 +405,25 @@ public class WaitingRoom implements Runnable {
 
         send.put("waitingRoomData", temp);
         s.sendMessage(send.toString());
+    }
+
+    private void sendStartGameResponse(boolean start, String msg) {
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "WaitingRoom");
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("requestType", "StartGameResponse");
+        temp.put("roomId", gameId);
+        temp.put("roomCode", gameCode);
+        temp.put("success", start);
+        temp.put("message", msg);
+
+        send.put("waitingRoomData", temp);
+
+        sendMessageToAll(send.toString());
     }
 
     //==================================================================================================================
@@ -412,6 +517,10 @@ public class WaitingRoom implements Runnable {
 
     public void setOwner(ServerToClient owner) {
         this.owner = owner;
+    }
+
+    public ServerToClient getAtSeat(int i) {
+        return seat[i];
     }
 
     public int getPlayerCount() {

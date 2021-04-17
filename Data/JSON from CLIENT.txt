@@ -334,3 +334,27 @@ WAITING ROOM STUFFS
 
 6.	JOIN REQUEST BY GIVEN CODE ( OTHER THAN OWNER )
 
+{
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"AskJoinWaitingRoomByCode",
+      "roomCode":124
+   },
+   "ip":"192.168.192.1"
+}
+
+7.	REQUEST TO START GAME
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Client",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"StartGame"
+   },
+   "ip":"192.168.192.1"
+}
+8.	JOIN REQUEST BY GIVEN CODE RESPONSE ( ROOM NOT FOUND )

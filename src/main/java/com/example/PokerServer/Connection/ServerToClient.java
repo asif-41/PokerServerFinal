@@ -164,6 +164,10 @@ public class ServerToClient implements Runnable {
                 int code = waitingRoomData.getInt("roomCode");
                 joinWaitingRoomByCode(code);
 
+            } else if (waitingRoomData.get("requestType").equals("AskJoinWaitingRoomByCode")) {
+
+                int code = waitingRoomData.getInt("roomCode");
+                askToJoinWaitingRoom(code);
             } else waitingRoom.incomingMsg(temp, this);
 
         }
@@ -196,16 +200,32 @@ public class ServerToClient implements Runnable {
 
         if (w == null) {
             msg = "Could not find waiting room";
-            sendRoomJoinRequestResponse(false, code, msg);
+            sendWaitingRoomJoinRequestResponse(false, code, msg);
         } else if (w.getMaxPlayerCount() == w.getPlayerCount()) {
             msg = "Waiting room full";
-            sendRoomJoinRequestResponse(false, code, msg);
+            sendWaitingRoomJoinRequestResponse(false, code, msg);
         } else {
             msg = "Joining waiting room";
-            sendRoomJoinRequestResponse(true, code, msg);
+            sendWaitingRoomJoinRequestResponse(true, code, msg);
             w.addInvitedUser(this);
         }
     }
+
+    private void askToJoinWaitingRoom(int code) {
+
+        WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
+
+        if (w == null)
+            sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found");
+        else {
+
+            sendAskJoinWaitingRoomByCodeResponse(true, code, "Waiting for owner's permission");
+            w.sendAskOwnerForApproval(this);
+        }
+
+    }
+
+
 
     //==============================================================================
     //
@@ -483,7 +503,7 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
-    private void sendRoomJoinRequestResponse(boolean joining, int code, String msg) {
+    private void sendWaitingRoomJoinRequestResponse(boolean joining, int code, String msg) {
 
         JSONObject send = initiateResponse();
 
@@ -492,6 +512,23 @@ public class ServerToClient implements Runnable {
         JSONObject temp = new JSONObject();
 
         temp.put("requestType", "JoinWaitingRoomResponse");
+        temp.put("roomCode", code);
+        temp.put("success", joining);
+        temp.put("message", msg);
+
+        send.put("waitingRoomData", temp);
+        sendMessage(send.toString());
+    }
+
+    private void sendAskJoinWaitingRoomByCodeResponse(boolean joining, int code, String msg) {
+
+        JSONObject send = initiateResponse();
+
+        send.put("requestType", "WaitingRoom");
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("requestType", "AskJoinWaitingRoomByCodeResponse");
         temp.put("roomCode", code);
         temp.put("success", joining);
         temp.put("message", msg);

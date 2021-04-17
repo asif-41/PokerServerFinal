@@ -187,7 +187,6 @@ public class Server extends JFrame {
         }
         code = Randomizer.randomUnique(temp, 10000);
 
-
         return code;
     }
 
@@ -245,11 +244,11 @@ public class Server extends JFrame {
         int code = roomCodeGenerator();
 
         WaitingRoom w = new WaitingRoom(invitedUsers, owner, id, code, maxPlayerCount, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey]);
-        waitingRoom[boardKey].add(w);
+        addWaitingRoom(w);
 
         new Thread(w).start();
 
-        String bleh = "Game thread created. id: " + id + " code: " + code + "\n";
+        String bleh = "Waiting room created. id: " + id + " code: " + code + "\n";
         bleh += "        users: ";
         for (int i = 0; i < invitedUsers.size(); i++) bleh += invitedUsers.get(i).getUser().getUsername() + " ";
 
@@ -268,10 +267,6 @@ public class Server extends JFrame {
             if (temp2 != null) invitedUsers.add(temp2);
         }
         createWaitingRoom(invitedUsers, owner, getBoardKey(boardName));
-    }
-
-    private void addInWaitingRoom() {
-
     }
 
     private void removeFromWaitingRoom(ServerToClient s) {
@@ -319,7 +314,7 @@ public class Server extends JFrame {
 
         //Making and starting game thread
 
-        GameThread g = new GameThread(clients, id, code, boardType[boardKey], minCallValue[boardKey], maxPlayerCount, false);
+        GameThread g = new GameThread(clients, id, code, boardType[boardKey], minCallValue[boardKey], maxPlayerCount, false, null);
         addGameThread(g);
 
         //setting gameThreads in serverToClient side
@@ -330,6 +325,38 @@ public class Server extends JFrame {
         for (int i = 0; i < clients.size(); i++) bleh += clients.get(i).getUser().getUsername() + " ";
 
         addTextInGui(bleh);
+    }
+
+    public void makeGameThread(WaitingRoom w) {
+
+        int id = w.getGameId();
+        int code = w.getGameCode();
+        int boardKey = getBoardKey(w.getBoardType());
+
+        ArrayList clients = new ArrayList<ServerToClient>();
+        for (int i = 0; i < w.getMaxPlayerCount(); i++) {
+            ServerToClient s = w.getAtSeat(i);
+            if (s != null) clients.add(s);
+        }
+
+        ServerToClient owner = w.getOwner();
+
+        //Making and starting game thread
+
+        GameThread g = new GameThread(clients, id, code, boardType[boardKey], minCallValue[boardKey], maxPlayerCount, true, owner);
+        addGameThread(g);
+
+        //setting gameThreads in serverToClient side
+        new Thread(g).start();
+
+        String bleh = "Game thread created. id: " + id + " code: " + code + "\n";
+        bleh += "        users: ";
+        for (int i = 0; i < clients.size(); i++)
+            bleh += ((ServerToClient) clients.get(i)).getUser().getUsername() + " ";
+
+        addTextInGui(bleh);
+
+        removeFromWaitingRoom(owner);
     }
 
     //MAKE A NEW GAME OR ADD USER IN A EXISTING GAME LOGICS

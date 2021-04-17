@@ -504,3 +504,98 @@ WAITING ROOM STUFFS
    },
    "ip":"192.168.192.1"
 }
+
+5.	WAITING ROOM ALL DATA
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":8080,
+   "waitingRoomData":{
+      "minCallValue":10000,
+      "boardType":"board1",
+      "requestType":"AllRoomData",
+      "roomData":[
+         {
+            "seatPosition":0,
+            "currentCoin":100000,
+            "boardCoin":-1,
+            "username":"a"
+         },
+         {
+            "seatPosition":1,
+            "currentCoin":100000,
+            "boardCoin":-1,
+            "username":"b"
+         },
+         {
+            "seatPosition":2,
+            "currentCoin":100000,
+            "boardCoin":-1,
+            "username":"c"
+         }
+      ],
+      "minBoardCoin":100000,
+      "roomCode":6926,
+      "roomId":0
+   },
+   "ip":"192.168.192.1"
+}
+
+6.	JOIN WAITING ROOM BY CODE REQUEST
+	
+6.1	RESPONSE = WAITING ROOM NOT FOUND
+
+{
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":50965,
+   "waitingRoomData":{
+      "requestType":"AskJoinWaitingRoomByCodeResponse",
+      "success":false,
+      "roomCode":124,
+      "message":"Waiting room with code 124 not found"
+   },
+   "ip":"192.168.192.1"
+}
+
+6.2	RESPONSE = WAITING ROOM FOUND
+
+{
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":50990,
+   "waitingRoomData":{
+      "requestType":"AskJoinWaitingRoomByCodeResponse",
+      "success":true,
+      "roomCode":1234,
+      "message":"Waiting for owner's permission"
+   },
+   "ip":"192.168.192.1"
+}
+
+	//	EKHON 1 MINUTE WAIT KORBE, ER MODDHE JOIN HOYE JABE
+	//	OTHERWISE OWNER PERMISSION DEY NAI
+	//	OWNER ER APPROVAL CHAWAO HOBE EK MINUTE
+	
+7.	ASKING OWNER TO APPROVE JOIN REQUEST
+	//	DO NOTHING IF DONT WANT TO
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":8080,
+   "waitingRoomData":{
+      "boardType":"board1",
+      "requestType":"ApproveJoinByCodeRequest",
+      "roomCode":1234,
+      "message":"c wants your approval to join waiting room",
+      "roomId":0,
+      "username":"c"
+   },
+   "ip":"192.168.192.1"
+}
+
+8.	
