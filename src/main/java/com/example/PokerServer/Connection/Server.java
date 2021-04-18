@@ -35,6 +35,7 @@ public class Server extends JFrame {
     private int maxPlayerCount;                 //      MAX PLAYER COUNT IN A GAME
     private int leastPlayerCount;               //      LEAST NUMBER OF PLAYER FOR A GAME
     public long freeLoginCoin;
+
     private String host;                        //      SERVER IP
     private int port;                           //      SERVER PORT
     private int queueWaitLimit;                 //      WAIT LIMIT IN QUEUE

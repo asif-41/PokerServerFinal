@@ -362,9 +362,17 @@ public class ServerToClient implements Runnable {
     private void addCoinVideoResponse(String requestTime) {
 
         Date rqTime = User.stringToDate(requestTime);
-        long hours = User.hoursBetween(rqTime, user.getLastCoinVideoAvailableTime());
 
-        if (hours >= 24) {
+        int reqDay = rqTime.getDay();
+        int prevDay = user.getLastCoinVideoAvailableTime().getDay();
+
+        int reqMonth = rqTime.getMonth();
+        int prevMonth = user.getLastCoinVideoAvailableTime().getMonth();
+
+        int reqYear = rqTime.getYear();
+        int prevYear = user.getLastCoinVideoAvailableTime().getYear();
+
+        if (reqDay != prevDay || reqMonth != prevMonth || reqYear != prevYear) {
             user.setLastCoinVideoAvailableTime(rqTime);
             user.setCoinVideoCount(Server.pokerServer.dailyCoinVideoCount);
         }
@@ -399,9 +407,17 @@ public class ServerToClient implements Runnable {
     private void addFreeCoinResponse(String requestTime) {
 
         Date rqTime = User.stringToDate(requestTime);
-        long hours = User.hoursBetween(rqTime, user.getLastFreeCoinTime());
 
-        if (hours >= 24) {
+        int reqDay = rqTime.getDay();
+        int prevDay = user.getLastFreeCoinTime().getDay();
+
+        int reqMonth = rqTime.getMonth();
+        int prevMonth = user.getLastFreeCoinTime().getMonth();
+
+        int reqYear = rqTime.getYear();
+        int prevYear = user.getLastFreeCoinTime().getYear();
+
+        if (reqDay != prevDay || reqMonth != prevMonth || reqYear != prevYear) {
             user.setLastFreeCoinTime(rqTime);
             user.setCurrentCoin(user.getCurrentCoin() + Server.pokerServer.freeLoginCoin);
             sendAddFreeCoinResponse(true);
