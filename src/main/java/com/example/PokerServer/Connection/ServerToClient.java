@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class ServerToClient implements Runnable {
 
@@ -49,7 +50,6 @@ public class ServerToClient implements Runnable {
     //
     //          CONSTRUCTOR
     //
-    //
     //=============================================================================
 
 
@@ -59,7 +59,6 @@ public class ServerToClient implements Runnable {
         user = null;
         gameThread = null;
         waitingRoom = null;
-
 
         this.session = session;
         webSocketKey = session.getHandshakeHeaders().get("sec-websocket-key").get(0);
@@ -72,12 +71,12 @@ public class ServerToClient implements Runnable {
             Server.pokerServer.addTextInGui("Exception in fetching ip -> " + e);
         }
 
-        Server.pokerServer.addTextInGui("A connection has been established");
     }
 
     @Override
     public void run() {
 
+        Server.pokerServer.addTextInGui("A connection has been established");
     }
 
     //============================================================
@@ -91,6 +90,17 @@ public class ServerToClient implements Runnable {
     //
     //================================================================================
 
+    private JSONObject initiateJson() {
+
+        JSONObject send = new JSONObject();
+
+        send.put("sender", "Server");
+        send.put("ip", host);
+        send.put("port", port);
+
+        return send;
+    }
+
     public void sendMessage(String temp) {
 
         System.out.println("sending -> " + temp);
@@ -99,6 +109,7 @@ public class ServerToClient implements Runnable {
             session.sendMessage(new TextMessage(temp));
 
         } catch (Exception e) {
+
             Server.pokerServer.addTextInGui("Error for connection with key -> " + webSocketKey);
             Server.pokerServer.addTextInGui("Error in sending data from server -> " + e);
         }
@@ -123,18 +134,24 @@ public class ServerToClient implements Runnable {
             //LOGIN REQUEST
 
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
-            loginRequestResponse(tempJson.getString("username"), tempJson.getString("password"));
+            loginRequestResponse(tempJson.getString("account_id"), tempJson.getString("account_type"), tempJson.getString("account_username"));
 
         } else if (jsonIncoming.get("requestType").equals("LogoutRequest")) {
 
-            //LOGOUT REQUESTect();
+            //LOGOUT REQUEST();
 
             sendResponseLogout();
-        } else if (jsonIncoming.get("requestType").equals("BuyCoin")) {
+        } else if (jsonIncoming.get("requestType").equals("BuyCoinRequest")) {
 
             //REQUEST BUY COIN
 
             buyCoinRequest(jsonIncoming);
+        } else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
+
+            addCoinVideoResponse(jsonIncoming.getString("requestTime"));
+        } else if (jsonIncoming.get("requestType").equals("AddFreeCoinRequest")) {
+
+            addFreeCoinResponse(jsonIncoming.getString("requestTime"));
         } else if (jsonIncoming.get("requestType").equals("FriendsListRequest")) {
 
             //  Send friends list
@@ -142,14 +159,17 @@ public class ServerToClient implements Runnable {
             friendListRequestResponse();
         } else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
-            //JOIN GAME REQUEST TO SERVER
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
+            requestJoin(true, tempJson);
+        } else if (jsonIncoming.get("requestType").equals("AbortRequest")) {
 
-            if (tempJson.getBoolean("requestIn") == true) {
-                requestJoin(true, tempJson);
-            } else {
-                requestAbort();
-            }
+            requestAbort();
+        } else if (jsonIncoming.get("requestType").equals("UpdateOwn")) {
+
+            sendOwnData();
+        } else if (jsonIncoming.get("requestType").equals("UpdateOwnInGame")) {
+
+            sendOwnInGameData();
         } else if (jsonIncoming.get("requestType").equals("GameThread")) {
             gameThread.incomingMessage(temp, this);
         } else if (jsonIncoming.get("requestType").equals("WaitingRoom")) {
@@ -176,6 +196,325 @@ public class ServerToClient implements Runnable {
     //==============================================================================
     //
     //==============================================================================
+
+
+
+
+    
+    //==============================================================================
+    //
+    //             LOGIN FUNCTIONS
+    //
+    //==============================================================================
+
+    private void loginRequestResponse(String account_id, String account_type, String username) {
+
+        user = Server.pokerServer.makeUser(account_id, account_type, username);
+
+        if (user != null) {
+            user.setLoggedIn(true);
+            Server.pokerServer.addInLoggedUser(this);
+        }
+        sendResponseLogin();
+    }
+
+    private void sendResponseLogin() {
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "LoginResponse");
+
+        if (user == null) {
+            send.put("response", false);
+
+            JSONObject temp = new JSONObject();
+            send.put("data", temp);
+        } else {
+            send.put("response", true);
+
+            JSONObject temp = User.UserToJson(user);
+            send.put("data", temp);
+        }
+
+        sendMessage(send.toString());
+    }
+
+    private void sendResponseLogout() {
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "LogoutResponse");
+
+        if (user == null) send.put("success", false);
+        else {
+            send.put("success", true);
+
+            Server.pokerServer.removeFromLoggedUsers(this);
+            user = null;
+        }
+
+        sendMessage(send.toString());
+    }
+
+    private void sendOwnData() {
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "UpdateOwnResponse");
+
+        if (user == null) {
+            send.put("response", false);
+
+            JSONObject temp = new JSONObject();
+            send.put("data", temp);
+        } else {
+            send.put("response", true);
+
+            JSONObject temp = User.UserToJson(user);
+            send.put("data", temp);
+        }
+        sendMessage(send.toString());
+    }
+
+    private void sendOwnInGameData() {
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "UpdateOwnInGameResponse");
+
+        if (user == null || gameThread == null) {
+            send.put("response", false);
+
+            JSONObject temp = new JSONObject();
+            send.put("data", temp);
+        } else {
+            send.put("response", true);
+
+            JSONObject temp = User.UserToJsonInGame(user);
+            send.put("data", temp);
+        }
+        sendMessage(send.toString());
+    }
+
+    public void closeEverything() {
+
+        try {
+
+            Server.pokerServer.addTextInGui("A Connection got removed");
+            Server.pokerServer.removeFromCasualConnections(this);
+            session.close();
+
+        } catch (Exception e) {
+            Server.pokerServer.addTextInGui("Error in closing connection in Server side, error -> " + e);
+        }
+    }
+
+    //==============================================================================
+    //
+    //==============================================================================
+
+
+    //==============================================================================
+    //
+    //             COIN ADDING FUNCTIONS
+    //
+    //      BUY COIN, ADD COIN BY WATCHING VIDEO, ADD COIN BY LOGGING IN
+    //
+    //==============================================================================
+
+    private boolean validateBuyCoinRequest(long value, String method, String transactionId) {
+
+        //      AUTHENTICATE HERE
+
+        return true;
+
+    }
+
+    private void buyCoinRequest(JSONObject temp) {
+
+        JSONObject tempJson = jsonIncoming.getJSONObject("data");
+
+        long value = tempJson.getLong("value");
+        String method = tempJson.getString("method");
+        String tr_id = tempJson.getString("transactionId");
+
+        boolean validation = validateBuyCoinRequest(value, method, tr_id);
+        String msg;
+
+        if (!validation) msg = "Authentication failed";
+        else {
+            msg = "Coin buy successful";
+            user.setCurrentCoin(user.getCurrentCoin() + value);
+        }
+
+        sendBuyCoinResponse(validation, msg);
+    }
+
+    private void sendBuyCoinResponse(boolean success, String msg) {
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "BuyCoinResponse");
+        send.put("success", success);
+        send.put("message", msg);
+        send.put("currentCoin", user.getCurrentCoin());
+
+        sendMessage(send.toString());
+    }
+
+
+    private void addCoinVideoResponse(String requestTime) {
+
+        Date rqTime = User.stringToDate(requestTime);
+        long hours = User.hoursBetween(rqTime, user.getLastCoinVideoAvailableTime());
+
+        if (hours >= 24) {
+            user.setLastCoinVideoAvailableTime(rqTime);
+            user.setCoinVideoCount(Server.pokerServer.dailyCoinVideoCount);
+        }
+
+        if (user.getCoinVideoCount() > 0) {
+            user.setCoinVideoCount(user.getCoinVideoCount() - 1);
+            user.setCurrentCoin(user.getCurrentCoin() + Server.pokerServer.eachVideoCoin);
+            sendAddCoinVideoResponse(true);
+        } else sendAddCoinVideoResponse(false);
+    }
+
+    private void sendAddCoinVideoResponse(boolean success) {
+
+        long v = 0;
+        if (success) v = Server.pokerServer.eachVideoCoin;
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "AddCoinVideoResponse");
+        send.put("success", success);
+        send.put("currentCoin", user.getCurrentCoin());
+        send.put("lastCoinVideoAvailableTime", user.getLastCoinVideoAvailableTime());
+        send.put("coinAdded", v);
+
+        if (success) send.put("message", "Added coin " + Server.pokerServer.eachVideoCoin);
+        else send.put("message", "Invalid request");
+
+        sendMessage(send.toString());
+    }
+
+
+    private void addFreeCoinResponse(String requestTime) {
+
+        Date rqTime = User.stringToDate(requestTime);
+        long hours = User.hoursBetween(rqTime, user.getLastFreeCoinTime());
+
+        if (hours >= 24) {
+            user.setLastFreeCoinTime(rqTime);
+            user.setCurrentCoin(user.getCurrentCoin() + Server.pokerServer.freeLoginCoin);
+            sendAddFreeCoinResponse(true);
+        } else sendAddFreeCoinResponse(false);
+    }
+
+    private void sendAddFreeCoinResponse(boolean success) {
+
+        long v = 0;
+        if (success) v = Server.pokerServer.freeLoginCoin;
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "AddFreeCoinResponse");
+        send.put("success", success);
+        send.put("currentCoin", user.getCurrentCoin());
+        send.put("lastFreeCoinTime", user.getLastFreeCoinTime());
+        send.put("coinAdded", v);
+
+        if (success) send.put("message", "Added coin " + Server.pokerServer.freeLoginCoin);
+        else send.put("message", "Invalid request");
+
+        sendMessage(send.toString());
+    }
+
+
+    //==============================================================================
+    //
+    //==============================================================================
+
+
+    //==============================================================================
+    //
+    //             JOIN A GAME REQUEST FUNCTIONS
+    //
+    //==============================================================================
+
+    public void requestJoin(boolean addInQueue, JSONObject temp) {
+
+        if (addInQueue) {
+
+            int gameId = temp.getInt("gameId");
+            int gameCode = temp.getInt("gameCode");
+            String boardType = temp.getString("boardType");
+            long minEntryValue = temp.getLong("minEntryValue");
+            long minCallValue = temp.getLong("minCallValue");
+            int owner_id = temp.getInt("owner_id");
+            int seatPosition = temp.getInt("seatPosition");
+            long boardCoin = temp.getLong("boardCoin");
+
+            user.initializeGameData(gameId, gameCode, boardType, minEntryValue, minCallValue, owner_id, seatPosition, boardCoin);
+            Server.pokerServer.addInPendingQueue(this);
+        }
+
+        sendJoinResponse("Join", "waiting in the queue");
+    }
+
+    private void sendJoinResponse(String type, String msg) {
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "JoinResponse");
+        send.put("data", msg);
+        send.put("dataType", "Waiting");
+
+        sendMessage(send.toString());
+    }
+
+
+    public void requestAbort() {
+
+        boolean done = Server.pokerServer.removeFromPendingQueue(this);
+
+        if (done) {
+            user.deInitializeGameData();
+            sendAbortResponse("Abort request granted");
+        }
+    }
+
+    public void sendAbortResponse(String msg) {
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "AbortResponse");
+        send.put("data", msg);
+        send.put("dataType", "LeftQueue");
+
+        sendMessage(send.toString());
+
+    }
+
+
+    public void leaveGameRoom() {
+
+        gameThread = null;
+        user.deInitializeGameData();
+
+        System.out.println(user);
+    }
+
+    //==============================================================================
+    //
+    //==============================================================================
+
+
+
+
+
+
+
+
+
+
 
     //==============================================================================
     //
@@ -238,26 +577,6 @@ public class ServerToClient implements Runnable {
     //
     //===========================================================================================
 
-    public void closeEverything() {
-
-        try {
-            Server.pokerServer.addTextInGui("A Connection got removed");
-            Server.pokerServer.removeFromCasualConnections(this);
-            session.close();
-
-        } catch (Exception e) {
-            Server.pokerServer.addTextInGui("Error in closing connection in Server side, error -> " + e);
-        }
-    }
-
-    public void leaveGameRoom() {
-
-        gameThread = null;
-        getUser().setSeatPosition(-1);
-
-        updateGameDataOnJoinRequest(false, null);
-    }
-
     //===========================================================================================
     //
     //===========================================================================================
@@ -316,151 +635,21 @@ public class ServerToClient implements Runnable {
     //
     //===================================================================================
 
-    private void updateGameDataOnJoinRequest(boolean isJoin, JSONObject temp) {
-
-        if (user == null) return;
-
-        if (isJoin) {
-            user.setRoomCode(temp.getInt("roomCode"));
-            user.setRoomId(temp.getInt("roomId"));
-            user.setBoardType(temp.getString("boardType"));
-            user.setBoardCoin(temp.getInt("entryAmount"));
-        } else {
-            user.setRoomCode(-1);
-            user.setRoomId(-1);
-            user.setBoardType("");
-            user.setBoardCoin(-1);
-        }
-    }
 
 
 
 
 
-
-    private JSONObject initiateResponse() {
-
-        JSONObject send = new JSONObject();
-
-        send.put("sender", "Server");
-        send.put("ip", host);
-        send.put("port", port);
-
-        return send;
-    }
-
-    private void buyCoinRequest(JSONObject temp) {
-
-        boolean usernameMatch = false;
-        String username = jsonIncoming.getString("username");
-
-        if (username.equals(user.getUsername())) usernameMatch = true;
-
-        JSONObject tempJson = jsonIncoming.getJSONObject("data");
-        validateBuyCoinRequest(tempJson.getInt("value"), tempJson.getString("method"), tempJson.getString("transactionId"), usernameMatch);
-    }
-
-    private void validateBuyCoinRequest(int value, String method, String transactionId, boolean usernameMatch) {
-
-        //      AUTHENTICATE HERE
-
-
-        user.setCurrentCoin(user.getCurrentCoin() + value);
-        sendBuyCoinResponse(true, value + " coin buy successful");
-    }
 
     private ArrayList<ServerToClient> loadFriendsList() {
 
+        ArrayList loggedUsers = Server.pokerServer.getLoggedInUsers();
         ArrayList friends = new ArrayList<User>();
-        for (int i = 0; i < Server.pokerServer.loggedInUsers.size(); i++)
-            friends.add(((ServerToClient) Server.pokerServer.loggedInUsers.get(i)).getUser());
+
+        for (int i = 0; i < loggedUsers.size(); i++)
+            friends.add(((ServerToClient) loggedUsers.get(i)).getUser());
 
         return friends;
-    }
-
-    public void requestJoin(boolean addInQueue, JSONObject temp) {
-
-        if (addInQueue) {
-
-            updateGameDataOnJoinRequest(true, temp);
-            Server.pokerServer.addInPendingQueue(this);
-        }
-
-        joinResponse("Join", "waiting in the queue", false);
-    }
-
-    public void requestAbort() {
-
-        boolean done = Server.pokerServer.removeFromPendingQueue(this);
-
-        updateGameDataOnJoinRequest(false, null);
-        if (done) joinResponse("Abort", "Abort request granted", false);
-    }
-
-    private void loginRequestResponse(String username, String password) {
-
-        /*
-        user = new User(incomingMsg[1], incomingMsg[2], 100000, 10000000);
-        SERVER.loggedInUsers.add(this);
-
-        sendMessage("Login okay " + incomingMsg[1] + " " + incomingMsg[2]  + " " +  100000 + " " + 10000000);
-
-        */
-        // HERE AUTHENTICATE
-
-
-        user = new User(username, password, 100000, 10000000);
-        Server.pokerServer.addInLoggedUser(this);
-        sendResponseLogin();
-    }
-
-    private void sendResponseLogin() {
-
-        JSONObject send = initiateResponse();
-        send.put("requestType", "LoginResponse");
-
-        if (user == null) send.put("response", false);
-        else {
-            send.put("response", true);
-
-            JSONObject temp = new JSONObject();
-
-            temp.put("username", user.getUsername());
-            temp.put("password", user.getPassword());
-            temp.put("currentCoin", user.getCurrentCoin());
-            temp.put("coinWon", user.getCoinWon());
-
-            send.put("data", temp);
-        }
-
-        sendMessage(send.toString());
-    }
-
-    private void sendResponseLogout() {
-
-        JSONObject send = initiateResponse();
-        send.put("requestType", "LogoutResponse");
-
-        if (user == null) send.put("response", false);
-        else {
-            send.put("response", true);
-            Server.pokerServer.removeFromLoggedUsers(this);
-            user = null;
-        }
-
-        sendMessage(send.toString());
-    }
-
-    private void sendBuyCoinResponse(boolean response, String msg) {
-
-        JSONObject send = initiateResponse();
-
-        send.put("requestType", "BuyCoin");
-        send.put("response", response);
-        send.put("responseMsg", msg);
-        send.put("currentCoin", user.getCurrentCoin());
-
-        sendMessage(send.toString());
     }
 
     private void friendListRequestResponse() {
@@ -470,7 +659,7 @@ public class ServerToClient implements Runnable {
         ArrayList friends = loadFriendsList();
 
 
-        JSONObject send = initiateResponse();
+        JSONObject send = initiateJson();
 
         send.put("requestType", "FriendsList");
 
@@ -493,19 +682,9 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
-    private void joinResponse(String type, String msg, boolean isOwner) {
-
-        JSONObject send = initiateResponse();
-
-        send.put("requestType", type);
-        send.put("data", msg);
-
-        sendMessage(send.toString());
-    }
-
     private void sendWaitingRoomJoinRequestResponse(boolean joining, int code, String msg) {
 
-        JSONObject send = initiateResponse();
+        JSONObject send = initiateJson();
 
         send.put("requestType", "WaitingRoom");
 
@@ -522,7 +701,7 @@ public class ServerToClient implements Runnable {
 
     private void sendAskJoinWaitingRoomByCodeResponse(boolean joining, int code, String msg) {
 
-        JSONObject send = initiateResponse();
+        JSONObject send = initiateJson();
 
         send.put("requestType", "WaitingRoom");
 

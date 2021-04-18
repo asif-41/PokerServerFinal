@@ -450,9 +450,9 @@ WAITING ROOM STUFFS
       "boardType":"board1",
       "seatPosition":0,
       "requestType":"SetWaitingRoomData",
-      "roomCode":8828,
+      "gameCode":8828,
       "userEntryAmount":100000,
-      "roomId":0
+      "gameId":0
    },
    "ip":"192.168.192.1"
 }
@@ -468,9 +468,9 @@ WAITING ROOM STUFFS
       "minCallValue":10000,
       "boardType":"board1",
       "requestType":"JoinWaitingRoom",
-      "roomCode":8071,
+      "gameCode":8071,
       "minEntryAmount":100000,
-      "roomId":0
+      "gameId":0
    },
    "ip":"192.168.192.1"
 }
@@ -485,7 +485,7 @@ WAITING ROOM STUFFS
       "requestType":"JoinWaitingRoomResponse",
       "success":false,
 	  "message":"Joined room",
-      "roomCode":8054
+      "gameCode":8054
    },
    "ip":"192.168.192.1"
 }
@@ -499,7 +499,7 @@ WAITING ROOM STUFFS
    "port":8080,
    "waitingRoomData":{
       "requestType":"RemoveFromWaitingRoomResponse",
-      "roomCode":5759,
+      "gameCode":5759,
 	  "message":"You were removed by room owner"
    },
    "ip":"192.168.192.1"
@@ -537,8 +537,8 @@ WAITING ROOM STUFFS
          }
       ],
       "minBoardCoin":100000,
-      "roomCode":6926,
-      "roomId":0
+      "gameCode":6926,
+      "gameId":0
    },
    "ip":"192.168.192.1"
 }
@@ -554,7 +554,7 @@ WAITING ROOM STUFFS
    "waitingRoomData":{
       "requestType":"AskJoinWaitingRoomByCodeResponse",
       "success":false,
-      "roomCode":124,
+      "gameCode":124,
       "message":"Waiting room with code 124 not found"
    },
    "ip":"192.168.192.1"
@@ -569,7 +569,7 @@ WAITING ROOM STUFFS
    "waitingRoomData":{
       "requestType":"AskJoinWaitingRoomByCodeResponse",
       "success":true,
-      "roomCode":1234,
+      "gameCode":1234,
       "message":"Waiting for owner's permission"
    },
    "ip":"192.168.192.1"
@@ -590,12 +590,32 @@ WAITING ROOM STUFFS
    "waitingRoomData":{
       "boardType":"board1",
       "requestType":"ApproveJoinByCodeRequest",
-      "roomCode":1234,
+      "gameCode":1234,
       "message":"c wants your approval to join waiting room",
-      "roomId":0,
+      "gameId":0,
       "username":"c"
    },
    "ip":"192.168.192.1"
 }
 
-8.	
+8.	START GAME RESPONSE FROM SERVER ( REQUESTED BY OWNER ONLY )
+	
+8.1	FAILED
+
+{
+   "owner":"a",
+   "requestType":"WaitingRoom",
+   "sender":"Server",
+   "port":8080,
+   "waitingRoomData":{
+      "requestType":"StartGameResponse",
+      "success":false,
+      "gameCode":1234,
+      "message":"In sufficient players, player count must be greater than 1",
+      "gameId":0
+   },
+   "ip":"192.168.192.1"
+}
+
+8.2	SUCCESS
+

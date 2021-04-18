@@ -7,6 +7,15 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
 public class WebSocketHandler extends AbstractWebSocketHandler {
 
+
+    //==================================================================
+    //
+    //             OVERRIDDENT FUNCTIONS FOR ABSTRACT CLASS
+    //
+    //==================================================================
+
+
+
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
@@ -41,26 +50,40 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         closeServerToClient(session);
     }
 
+    //==================================================================
+    //
+    //==================================================================
+
+
+    //==================================================================
+    //
+    //             NECESSARY FUNCTIONS
+    //
+    //==================================================================
 
     private void receiveMessage(WebSocketSession session, String message) {
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
-
         if (s != null) s.incomingMsg(message);
     }
 
     private void closeServerToClient(WebSocketSession session) {
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
+
         s.closeEverything();
         s = null;
     }
 
     private void createServerToClient(WebSocketSession session) {
+
         ServerToClient s = new ServerToClient(session);
+
         Server.pokerServer.addInCasualConnection(s);
         new Thread(s).start();
     }
 
-
+    //==================================================================
+    //
+    //==================================================================
 }

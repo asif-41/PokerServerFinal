@@ -54,7 +54,7 @@
       "boardType":"board1",
       "requestIn":true,
       "entryAmount":100000,
-      "roomCode":-1,
+      "gameCode":-1,
 	  
    },
    "sender":"Client",
@@ -69,7 +69,7 @@
    "requestType":"JoinRequest",
    "data":{
       "requestIn":false,
-      "roomCode":-1
+      "gameCode":-1
    },
    "sender":"Client",
    "port":8080,
@@ -263,9 +263,9 @@ WAITING ROOM STUFFS
          "d"
       ],
       "entryAmount":100000,
-      "roomCode":-1,
+      "gameCode":-1,
       "userEntryAmount":100000,
-      "roomId":-1
+      "gameId":-1
    },
    "ip":"192.168.192.1",
    "owner":"a"
@@ -280,7 +280,7 @@ WAITING ROOM STUFFS
    "waitingRoomData":{
       "boardType":"board1",
       "requestType":"AcceptInvitation",
-      "roomCode":4275,
+      "gameCode":4275,
       "userEntryAmount":0
    },
    "ip":"192.168.192.1"
@@ -340,7 +340,7 @@ WAITING ROOM STUFFS
    "port":8080,
    "waitingRoomData":{
       "requestType":"AskJoinWaitingRoomByCode",
-      "roomCode":124
+      "gameCode":124
    },
    "ip":"192.168.192.1"
 }

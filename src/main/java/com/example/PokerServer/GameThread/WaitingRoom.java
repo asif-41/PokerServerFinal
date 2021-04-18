@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,8 +16,8 @@ public class WaitingRoom implements Runnable {
     private int gameId;
     private int gameCode;
     private String boardType;
-    private int minBoardCoin;
-    private int minCallValue;
+    private long minEntryValue;
+    private long minCallValue;
 
     private int playerCount;
     private int maxPlayerCount;
@@ -30,7 +31,7 @@ public class WaitingRoom implements Runnable {
     private JSONObject jsonIncoming;
 
 
-    public WaitingRoom(ArrayList<ServerToClient> invitedFriends, ServerToClient owner, int gameId, int gameCode, int maxPlayerCount, String boardType, int minBoardCoin, int minCallValue) {
+    public WaitingRoom(ArrayList<ServerToClient> invitedFriends, ServerToClient owner, int gameId, int gameCode, int maxPlayerCount, String boardType, long minEntryValue, long minCallValue) {
 
         closing = false;
 
@@ -38,7 +39,7 @@ public class WaitingRoom implements Runnable {
         this.gameCode = gameCode;
         this.maxPlayerCount = maxPlayerCount;
         this.boardType = boardType;
-        this.minBoardCoin = minBoardCoin;
+        this.minEntryValue = minEntryValue;
         this.minCallValue = minCallValue;
 
         waitingForApproval = new ArrayList<ServerToClient>();
@@ -307,8 +308,8 @@ public class WaitingRoom implements Runnable {
 
         data.put("boardType", boardType);
         data.put("minCallValue", minCallValue);
-        data.put("minBoardCoin", minBoardCoin);
-        data.put("roomId", gameId);
+        data.put("minEntryValue", minEntryValue);
+        data.put("gameId", gameId);
         data.put("roomCode", gameCode);
         data.put("requestType", "AllRoomData");
 
@@ -341,7 +342,7 @@ public class WaitingRoom implements Runnable {
         JSONObject data = new JSONObject();
 
         data.put("boardType", boardType);
-        data.put("roomId", gameId);
+        data.put("gameId", gameId);
         data.put("roomCode", gameCode);
         data.put("userEntryAmount", seat[k].getUser().getCurrentCoin());
         data.put("seatPosition", seat[k].getUser().getSeatPosition());
@@ -359,10 +360,10 @@ public class WaitingRoom implements Runnable {
             JSONObject data = new JSONObject();
 
             data.put("boardType", boardType);
-            data.put("roomId", gameId);
+            data.put("gameId", gameId);
             data.put("roomCode", gameCode);
             data.put("minCallValue", minCallValue);
-            data.put("minEntryAmount", minBoardCoin);
+            data.put("minEntryAmount", minEntryValue);
             data.put("requestType", "JoinWaitingRoom");
 
             send.put("waitingRoomData", data);
@@ -381,7 +382,7 @@ public class WaitingRoom implements Runnable {
         String message = s.getUser().getUsername() + " wants your approval to join waiting room";
 
         data.put("boardType", boardType);
-        data.put("roomId", gameId);
+        data.put("gameId", gameId);
         data.put("roomCode", gameCode);
         data.put("username", s.getUser().getUsername());
         data.put("requestType", "ApproveJoinByCodeRequest");
@@ -416,7 +417,7 @@ public class WaitingRoom implements Runnable {
         JSONObject temp = new JSONObject();
 
         temp.put("requestType", "StartGameResponse");
-        temp.put("roomId", gameId);
+        temp.put("gameId", gameId);
         temp.put("roomCode", gameCode);
         temp.put("success", start);
         temp.put("message", msg);
@@ -435,32 +436,22 @@ public class WaitingRoom implements Runnable {
     //
     //==================================================================================================================
 
-
     @Override
     public String toString() {
-        String ret = "WaitingRoom{" +
+        return "WaitingRoom{" +
                 "gameId=" + gameId +
                 ", gameCode=" + gameCode +
                 ", boardType='" + boardType + '\'' +
-                ", minBoardCoin=" + minBoardCoin +
+                ", minEntryValue=" + minEntryValue +
                 ", minCallValue=" + minCallValue +
+                ", playerCount=" + playerCount +
                 ", maxPlayerCount=" + maxPlayerCount +
-                ", owner=" + owner.getUser().getUsername() +
+                ", closing=" + closing +
+                ", waitingForApproval=" + waitingForApproval +
+                ", owner=" + owner +
+                ", seat=" + Arrays.toString(seat) +
+                ", jsonIncoming=" + jsonIncoming +
                 '}' + "\n";
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-            if (seat[i] != null) {
-                ret += seat[i].getUser().getUsername() + " ";
-            }
-        }
-        ret += "\n";
-
-        ret += "Waiting for approval " + "\n";
-        for (int i = 0; i < waitingForApproval.size(); i++)
-            ret += ((ServerToClient) waitingForApproval.get(i)).getUser().getUsername() + " ";
-
-        ret += "\n";
-        return ret;
     }
 
     public int getGameId() {
@@ -487,19 +478,19 @@ public class WaitingRoom implements Runnable {
         this.boardType = boardType;
     }
 
-    public int getMinBoardCoin() {
-        return minBoardCoin;
+    public long getMinEntryValue() {
+        return minEntryValue;
     }
 
-    public void setMinBoardCoin(int minBoardCoin) {
-        this.minBoardCoin = minBoardCoin;
+    public void setMinEntryValue(long minEntryValue) {
+        this.minEntryValue = minEntryValue;
     }
 
-    public int getMinCallValue() {
+    public long getMinCallValue() {
         return minCallValue;
     }
 
-    public void setMinCallValue(int minCallValue) {
+    public void setMinCallValue(long minCallValue) {
         this.minCallValue = minCallValue;
     }
 
