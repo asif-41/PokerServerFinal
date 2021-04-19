@@ -375,6 +375,8 @@ public class GameThread implements Runnable {
 
     private void sendPlayersDataToAll() {
 
+        loadGameRoomDataInAll();
+
         JSONObject send = initiateJson();
 
         JSONObject tempJson = new JSONObject();
@@ -398,7 +400,7 @@ public class GameThread implements Runnable {
         sendMessageToAll(send.toString());
     }
 
-    private void sendGameRoomDataToAll() {
+    private JSONObject gameRoomDataInitiate() {
 
         JSONObject send = initiateJson();
 
@@ -424,18 +426,26 @@ public class GameThread implements Runnable {
         temp.put("bigBlindSeat", bigBlindSeat);
         temp.put("foldCost", foldCost);
 
-        temp.put("playerCalls", playerCalls);
-        temp.put("playerCallValues", playerCallValues);
-        temp.put("playerTotalCallValues", playerTotalCallValues);
-
         send.put("data", temp);
-        sendMessageToAll(send.toString());
+        return send;
     }
 
-    private void sendLoadData() {
+    private void loadGameRoomDataInAll() {
 
-        sendPlayersDataToAll();
-        sendGameRoomDataToAll();
+        for (int i = 0; i < maxPlayerCount; i++) {
+
+            if (inGamePlayers[i] == null) continue;
+
+            JSONObject send = gameRoomDataInitiate();
+
+            JSONObject temp = send.getJSONObject("data");
+
+            temp.put("call", playerCalls[i]);
+            temp.put("callValue", playerCallValues[i]);
+            temp.put("totalCallValue", playerTotalCallValues[i]);
+
+            User.loadGameRoomData(inGamePlayers[i].getUser(), send);
+        }
     }
 
 
@@ -719,8 +729,7 @@ public class GameThread implements Runnable {
             endRound();
             return;
         }
-        sendShowBoardInfo();
-
+        sendShowCards();
 
         //SHOBAI ALL IN DISE
         //ALL IN DIYE EKJON BAKI THAKLE OITA NEXT TURN ER FUNCTION E HANDLE HOBE
@@ -737,10 +746,12 @@ public class GameThread implements Runnable {
             endRound();
             return;
         }
+        sendShowBoardInfo();
+
         sendShowNextTurnInfo();
         JSONObject j = enableGameButtons();
 
-        sendLoadData();
+        sendPlayersDataToAll();
         sendEnableGameButtons(j);
     }
 
@@ -812,7 +823,7 @@ public class GameThread implements Runnable {
         waitingToClose = false;
         gameRunning = true;
 
-        sendLoadData();
+        sendPlayersDataToAll();
 
         roundStartMsg();
 
@@ -1604,6 +1615,33 @@ public class GameThread implements Runnable {
         tempJson.put("id", gameId);
         tempJson.put("code", gameCode);
         tempJson.put("gameRequest", "ShowBoardInfo");
+
+        send.put("gameData", tempJson);
+
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("roundCount", roundCount);
+        temp.put("roundCoins", roundCoins);
+        temp.put("turnCount", turnCount);
+        temp.put("cycleCount", cycleCount);
+        temp.put("roundCall", roundCall);
+
+        send.put("dataType", "ShowBoardInfo");
+        send.put("data", temp);
+
+        sendMessageToAll(send.toString());
+    }
+
+    private void sendShowCards() {
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("gameRequest", "ShowCards");
 
         send.put("gameData", tempJson);
 

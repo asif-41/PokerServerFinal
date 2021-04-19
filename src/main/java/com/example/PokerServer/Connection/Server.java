@@ -164,8 +164,8 @@ public class Server extends JFrame {
 
         User user;
         user = new User(-1, "Guest_" + id, Calendar.getInstance().getTime(), -1, "", "", "guest",
-                0, initialCoin, 0, 0, 0, 0, 0.0, 0,
-                0, User.rankString[0], 0, 0, 0, 0, 0, 0, 0, "",
+                0, initialCoin, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, "",
                 dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(), Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
 
         return user;

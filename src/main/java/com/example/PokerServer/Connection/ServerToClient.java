@@ -395,6 +395,7 @@ public class ServerToClient implements Runnable {
         send.put("success", success);
         send.put("currentCoin", user.getCurrentCoin());
         send.put("lastCoinVideoAvailableTime", user.getLastCoinVideoAvailableTime());
+        send.put("coinVideoCount", user.getCoinVideoCount());
         send.put("coinAdded", v);
 
         if (success) send.put("message", "Added coin " + Server.pokerServer.eachVideoCoin);
