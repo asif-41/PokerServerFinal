@@ -71,6 +71,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
 
+        if (s == null) {
+            Server.pokerServer.removeFromCasualConnections(s);
+            return;
+        }
+
         s.closeEverything();
         s = null;
     }

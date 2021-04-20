@@ -515,8 +515,6 @@ public class ServerToClient implements Runnable {
 
         gameThread = null;
         user.deInitializeGameData();
-
-        System.out.println(user);
     }
 
     //==============================================================================

@@ -28,8 +28,8 @@ public class User {
     //
     //============================================================================
 
-    public static final String rankString[] = {"Newbie", "Beginner", "Amateur", "Semi-Pro", "Pro", "World-Class", "Legendary"};
     private static final long expIncrease = 25;
+    public static final String rankString[] = {"Newbie", "Beginner", "Amateur", "Semi-Pro", "Pro", "World-Class", "Legendary"};
     private static final long ranksValue[] = {0, 500, 2000, 7500, 20000, 50000};
 
     private String username;            //      USERNAME
@@ -91,7 +91,6 @@ public class User {
     private long callValue;              //      CALL VALUE OF THIS USER
     private long totalCallValue;        //      TOTAL CALL VALUE OF THIS USER
     private String call;                //      CALL FOR USER IN GAME
-    private int blindType;              //      BLIND TYPE FOR THIS USER
     private long foldCost;               //      FOLD COST FOR THIS USER
     private int cycleCount;             //      CYCLE COUNT OF GAME
     private int roundCount;             //      ROUND COUNT OF GAME
@@ -132,7 +131,8 @@ public class User {
                 long exp,
                 long currentCoin, long coinWon, long coinLost, int roundsWon, int roundsPlayed,
                 int winStreak, int totalCallCount, int callCount, int raiseCount,
-                int foldCount, int allInCount, int checkCount, long biggestWin, String bestHand, int coinVideoCount, Date lastCoinVideoAvailableTime,
+                int foldCount, int allInCount, int checkCount, long biggestWin, String bestHand,
+                int coinVideoCount, Date lastCoinVideoAvailableTime,
                 Date lastLoggedInTime, Date lastFreeCoinTime, Date currentLoginTime) {
 
         this.id = id;
@@ -171,77 +171,6 @@ public class User {
         boardCoin = 0;
         deInitializeGameData();
         deInitializeInvitationData();
-    }
-
-    public static JSONObject UserToJson(User user) {
-
-        JSONObject temp = new JSONObject();
-
-        temp.put("id", user.getId());
-        temp.put("username", user.getUsername());
-        temp.put("DOB", user.getDOB());
-        temp.put("age", user.getAge());
-        temp.put("fb_id", user.getFb_id());
-        temp.put("gmail_id", user.getGmail_id());
-        temp.put("loginMethod", user.getLoginMethod());
-        temp.put("exp", user.getExp());
-        temp.put("currentCoin", user.getCurrentCoin());
-        temp.put("coinWon", user.getCoinWon());
-        temp.put("coinLost", user.getCoinLost());
-        temp.put("roundsWon", user.getRoundsWon());
-        temp.put("roundsPlayed", user.getRoundsPlayed());
-        temp.put("winPercentage", user.getWinPercentage());
-        temp.put("winStreak", user.getWinStreak());
-        temp.put("level", user.getLevel());
-        temp.put("rank", user.getRank());
-        temp.put("totalCallCount", user.getTotalCallCount());
-        temp.put("callCount", user.getCallCount());
-        temp.put("raiseCount", user.getRaiseCount());
-        temp.put("foldCount", user.getFoldCount());
-        temp.put("allInCount", user.getAllInCount());
-        temp.put("checkCount", user.getCheckCount());
-        temp.put("coinVideoCount", user.getCoinVideoCount());
-        temp.put("lastCoinVideoAvailableTime", user.getLastCoinVideoAvailableTime());
-        temp.put("lastLoggedInTime", user.getLastLoggedInTime());
-        temp.put("lastFreeCoinTime", user.getLastFreeCoinTime());
-        temp.put("currentLoginTime", user.getCurrentLoginTime());
-        temp.put("biggestWin", user.biggestWin);
-        temp.put("bestHand", user.bestHand);
-
-        return temp;
-    }
-
-    public static User JSONToUser(JSONObject temp) {
-
-        User user = new User(temp.getInt("id"),
-                temp.getString("username"),
-                User.stringToDate(temp.getString("DOB")),
-                temp.getInt("age"),
-                temp.getString("fb_id"),
-                temp.getString("gmail_id"),
-                temp.getString("loginMethod"),
-                temp.getLong("exp"),
-                temp.getLong("currentCoin"),
-                temp.getLong("coinWon"),
-                temp.getLong("coinLost"),
-                temp.getInt("roundsWon"),
-                temp.getInt("roundsPlayed"),
-                temp.getInt("winStreak"),
-                temp.getInt("totalCallCount"),
-                temp.getInt("callCount"),
-                temp.getInt("raiseCount"),
-                temp.getInt("foldCount"),
-                temp.getInt("allInCount"),
-                temp.getInt("checkCount"),
-                temp.getLong("biggestWin"),
-                temp.getString("bestHand"),
-                temp.getInt("coinVideoCount"),
-                User.stringToDate(temp.getString("lastCoinVideoAvailableTime")),
-                User.stringToDate(temp.getString("lastLoggedInTime")),
-                User.stringToDate(temp.getString("lastFreeCoinTime")),
-                User.stringToDate(temp.getString("currentLoginTime"))
-        );
-        return user;
     }
 
     public static void loadOwnSelfFromInGamePlayers(User user) {
@@ -311,6 +240,68 @@ public class User {
         user.totalCallValue = data.getLong("totalCallValue");
     }
 
+    public static JSONObject UserToJsonInGame(User user) {
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("gameId", user.gameId);
+        temp.put("gameCode", user.gameCode);
+        temp.put("ownerId", user.owner_id);
+        temp.put("seatPosition", user.seatPosition);
+        temp.put("boardType", user.boardType);
+        temp.put("minEntryValue", user.minEntryValue);
+        temp.put("minCallValue", user.minCallValue);
+        temp.put("boardCoin", user.boardCoin);
+
+        temp.put("id", user.getId());
+        temp.put("username", user.getUsername());
+        temp.put("DOB", user.getDOB());
+        temp.put("age", user.getAge());
+        temp.put("fb_id", user.getFb_id());
+        temp.put("gmail_id", user.getGmail_id());
+        temp.put("loginMethod", user.getLoginMethod());
+        temp.put("exp", user.getExp());
+        temp.put("currentCoin", user.getCurrentCoin());
+        temp.put("coinWon", user.getCoinWon());
+        temp.put("coinLost", user.getCoinLost());
+        temp.put("roundsWon", user.getRoundsWon());
+        temp.put("roundsPlayed", user.getRoundsPlayed());
+        temp.put("winPercentage", user.getWinPercentage());
+        temp.put("winStreak", user.getWinStreak());
+        temp.put("level", user.getLevel());
+        temp.put("rank", user.getRank());
+        temp.put("totalCallCount", user.getTotalCallCount());
+        temp.put("callCount", user.getCallCount());
+        temp.put("raiseCount", user.getRaiseCount());
+        temp.put("foldCount", user.getFoldCount());
+        temp.put("allInCount", user.getAllInCount());
+        temp.put("checkCount", user.getCheckCount());
+        temp.put("coinVideoCount", user.getCoinVideoCount());
+        temp.put("lastCoinVideoAvailableTime", user.getLastCoinVideoAvailableTime());
+        temp.put("lastLoggedInTime", user.getLastLoggedInTime());
+        temp.put("lastFreeCoinTime", user.getLastFreeCoinTime());
+        temp.put("currentLoginTime", user.getCurrentLoginTime());
+        temp.put("biggestWin", user.getBiggestWin());
+        temp.put("bestHand", user.getBestHand());
+
+        temp.put("gameRunning", user.gameRunning);
+        temp.put("roundCount", user.roundCount);
+        temp.put("cycleCount", user.cycleCount);
+        temp.put("turnCount", user.turnCount);
+        temp.put("roundCall", user.roundCall);
+        temp.put("roundCoins", user.roundCoins);
+        temp.put("roundIteratorSeat", user.roundIteratorSeat);
+        temp.put("roundStarterSeat", user.roundStarterSeat);
+        temp.put("smallBlindSeat", user.smallBlindSeat);
+        temp.put("bigBlindSeat", user.bigBlindSeat);
+        temp.put("foldCost", user.foldCost);
+        temp.put("playerCall", user.call);
+        temp.put("callValue", user.callValue);
+        temp.put("totalCallValue", user.totalCallValue);
+
+        return temp;
+    }
+
     public static String getRank(long coins_won, long coins_lost) {
 
         long diff = coins_won - coins_lost;
@@ -327,23 +318,87 @@ public class User {
         return res;
     }
 
-    //============================================================================
-    //              CONSTRUCTING DONE
-    //============================================================================
-
-
-    //============================================================================
-    //
-    //              CONSTRUCTING THROUGH JSON
-    //
-    //============================================================================
-
     public static int level(long exp) {
         return (int) (1 + sqrt(1 + 8 * exp / 50)) / 2;
     }
 
+    public static String[] getRankString() {
+        return rankString;
+    }
+
+    public static JSONObject UserToJson(User user) {
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("id", user.getId());
+        temp.put("username", user.getUsername());
+        temp.put("DOB", user.getDOB());
+        temp.put("age", user.getAge());
+        temp.put("fb_id", user.getFb_id());
+        temp.put("gmail_id", user.getGmail_id());
+        temp.put("loginMethod", user.getLoginMethod());
+        temp.put("exp", user.getExp());
+        temp.put("currentCoin", user.getCurrentCoin());
+        temp.put("coinWon", user.getCoinWon());
+        temp.put("coinLost", user.getCoinLost());
+        temp.put("roundsWon", user.getRoundsWon());
+        temp.put("roundsPlayed", user.getRoundsPlayed());
+        temp.put("winPercentage", user.getWinPercentage());
+        temp.put("winStreak", user.getWinStreak());
+        temp.put("level", user.getLevel());
+        temp.put("rank", user.getRank());
+        temp.put("totalCallCount", user.getTotalCallCount());
+        temp.put("callCount", user.getCallCount());
+        temp.put("raiseCount", user.getRaiseCount());
+        temp.put("foldCount", user.getFoldCount());
+        temp.put("allInCount", user.getAllInCount());
+        temp.put("checkCount", user.getCheckCount());
+        temp.put("coinVideoCount", user.getCoinVideoCount());
+        temp.put("lastCoinVideoAvailableTime", user.getLastCoinVideoAvailableTime());
+        temp.put("lastLoggedInTime", user.getLastLoggedInTime());
+        temp.put("lastFreeCoinTime", user.getLastFreeCoinTime());
+        temp.put("currentLoginTime", user.getCurrentLoginTime());
+        temp.put("biggestWin", user.biggestWin);
+        temp.put("bestHand", user.bestHand);
+
+        return temp;
+    }
+
     public static long getExpIncrease() {
         return expIncrease;
+    }
+
+    public static User JSONToUser(JSONObject temp) {
+
+        User user = new User(temp.getInt("id"),
+                temp.getString("username"),
+                User.stringToDate(temp.getString("DOB")),
+                temp.getInt("age"),
+                temp.getString("fb_id"),
+                temp.getString("gmail_id"),
+                temp.getString("loginMethod"),
+                temp.getLong("exp"),
+                temp.getLong("currentCoin"),
+                temp.getLong("coinWon"),
+                temp.getLong("coinLost"),
+                temp.getInt("roundsWon"),
+                temp.getInt("roundsPlayed"),
+                temp.getInt("winStreak"),
+                temp.getInt("totalCallCount"),
+                temp.getInt("callCount"),
+                temp.getInt("raiseCount"),
+                temp.getInt("foldCount"),
+                temp.getInt("allInCount"),
+                temp.getInt("checkCount"),
+                temp.getLong("biggestWin"),
+                temp.getString("bestHand"),
+                temp.getInt("coinVideoCount"),
+                User.stringToDate(temp.getString("lastCoinVideoAvailableTime")),
+                User.stringToDate(temp.getString("lastLoggedInTime")),
+                User.stringToDate(temp.getString("lastFreeCoinTime")),
+                User.stringToDate(temp.getString("currentLoginTime"))
+        );
+        return user;
     }
 
     public static User JSONToUserInGame(JSONObject temp) {
@@ -404,75 +459,23 @@ public class User {
         return user;
     }
 
-    public static JSONObject UserToJsonInGame(User user) {
-
-        JSONObject temp = new JSONObject();
-
-        temp.put("gameId", user.gameId);
-        temp.put("gameCode", user.gameCode);
-        temp.put("ownerId", user.owner_id);
-        temp.put("seatPosition", user.seatPosition);
-        temp.put("boardType", user.boardType);
-        temp.put("minEntryValue", user.minEntryValue);
-        temp.put("minCallValue", user.minCallValue);
-        temp.put("boardCoin", user.boardCoin);
-
-        temp.put("id", user.getId());
-        temp.put("username", user.getUsername());
-        temp.put("DOB", user.getDOB());
-        temp.put("age", user.getAge());
-        temp.put("fb_id", user.getFb_id());
-        temp.put("gmail_id", user.getGmail_id());
-        temp.put("loginMethod", user.getLoginMethod());
-        temp.put("exp", user.getExp());
-        temp.put("currentCoin", user.getCurrentCoin());
-        temp.put("coinWon", user.getCoinWon());
-        temp.put("coinLost", user.getCoinLost());
-        temp.put("roundsWon", user.getRoundsWon());
-        temp.put("roundsPlayed", user.getRoundsPlayed());
-        temp.put("winPercentage", user.getWinPercentage());
-        temp.put("winStreak", user.getWinStreak());
-        temp.put("level", user.getLevel());
-        temp.put("rank", user.getRank());
-        temp.put("totalCallCount", user.getTotalCallCount());
-        temp.put("callCount", user.getCallCount());
-        temp.put("raiseCount", user.getRaiseCount());
-        temp.put("foldCount", user.getFoldCount());
-        temp.put("allInCount", user.getAllInCount());
-        temp.put("checkCount", user.getCheckCount());
-        temp.put("coinVideoCount", user.getCoinVideoCount());
-        temp.put("lastCoinVideoAvailableTime", user.getLastCoinVideoAvailableTime());
-        temp.put("lastLoggedInTime", user.getLastLoggedInTime());
-        temp.put("lastFreeCoinTime", user.getLastFreeCoinTime());
-        temp.put("currentLoginTime", user.getCurrentLoginTime());
-        temp.put("biggestWin", user.getBigBlindSeat());
-        temp.put("bestHand", user.getBestHand());
-
-        temp.put("gameRunning", user.gameRunning);
-        temp.put("roundCount", user.roundCount);
-        temp.put("cycleCount", user.cycleCount);
-        temp.put("turnCount", user.turnCount);
-        temp.put("roundCall", user.roundCall);
-        temp.put("roundCoins", user.roundCoins);
-        temp.put("roundIteratorSeat", user.roundIteratorSeat);
-        temp.put("roundStarterSeat", user.roundStarterSeat);
-        temp.put("smallBlindSeat", user.smallBlindSeat);
-        temp.put("bigBlindSeat", user.bigBlindSeat);
-        temp.put("foldCost", user.foldCost);
-        temp.put("playerCall", user.call);
-        temp.put("callValue", user.callValue);
-        temp.put("totalCallValue", user.totalCallValue);
-
-        return temp;
-    }
-
     public static long[] getRanksValue() {
         return ranksValue;
     }
 
-    public static String[] getRankString() {
-        return rankString;
-    }
+    //============================================================================
+    //              CONSTRUCTING DONE
+    //============================================================================
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -503,7 +506,6 @@ public class User {
     public void joinedAGame(int gameId, int gameCode, int owner_id, int seatPosition, int maxPlayerCount, int playerCount) {
 
         this.playerCount = playerCount;
-        this.maxPlayerCount = maxPlayerCount;
         this.maxPlayerCount = maxPlayerCount;
         inGamePlayers = new User[maxPlayerCount];
 
@@ -611,34 +613,20 @@ public class User {
     //============================================================================
 
 
-
-
-
-
-
-
-
-
     //============================================================================
     //
     //          GETTERS AND SETTERS
     //
     //============================================================================
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public void deInitializeGameData() {
 
+        if (inGame == true) setExp(getExp() + expIncrease);
+
+        inGame = false;
         playerCards = new ArrayList<Card>();
         boardCards = new ArrayList<Card>();
 
-        inGame = false;
         playerCount = -1;
         maxPlayerCount = -1;
         inGamePlayers = null;
@@ -668,27 +656,16 @@ public class User {
 
         totalCallValue = 0;
         callValue = 0;
-        blindType = 0;
 
         gameRunning = false;
     }
 
-    public void initializeInvitationData(int tempId, int tempCode, String tempBoardType, long tempMinEntryValue, long tempMinCallValue) {
-
-        this.tempId = tempId;
-        this.tempCode = tempCode;
-        this.tempMinCallValue = tempMinCallValue;
-        this.tempMinEntryValue = tempMinEntryValue;
-        this.tempBoardType = tempBoardType;
+    public String getUsername() {
+        return username;
     }
 
-    public void deInitializeInvitationData() {
-
-        tempId = -1;
-        tempCode = -1;
-        tempMinEntryValue = 0;
-        tempMinCallValue = 0;
-        tempBoardType = "";
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public int getId() {
@@ -713,6 +690,24 @@ public class User {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public void initializeInvitationData(int tempId, int tempCode, String tempBoardType, long tempMinEntryValue, long tempMinCallValue) {
+
+        this.tempId = tempId;
+        this.tempCode = tempCode;
+        this.tempMinCallValue = tempMinCallValue;
+        this.tempMinEntryValue = tempMinEntryValue;
+        this.tempBoardType = tempBoardType;
+    }
+
+    public void deInitializeInvitationData() {
+
+        tempId = -1;
+        tempCode = -1;
+        tempMinEntryValue = 0;
+        tempMinCallValue = 0;
+        tempBoardType = "";
     }
 
     public int getMaxPlayerCount() {
@@ -1072,14 +1067,6 @@ public class User {
         this.call = call;
     }
 
-    public int getBlindType() {
-        return blindType;
-    }
-
-    public void setBlindType(int blindType) {
-        this.blindType = blindType;
-    }
-
     public long getFoldCost() {
         return foldCost;
     }
@@ -1263,7 +1250,6 @@ public class User {
                 ", callValue=" + callValue +
                 ", totalCallValue=" + totalCallValue +
                 ", call='" + call + '\'' +
-                ", blindType=" + blindType +
                 ", foldCost=" + foldCost +
                 ", cycleCount=" + cycleCount +
                 ", roundCount=" + roundCount +

@@ -5,3 +5,9 @@
 	and set username and password for database
 4.	Then run spring server
 5.	Now open client side.
+
+IN GAME OBOSTHAY SEAT ER KARO UPORE CLICK KORE INFO DEKHABE!
+
+CURRENT USER ER UPOR CLICK KORLE ClientToServer ER User THEKE 
+INFO DEKHABI, AR ONNO KARO UPORE CLICK KORLE User ER VITORE
+inGamePlayers[seat] THEKE INFO NIYE DEKHABI!
