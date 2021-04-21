@@ -218,6 +218,7 @@ public class GameThread implements Runnable {
         //WELCOME MESSAGE
 
         initializePlayers();
+        sendPlayersDataToAll();
         sendWelcomeGameMsgToAll();
 
         roundCount = 0;
@@ -474,6 +475,8 @@ public class GameThread implements Runnable {
     private void sendWelcomeGameMsgToAll() {
 
         for (int i = 0; i < maxPlayerCount; i++) sendWelcomeGameMsg(i);
+
+        waitGame(5);
     }
 
     //==================================================================================================================
@@ -939,6 +942,8 @@ public class GameThread implements Runnable {
         send.put("dataType", "RoundStart");
         send.put("message", "Round " + roundCount + " start");
         sendMessageToAll(send.toString());
+
+        waitGame(5);
     }
 
 
@@ -1014,6 +1019,8 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
+
+        waitGame(2);
     }
 
     private void sendShowBoardInfo() {
@@ -1041,6 +1048,8 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
+
+        waitGame(2);
     }
 
     private void sendShowCards() {
@@ -1068,6 +1077,8 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
+
+        waitGame(2);
     }
 
     //==================================================================================================================
@@ -1369,6 +1380,8 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
+
+        waitGame(5);
     }
 
     //==================================================================================================================
@@ -1419,7 +1432,8 @@ public class GameThread implements Runnable {
 
             startNewRound();
             return;
-        } else if (activeCountInRound > 1 && cardShowed < 5) {
+        }
+        else if (activeCountInRound > 1 && cardShowed < 5) {
 
             turnCount = 0;
             cycleCount++;
@@ -1441,7 +1455,8 @@ public class GameThread implements Runnable {
             playRound();
 
             return;
-        } else if (activeCountInRound > 1) showAllCardsAtEnd = true;
+        }
+        else if (activeCountInRound > 1) showAllCardsAtEnd = true;
 
         roundStarterSeat = -1;
 
@@ -1690,6 +1705,8 @@ public class GameThread implements Runnable {
         send.put("data", "One cycle has ended, starting new cycle");
 
         sendMessageToAll(send.toString());
+
+        waitGame(3);
     }
 
     private void sendAllCards() {
@@ -1740,6 +1757,8 @@ public class GameThread implements Runnable {
         send.put("data", allCards);
 
         sendMessageToAll(send.toString());
+
+        waitGame(5);
     }
 
 
@@ -1760,6 +1779,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
+        waitGame(10);
     }
 
     private void winnerResultSend() {
@@ -1811,6 +1831,8 @@ public class GameThread implements Runnable {
         send.put("data", winners);
 
         sendMessageToAll(send.toString());
+
+        waitGame(10);
     }
 
 
@@ -1893,6 +1915,8 @@ public class GameThread implements Runnable {
         send.put("gameData", tempJson);
 
         sendMessageToAll(send.toString());
+
+        waitGame(5);
     }
 
     private void requestAddBoardCoin(ServerToClient s, JSONObject jsonObject) {
@@ -1934,6 +1958,8 @@ public class GameThread implements Runnable {
         send.put("dataType", "AddBoardCoin");
 
         sendMessage(loc, send.toString());
+
+        waitGame(3);
     }
 
 
@@ -1943,6 +1969,16 @@ public class GameThread implements Runnable {
     //                  GETTERS, SETTERS, toString FUNCTION
     //
     //==================================================================================================================
+
+    private void waitGame(long time){
+
+        try{
+            Thread.sleep(time * 1000);
+        }catch (Exception e){
+            System.out.println("Error in waiting in game thread -> " + e);
+        }
+
+    }
 
     private long max(long a, long b) {
         if (a > b) return a;

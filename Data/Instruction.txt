@@ -11,3 +11,99 @@ IN GAME OBOSTHAY SEAT ER KARO UPORE CLICK KORE INFO DEKHABE!
 CURRENT USER ER UPOR CLICK KORLE ClientToServer ER User THEKE 
 INFO DEKHABI, AR ONNO KARO UPORE CLICK KORLE User ER VITORE
 inGamePlayers[seat] THEKE INFO NIYE DEKHABI!
+
+
+
+
+1.	game room e dhhukle server InitializeGameData response pathabe
+
+2.	erpor server shob player er data pathabe 
+	LoadPlayersData
+	
+3.	erpor server WelcomeGameMessage pathabe 
+
+4.	Erpor round shuru hobe, RoundStartMessage
+5.	Erpor player der card pathabe LoadPlayerCard
+6.	Erpor board er card pathabe LoadBoardCards
+
+7.	Erpor round er khela shuru hobe 
+
+8.	board e card show korbe, ShowCards
+9.	Next turn er info dekhabe ShowNextTurnInfo
+
+10.	shobar data pathabe
+	data update korar jonno ar ki........LoadPlayersData
+
+11.	erpor currently je chaal dibe, taar ki ki button 
+	available, sheta pathabe EnableGameButtons
+	then bakider pathabe DisableGameButtons
+	
+12.	Ekhn chaal er jonno wait korbe 
+
+13.	keu chaal dile shei info shobaire pathabe 
+	ShowTurnInfo
+	
+14.	Then khela continue korbe.......
+	Step 7 to 14 repeat
+
+15.	ekta cycle end hoile cycle ending message pathabe 
+	CycleEnd
+
+16.	erokom cycle tycle diye round shesh hoile result pathabe 
+
+17.	ar shesh porjonto ekjon baade shobai fold na korle, last 
+	shob card dekhaite hobe, eta dekhabe ShowAllCards message 
+	
+18.	then result data ashbe, oi hishebe result show kora lagbe board
+	e 
+	
+19.	keu game theke ber hoite chaile requestExit() call korbe 
+
+20.	room er shobar taka jodi shesh hoye jay ( minCallValue er kom )
+	or ekjon baade shobai ber hoye jay
+	
+	taile WaitForPlayersToBuy message pathabe, 30 second wait korbe game
+	notun keu ashe kina or keu board e aro kisu coin dhukay kina....
+	
+	ashle or coin add korle new khela start hoy, naile game thread
+	close kore dey 
+	
+21.	game thread close korle shobaire ber hoite bole server 
+	LeaveGame 
+	
+22.	in game thaka obosthay boardCoin add kora jay, 
+	call addBoardCoinInGameRequest(value)
+	
+23.	board coin add korle new round start korar try kore, 
+	call tryStartCurrentGame()
+	
+
+WAITINGS:
+
+1. shobaire welcomeMsg dewar por waitGame(5);
+2. round start msg dewar por waitGame(5);
+3. next turn info dekhanor por waitGame(2);
+4. board info dekhanor por waitGame(2);
+5. card dekhanor msg er por waitGame(2); 
+6. enable buttons er por wait dei nai
+   input newar jonno emnei wait korbe 
+7. turn info shobaire dekhanor por waitGame(5);
+8. cycle ending msg pathanor por waitGame(3);
+9. all cards pathanor por waitGame(5);
+10. khela sheshe result pathanor por waitGame(10);
+
+11. waitForPlayersToBuyMsg() er por waitGame(5);
+12. addBoardCoinResponse pathanor por waitGame(3);
+
+
+
+
+
+
+
+
+
+
+
+
+
