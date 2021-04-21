@@ -579,7 +579,6 @@ public class GameThread implements Runnable {
             }
             tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
             tempUser.setFoldCount(tempUser.getFoldCount() + 1);
-            tempUser.setWinStreak(0);
 
             tempUser.setRoundsPlayed(tempUser.getRoundsPlayed() + 1);
             tempUser.setCoinLost(tempUser.getCoinLost() + playerTotalCallValues[seatPosition]);
