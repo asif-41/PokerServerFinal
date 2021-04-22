@@ -169,6 +169,9 @@ FLOW:
 	na korle room delete hoye jabe............
 
 
+20.	owner er kase approve request chawar shomoy room full thakle 
+	approve korar option disable kore dibi..........
+
 
 
 

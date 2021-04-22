@@ -273,6 +273,8 @@ public class WaitingRoom implements Runnable {
         ServerToClient s = findInPendingArray(username);
 
         if(s == null) return;
+        else if(playerCount == maxPlayerCount) s.askToJoinWaitingRoom(gameCode);
+
         askBoardCoin(s);
     }
 
@@ -297,6 +299,8 @@ public class WaitingRoom implements Runnable {
     //==================================================================================================================
 
     private void askBoardCoin(ServerToClient s){
+
+
 
         s.setWaitingRoom(this);
         sendAskBoardCoin(s);

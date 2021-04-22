@@ -578,7 +578,7 @@ public class ServerToClient implements Runnable {
 
 
 
-    private void askToJoinWaitingRoom(int code) {
+    public void askToJoinWaitingRoom(int code) {
 
         WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
 
