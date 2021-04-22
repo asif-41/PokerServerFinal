@@ -98,6 +98,77 @@ WAITINGS:
 
 
 
+WAITING ROOMS:
+
+CHANGES
+	USER.JAVA BOTH END E CHANGE HOISE........
+	CLIENT TO SERVER.JAVA CHANG HOISE AMAR CODE ER ( 1480-1786 )
+												AR INCOMING MSG E WAITING 
+												ROOM ER PURA PART
+
+FLOW: 
+
+1.	createWaitingRoom() call korle 
+	waiting room create korar request pathabe 
+	sendCreateWaitingRoomRequest() call er maddhome
+	
+2.	createWaitingRoomResponse() e response ashbe creating er
+
+3.	create hoile sathe sathe entry coin koto
+	sheta chaabe askBoardCoin() calling er maddhome 
+	
+4.	entry amount select kore sendJoinAmount(amount)
+	call korbe 
+	
+5.	entry successful hoile server theke initialize korar jonno
+	initializeWaitingRoomData() call hobe 
+	
+6.	Now creator er waiting room e join kora shesh......
+
+7.	keu code diye join korte chaile joinWaitingRoomByCode(code)
+	dile request pathabe, response ashbe 
+	askJoinWaitingRoomByCodeResponse() e 
+
+8.	joining er majhe hothat join cancel korte hoile 
+	cancelJoinRequest() call korbe 
+	
+9.	join request pathaile owner er kase approval chaabe 
+	askApproveJoinRequest() er maddhome
+	
+10.	approve na korte chaile close korbe, taile client side
+	kisu pathabe na
+
+11.	approve pathabe approveJoinRequest() call kore 
+
+12.	owner approve korle requested user er kase 
+	askBoardCoin() diye entry amount chaabe 
+	and step 3 to step 6 diye join korbe 
+	
+13.	room e keu add hoile or removed hoile showPlayersData()
+	te shobar data ashbe 
+	
+14.	keu room theke ber hoite chaile removeMeFromWaitingRoom()
+	call korbe, owner eta call kore bair hoye gele waiting
+	room close hobe 
+
+15.	owner dui tinjon re select kore ber korte chaile 
+	removeFromWaitingRoom([ seat er array ]) call korbe 
+	
+16.	keu nije theke exit dile to shesh kahini
+	owner kaure remove korle or room close kore dile 
+	response message ashbe removedFromWaitingRoom() e
+	
+17.	game start korte hoile sendStartGameRequest() pathabe 
+
+18.	start game possible kina taar response showStartGameResponse()
+	e ashbe.........
+	start kora possible hoile waiting room delete hoye 
+	15 second por game start hobe............
+	
+19.	create korar 1minute er moddhe creator entry amount diye join
+	na korle room delete hoye jabe............
+
+
 
 
 

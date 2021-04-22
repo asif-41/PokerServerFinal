@@ -755,6 +755,7 @@ public class GameThread implements Runnable {
         //ALL IN DIYE EKJON BAKI THAKLE OITA NEXT TURN ER FUNCTION E HANDLE HOBE
 
         if (allInCountInRound == activeCountInRound) {
+            sendPlayersDataToAll();
             sendShowCards();
             endRound();
             return;

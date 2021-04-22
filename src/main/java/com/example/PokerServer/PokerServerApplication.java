@@ -17,7 +17,7 @@ public class PokerServerApplication {
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, minCallValue, 10000,
                 2, 5, 1, 120, 8080, 1000,
-                1000000, 10, 10000, 10000);
+                1000000, 10, 10000, 10000, 60, 15);
 
         SpringApplication.run(PokerServerApplication.class, args);
     }

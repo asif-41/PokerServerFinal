@@ -22,17 +22,19 @@ public class WaitingRoom implements Runnable {
     private int playerCount;
     private int maxPlayerCount;
 
+    private boolean removingMultiple;
     private boolean closing;
 
-    private ArrayList waitingForApproval;
     private ServerToClient owner;
     private ServerToClient seat[];
+    private ArrayList pendingApproval;
 
     private JSONObject jsonIncoming;
 
 
-    public WaitingRoom(ArrayList<ServerToClient> invitedFriends, ServerToClient owner, int gameId, int gameCode, int maxPlayerCount, String boardType, long minEntryValue, long minCallValue) {
+    public WaitingRoom(ServerToClient owner, int gameId, int gameCode, int maxPlayerCount, String boardType, long minEntryValue, long minCallValue) {
 
+        removingMultiple = false;
         closing = false;
 
         this.gameId = gameId;
@@ -41,30 +43,55 @@ public class WaitingRoom implements Runnable {
         this.boardType = boardType;
         this.minEntryValue = minEntryValue;
         this.minCallValue = minCallValue;
-
-        waitingForApproval = new ArrayList<ServerToClient>();
-        seat = new ServerToClient[maxPlayerCount];
-
         this.owner = owner;
-        playerCount = 1;
-        seat[0] = owner;
-        waitingForApproval = invitedFriends;
+
+        playerCount = 0;
+        seat = new ServerToClient[maxPlayerCount];
+        pendingApproval = new ArrayList<ServerToClient>();
     }
 
     @Override
     public void run() {
 
+        askBoardCoin(owner);
 
-        initializeUser(0);
-        sendInvitation();
-
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if(playerCount == 0) closeEverything();
+            }
+        }, Server.pokerServer.waitingRoomWaitAtStart * 1000);
     }
-
 
     //==================================================================================================================
     //
     //==================================================================================================================
 
+
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //              COMMUNICATIONS
+    //
+    //==================================================================================================================
+
+    private JSONObject initiateJson() {
+
+        JSONObject send = new JSONObject();
+
+        send.put("sender", "Server");
+        send.put("ip", Server.pokerServer.getHost());
+        send.put("port", Server.pokerServer.getPort());
+        send.put("requestType", "WaitingRoom");
+        if(owner != null) send.put("owner", owner.getUser().getUsername());
+
+        return send;
+    }
 
     private void sendMessage(int loc, String s) {
 
@@ -124,34 +151,325 @@ public class WaitingRoom implements Runnable {
 
             JSONObject waitingRoomData = jsonIncoming.getJSONObject("waitingRoomData");
 
-            if (waitingRoomData.get("requestType").equals("AddInWaitingRoom")) {
+            if(waitingRoomData.get("requestType").equals("JoinAmount")){
+
+                joinAmountRequest(jsonIncoming, from);
+            }
+            else if (waitingRoomData.get("requestType").equals("ApproveJoinRequest")) {
 
                 if (from == owner) {
 
-                    JSONArray usernames = waitingRoomData.getJSONArray("roomData");
-                    sendInvitationByUsername(usernames);
+                    String username = waitingRoomData.getString("username");
+                    approveJoinRequestResponse(username);
                 }
-            } else if (waitingRoomData.get("requestType").equals("RemoveFromWaitingRoom")) {
+            }
+            else if(waitingRoomData.get("requestType").equals("RemoveFromWaitingRoom")){
 
-                if (from == owner) {
+                if(from == owner){
 
-                    JSONArray usernames = waitingRoomData.getJSONArray("roomData");
-                    removeByUsername(usernames, "You were removed by room owner");
+                    removeFromWaitingRoom(jsonIncoming);
                 }
-            } else if (waitingRoomData.get("requestType").equals("RemoveMeFromWaitingRoom")) {
+            }
+            else if(waitingRoomData.get("requestType").equals("RemoveMeFromWaitingRoom")){
 
-                exitRequestResponse(from, false, null);
-            } else if (waitingRoomData.get("requestType").equals("StartGame")) {
+                int loc = waitingRoomData.getInt("seatPosition");
+                removeFromWaitingRoom(loc);
+            }
+            else if (waitingRoomData.get("requestType").equals("StartGame")) {
 
                 startGame();
             }
-
         }
 
     }
 
 
     //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //              NECESSARY FUNCTIONS
+    //
+    //==================================================================================================================
+
+    private int getNextSeat(){
+
+        int ret = -1;
+
+        for(int i=0; i<maxPlayerCount; i++){
+            if(seat[i] == null){
+                ret = i;
+                break;
+            }
+        }
+        return ret;
+    }
+
+    private ServerToClient findInPendingArray(String username){
+
+        ServerToClient ret = null;
+
+        for(int i=0; i<pendingApproval.size(); i++){
+
+            ServerToClient s = (ServerToClient) pendingApproval.get(i);
+
+            if(s.getUser().getUsername().equals(username)){
+
+                ret = s;
+                pendingApproval.remove(i);
+                break;
+            }
+        }
+        return ret;
+    }
+
+    //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //      APPROVE JOIN REQUESTS
+    //
+    //==================================================================================================================
+
+    public void sendAskOwnerForApproval(ServerToClient s) {
+
+        JSONObject send = initiateJson();
+        JSONObject data = new JSONObject();
+
+        String message = s.getUser().getUsername() + " wants your approval to join waiting room";
+
+        data.put("requestType", "AskApproveJoinRequest");
+        data.put("dataType", "AskApproveJoinRequest");
+        data.put("message", message);
+        data.put("userData", User.UserToJson(s.getUser()));
+
+        send.put("waitingRoomData", data);
+        sendMessage(owner, send.toString());
+    }
+
+    private void approveJoinRequestResponse(String username){
+
+        ServerToClient s = findInPendingArray(username);
+
+        if(s == null) return;
+        askBoardCoin(s);
+    }
+
+    //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //      INITIALIZING JOIN REQUESTS
+    //
+    //==================================================================================================================
+
+    private void askBoardCoin(ServerToClient s){
+
+        s.setWaitingRoom(this);
+        sendAskBoardCoin(s);
+    }
+
+    private void sendAskBoardCoin(ServerToClient s){
+
+        JSONObject send = initiateJson();
+        JSONObject data = new JSONObject();
+
+        data.put("gameId", gameId);
+        data.put("gameCode", gameCode);
+        data.put("boardType", boardType);
+        data.put("minCallValue", minCallValue);
+        data.put("minEntryValue", minEntryValue);
+        data.put("requestType", "AskBoardCoin");
+        data.put("dataType", "AskBoardCoin");
+
+        send.put("waitingRoomData", data);
+
+        s.sendMessage(send.toString());
+    }
+
+
+
+    private void joinAmountRequest(JSONObject jsonObject, ServerToClient s){
+
+        JSONObject waitingRoomData = jsonObject.getJSONObject("waitingRoomData");
+        long amount = waitingRoomData.getLong("amount");
+        int seatPosition = getNextSeat();
+
+        initiateUser(s, seatPosition, amount);
+        sendInitiateUser(s, seatPosition, amount);
+        sendPlayersDataToAll();
+    }
+
+
+    private void initiateUser(ServerToClient s, int seatPosition, long boardCoin){
+
+        User tempUser = s.getUser();
+
+        seat[seatPosition] = s;
+        playerCount++;
+
+        tempUser.initializeInvitationData(gameId, gameCode, maxPlayerCount, boardType, minEntryValue, minCallValue, owner.getUser().getId(), seatPosition, boardCoin);
+    }
+
+    private void sendInitiateUser(ServerToClient s, int seatPosition, long boardCoin){
+
+        JSONObject send = initiateJson();
+
+        JSONObject data = new JSONObject();
+
+        data.put("gameId", gameId);
+        data.put("gameCode", gameCode);
+        data.put("boardType", boardType);
+        data.put("minCallValue", minCallValue);
+        data.put("minEntryValue", minEntryValue);
+        data.put("ownerId", owner.getUser().getId());
+        data.put("seatPosition", seatPosition);
+        data.put("boardCoin", boardCoin);
+        data.put("maxPlayerCount", maxPlayerCount);
+
+        data.put("dataType", "InitializeUser");
+        data.put("requestType", "InitializeUser");
+
+        send.put("waitingRoomData", data);
+        s.sendMessage(send.toString());
+    }
+
+    //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //              REMOVE FROM WAITING ROOM
+    //
+    //==================================================================================================================
+
+    private void removeFromWaitingRoom(JSONObject jsonObject){
+
+        removingMultiple = true;
+
+        JSONArray data = jsonObject.getJSONArray("data");
+        for(int i=0; i<data.length(); i++) {
+
+            sendRemoveFromWaitingRoomMessage(data.getInt(i), "Owner removed you from waiting room");
+            removeFromWaitingRoom(data.getInt(i));
+        }
+        sendPlayersDataToAll();
+
+        removingMultiple = false;
+    }
+
+    public void removeFromWaitingRoom(int seatPosition){
+
+        if(seatPosition < 0) return ;
+        if(seat[seatPosition] == null) return ;
+
+        ServerToClient s = seat[seatPosition];
+        s.setWaitingRoom(null);
+        seat[seatPosition] = null;
+
+        s.getUser().deInitializeInvitationData();
+
+        owner = seat[0];
+        checkIfRoomClosed();
+
+        if(closing) return ;
+        if(removingMultiple) return ;
+
+        sendPlayersDataToAll();
+    }
+
+
+    private void sendRemoveFromWaitingRoomMessage(int loc, String message){
+
+        if(seat[loc] == null) return ;
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "WaitingRoom");
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("requestType", "RemoveFromWaitingRoomResponse");
+        temp.put("dataType", "RemoveFromWaitingRoomResponse");
+        temp.put("message", message);
+
+        send.put("waitingRoomData", temp);
+        seat[loc].sendMessage(send.toString());
+    }
+
+
+    private void checkIfRoomClosed(){
+
+        if(owner == null && closing == false) closeEverything();
+    }
+
+    private void closeEverything() {
+
+        closing = true;
+
+        for (int i = 1; i < maxPlayerCount; i++) {
+
+            if(seat[i] == null) continue;
+
+            sendRemoveFromWaitingRoomMessage(i,"Owner closed the room");
+            removeFromWaitingRoom(i);
+        }
+        removeFromWaitingRoom(0);
+        Server.pokerServer.removeWaitingRoom(this);
+    }
+
+    //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //              START GAME FROM WAITING ROOM
     //
     //==================================================================================================================
 
@@ -163,9 +481,10 @@ public class WaitingRoom implements Runnable {
         if (playerCount > 1) willStart = true;
 
         if (willStart == false) msg = "In sufficient players, player count must be greater than 1";
-        else msg = "Will start game in 10 seconds";
+        else msg = "Will start game in " + Server.pokerServer.delayInStartingGame + " seconds";
 
-        sendStartGameResponse(willStart, msg);
+        sendStartGameResponse(msg);
+
 
         if (willStart) {
             new Timer().schedule(new TimerTask() {
@@ -173,242 +492,11 @@ public class WaitingRoom implements Runnable {
                 public void run() {
                     makeGame();
                 }
-            }, 15000);
+            }, Server.pokerServer.delayInStartingGame * 1000);
         }
     }
 
-    private void makeGame() {
-        Server.pokerServer.makeGameThread(this);
-    }
-
-
-
-    private void setServerSideData(int k) {
-
-        ServerToClient s = seat[k];
-
-        s.setWaitingRoom(this);
-        s.getUser().setSeatPosition(k);
-    }
-
-    private void initializeUser(int k) {
-
-        setServerSideData(k);
-        sendInitialData(k);
-
-        sendRoomData();
-    }
-
-    public void addInvitedUser(ServerToClient s) {
-
-        int loc = -1;
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-            if (seat[i] == null) {
-                loc = i;
-                break;
-            }
-        }
-
-        seat[loc] = s;
-        playerCount++;
-        initializeUser(loc);
-    }
-
-    private void sendInvitationByUsername(JSONArray usernames) {
-
-        for (int i = 0; i < usernames.length(); i++) {
-
-            String temp = usernames.getString(i);
-            ServerToClient s = Server.pokerServer.getConnectionThroughUsername(temp);
-
-            if (s != null) waitingForApproval.add(s);
-        }
-        sendInvitation();
-    }
-
-
-    private void removeServerSideData(int k) {
-
-        ServerToClient s = seat[k];
-
-        seat[k] = null;
-
-        playerCount--;
-        s.setWaitingRoom(null);
-        if (s.getUser() != null) s.getUser().setSeatPosition(-1);
-
-        if (closing == false) sendRoomData();
-    }
-
-    public void removeInvitedUser(ServerToClient s, boolean sendMsg, String msg) {
-
-        int loc = -1;
-        for (int i = 0; i < maxPlayerCount; i++) {
-            if (seat[i] == s) {
-                loc = i;
-                break;
-            }
-        }
-
-        if (loc != -1) removeServerSideData(loc);
-        if (sendMsg) sendRemovalMessage(s, msg);
-    }
-
-    private void removeByUsername(JSONArray usernames, String msg) {
-
-        for (int i = 0; i < usernames.length(); i++) {
-
-            String tempUsername = usernames.getString(i);
-            ServerToClient s = Server.pokerServer.getConnectionThroughUsername(tempUsername);
-
-            removeInvitedUser(s, true, msg);
-        }
-    }
-
-    public void exitRequestResponse(ServerToClient from, boolean sendMsg, String msg) {
-
-        if (from != owner) removeInvitedUser(from, false, null);
-        else closeEverything();
-    }
-
-    private void closeEverything() {
-
-        closing = true;
-
-        for (int i = 1; i < maxPlayerCount; i++) {
-            if (seat[i] != null) removeInvitedUser(seat[i], true, "Owner closed the room");
-        }
-        removeInvitedUser(owner, false, null);
-        Server.pokerServer.removeWaitingRoom(this);
-    }
-
-
-    //==================================================================================================================
-    //
-    //==================================================================================================================
-
-    private JSONObject initiateJson() {
-
-        JSONObject send = new JSONObject();
-
-        send.put("sender", "Server");
-        send.put("ip", Server.pokerServer.getHost());
-        send.put("port", Server.pokerServer.getPort());
-        send.put("requestType", "WaitingRoom");
-        send.put("owner", owner.getUser().getUsername());
-
-        return send;
-    }
-
-    private void sendRoomData() {
-
-        JSONObject send = initiateJson();
-        JSONObject data = new JSONObject();
-
-        data.put("boardType", boardType);
-        data.put("minCallValue", minCallValue);
-        data.put("minEntryValue", minEntryValue);
-        data.put("gameId", gameId);
-        data.put("roomCode", gameCode);
-        data.put("requestType", "AllRoomData");
-
-        JSONArray info = new JSONArray();
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-
-            if (seat[i] == null) continue;
-
-            User s = seat[i].getUser();
-            JSONObject temp = new JSONObject();
-
-            temp.put("username", s.getUsername());
-            temp.put("seatPosition", s.getSeatPosition());
-            temp.put("currentCoin", s.getCurrentCoin());
-            temp.put("boardCoin", s.getBoardCoin());
-
-            info.put(temp);
-        }
-
-
-        data.put("roomData", info);
-        send.put("waitingRoomData", data);
-        sendMessageToAll(send.toString());
-    }
-
-    private void sendInitialData(int k) {
-
-        JSONObject send = initiateJson();
-        JSONObject data = new JSONObject();
-
-        data.put("boardType", boardType);
-        data.put("gameId", gameId);
-        data.put("roomCode", gameCode);
-        data.put("userEntryAmount", seat[k].getUser().getCurrentCoin());
-        data.put("seatPosition", seat[k].getUser().getSeatPosition());
-        data.put("requestType", "SetWaitingRoomData");
-
-        send.put("waitingRoomData", data);
-        sendMessage(k, send.toString());
-    }
-
-    private void sendInvitation() {
-
-        for (int i = 0; i < waitingForApproval.size(); i++) {
-
-            JSONObject send = initiateJson();
-            JSONObject data = new JSONObject();
-
-            data.put("boardType", boardType);
-            data.put("gameId", gameId);
-            data.put("roomCode", gameCode);
-            data.put("minCallValue", minCallValue);
-            data.put("minEntryAmount", minEntryValue);
-            data.put("requestType", "JoinWaitingRoom");
-
-            send.put("waitingRoomData", data);
-
-            sendMessage((ServerToClient) waitingForApproval.get(i), send.toString());
-        }
-
-        waitingForApproval.clear();
-    }
-
-    public void sendAskOwnerForApproval(ServerToClient s) {
-
-        JSONObject send = initiateJson();
-        JSONObject data = new JSONObject();
-
-        String message = s.getUser().getUsername() + " wants your approval to join waiting room";
-
-        data.put("boardType", boardType);
-        data.put("gameId", gameId);
-        data.put("roomCode", gameCode);
-        data.put("username", s.getUser().getUsername());
-        data.put("requestType", "ApproveJoinByCodeRequest");
-        data.put("message", message);
-
-        send.put("waitingRoomData", data);
-        sendMessage(owner, send.toString());
-    }
-
-    private void sendRemovalMessage(ServerToClient s, String msg) {
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "WaitingRoom");
-
-        JSONObject temp = new JSONObject();
-
-        temp.put("requestType", "RemoveFromWaitingRoomResponse");
-        temp.put("roomCode", gameCode);
-        temp.put("message", msg);
-
-        send.put("waitingRoomData", temp);
-        s.sendMessage(send.toString());
-    }
-
-    private void sendStartGameResponse(boolean start, String msg) {
+    private void sendStartGameResponse(String msg) {
 
         JSONObject send = initiateJson();
 
@@ -417,13 +505,60 @@ public class WaitingRoom implements Runnable {
         JSONObject temp = new JSONObject();
 
         temp.put("requestType", "StartGameResponse");
-        temp.put("gameId", gameId);
-        temp.put("roomCode", gameCode);
-        temp.put("success", start);
         temp.put("message", msg);
 
         send.put("waitingRoomData", temp);
 
+        sendMessageToAll(send.toString());
+    }
+
+    private void makeGame() {
+
+        if( ! (playerCount > 1) ) {
+            sendStartGameResponse("In sufficient players, player count must be greater than 1");
+            return ;
+        }
+
+        Server.pokerServer.makeGameThread(this);
+    }
+
+    //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+    //==================================================================================================================
+    //
+    //              START GAME FROM WAITING ROOM
+    //
+    //==================================================================================================================
+
+    private void sendPlayersDataToAll() {
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("requestType", "LoadPlayersData");
+
+        send.put("waitingRoomData", tempJson);
+
+        JSONArray array = new JSONArray();
+
+        for (int i = 0; i < maxPlayerCount; i++) {
+
+            if (seat[i] == null) continue;
+
+            JSONObject temp = User.UserToJsonInGame(seat[i].getUser());
+            array.put(temp);
+        }
+        send.put("data", array);
         sendMessageToAll(send.toString());
     }
 
@@ -432,13 +567,20 @@ public class WaitingRoom implements Runnable {
     //==================================================================================================================
 
 
+
+
+
+
+
+
+
     //==================================================================================================================
     //
     //==================================================================================================================
 
     @Override
     public String toString() {
-        return "WaitingRoom{" +
+        String ret = "WaitingRoom{" +
                 "gameId=" + gameId +
                 ", gameCode=" + gameCode +
                 ", boardType='" + boardType + '\'' +
@@ -447,11 +589,25 @@ public class WaitingRoom implements Runnable {
                 ", playerCount=" + playerCount +
                 ", maxPlayerCount=" + maxPlayerCount +
                 ", closing=" + closing +
-                ", waitingForApproval=" + waitingForApproval +
                 ", owner=" + owner +
                 ", seat=" + Arrays.toString(seat) +
                 ", jsonIncoming=" + jsonIncoming +
                 '}' + "\n";
+
+        ret += "Seat: ";
+        for(int i=0; i<maxPlayerCount; i++) {
+            if(seat[i] != null) ret += seat[i].getUser().getUsername() + " ";
+        }
+        ret += "\n";
+
+        ret += "Pending: ";
+        for(int i=0; i<pendingApproval.size(); i++){
+            ServerToClient s = (ServerToClient) pendingApproval.get(i);
+            ret += s.getUser().getUsername() + " ";
+        }
+        ret += "\n\n";
+
+        return ret;
     }
 
     public int getGameId() {
@@ -520,5 +676,13 @@ public class WaitingRoom implements Runnable {
 
     public void setPlayerCount(int playerCount) {
         this.playerCount = playerCount;
+    }
+
+    public ArrayList getPendingApproval() {
+        return pendingApproval;
+    }
+
+    public void setPendingApproval(ArrayList pendingApproval) {
+        this.pendingApproval = pendingApproval;
     }
 }

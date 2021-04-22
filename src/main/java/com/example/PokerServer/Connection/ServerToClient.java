@@ -136,59 +136,71 @@ public class ServerToClient implements Runnable {
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
             loginRequestResponse(tempJson.getString("account_id"), tempJson.getString("account_type"), tempJson.getString("account_username"));
 
-        } else if (jsonIncoming.get("requestType").equals("LogoutRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("LogoutRequest")) {
 
             //LOGOUT REQUEST();
 
             sendResponseLogout();
-        } else if (jsonIncoming.get("requestType").equals("BuyCoinRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("BuyCoinRequest")) {
 
             //REQUEST BUY COIN
 
             buyCoinRequest(jsonIncoming);
-        } else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
 
             addCoinVideoResponse(jsonIncoming.getString("requestTime"));
-        } else if (jsonIncoming.get("requestType").equals("AddFreeCoinRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("AddFreeCoinRequest")) {
 
             addFreeCoinResponse(jsonIncoming.getString("requestTime"));
-        } else if (jsonIncoming.get("requestType").equals("FriendsListRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("FriendsListRequest")) {
 
             //  Send friends list
 
             friendListRequestResponse();
-        } else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
             requestJoin(true, tempJson);
-        } else if (jsonIncoming.get("requestType").equals("AbortRequest")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("AbortRequest")) {
 
             requestAbort();
-        } else if (jsonIncoming.get("requestType").equals("UpdateOwn")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("UpdateOwn")) {
 
             sendOwnData();
-        } else if (jsonIncoming.get("requestType").equals("UpdateOwnInGame")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("UpdateOwnInGame")) {
 
             sendOwnInGameData();
-        } else if (jsonIncoming.get("requestType").equals("GameThread")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("GameThread")) {
             gameThread.incomingMessage(temp, this);
-        } else if (jsonIncoming.get("requestType").equals("WaitingRoom")) {
+        }
+        else if (jsonIncoming.get("requestType").equals("WaitingRoom")) {
 
             JSONObject waitingRoomData = jsonIncoming.getJSONObject("waitingRoomData");
 
             if (waitingRoomData.get("requestType").equals("Create")) {
 
-                createWaitingRoom(waitingRoomData);
-            } else if (waitingRoomData.get("requestType").equals("AcceptInvitation")) {
+                createWaitingRoom(jsonIncoming);
+            }
+            else if (waitingRoomData.get("requestType").equals("AskJoinWaitingRoomByCode")) {
 
-                int code = waitingRoomData.getInt("roomCode");
-                joinWaitingRoomByCode(code);
-
-            } else if (waitingRoomData.get("requestType").equals("AskJoinWaitingRoomByCode")) {
-
-                int code = waitingRoomData.getInt("roomCode");
+                int code = waitingRoomData.getInt("gameCode");
                 askToJoinWaitingRoom(code);
-            } else waitingRoom.incomingMsg(temp, this);
+            }
+            else if (waitingRoomData.get("requestType").equals("CancelJoinRequest")) {
+
+                cancelJoiningRequest();
+            }
+            else waitingRoom.incomingMsg(temp, this);
 
         }
     }
@@ -537,49 +549,77 @@ public class ServerToClient implements Runnable {
     //
     //==============================================================================
 
-    private void createWaitingRoom(JSONObject waitingRoomData) {
+    private void createWaitingRoom(JSONObject jsonObject) {
 
+        JSONObject waitingRoomData = jsonObject.getJSONObject("waitingRoomData");
         String boardType = waitingRoomData.getString("boardType");
-        JSONArray usernames = waitingRoomData.getJSONArray("roomData");
 
-        Server.pokerServer.createWaitingRoom(usernames, this, boardType);
-
+        Server.pokerServer.createWaitingRoom(this, boardType);
     }
 
-    private void joinWaitingRoomByCode(int code) {
+    public void sendCreateWaitingRoomResponse(int id, int code, String boardName){
 
-        WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
+        JSONObject send = initiateJson();
+        send.put("requestType", "WaitingRoom");
 
-        String msg = "";
+        JSONObject waitingRoomData = new JSONObject();
+        waitingRoomData.put("id", id);
+        waitingRoomData.put("code", code);
+        waitingRoomData.put("boardType", boardName);
+        waitingRoomData.put("requestType", "CreateWaitingRoomResponse");
 
-        if (w == null) {
-            msg = "Could not find waiting room";
-            sendWaitingRoomJoinRequestResponse(false, code, msg);
-        } else if (w.getMaxPlayerCount() == w.getPlayerCount()) {
-            msg = "Waiting room full";
-            sendWaitingRoomJoinRequestResponse(false, code, msg);
-        } else {
-            msg = "Joining waiting room";
-            sendWaitingRoomJoinRequestResponse(true, code, msg);
-            w.addInvitedUser(this);
-        }
+        send.put("waitingRoomData", waitingRoomData);
+        send.put("data", "Created waiting room with id: " + id + " code " + code + " boardType " + boardName);
+        send.put("dataType", "CreateWaitingRoomResponse");
+
+        sendMessage(send.toString());
     }
+
+
+
 
     private void askToJoinWaitingRoom(int code) {
 
         WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
 
-        if (w == null)
-            sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found");
-        else {
 
-            sendAskJoinWaitingRoomByCodeResponse(true, code, "Waiting for owner's permission");
+        if (w == null || w.getAtSeat(0) == null || w.getOwner() == null) sendAskJoinWaitingRoomByCodeResponse(code, "Waiting room with code " + code + " not found.");
+        else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(code, "Waiting room with code " + code + " is full.");
+        else {
+            sendAskJoinWaitingRoomByCodeResponse(code, "Waiting for owner's permission");
+
+            waitingRoom = w;
+            w.getPendingApproval().add(this);
             w.sendAskOwnerForApproval(this);
         }
-
     }
 
+    private void sendAskJoinWaitingRoomByCodeResponse(int code, String msg) {
 
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "WaitingRoom");
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("requestType", "AskJoinWaitingRoomByCodeResponse");
+        temp.put("gameCode", code);
+        temp.put("message", msg);
+        temp.put("dataType", "JoinByCodeResponse");
+
+        send.put("waitingRoomData", temp);
+        sendMessage(send.toString());
+    }
+
+    private void cancelJoiningRequest(){
+
+        if(waitingRoom == null) return;
+
+        int loc = waitingRoom.getPendingApproval().indexOf(this);
+        if(loc != -1) waitingRoom.getPendingApproval().remove(loc);
+
+        waitingRoom = null;
+    }
 
     //==============================================================================
     //
@@ -644,16 +684,6 @@ public class ServerToClient implements Runnable {
     //==============================================================================
 
 
-    //===================================================================================
-    //
-    //              JSON CODE
-    //
-    //===================================================================================
-
-
-
-
-
 
 
     private ArrayList<ServerToClient> loadFriendsList() {
@@ -714,40 +744,6 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
-    private void sendAskJoinWaitingRoomByCodeResponse(boolean joining, int code, String msg) {
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "WaitingRoom");
-
-        JSONObject temp = new JSONObject();
-
-        temp.put("requestType", "AskJoinWaitingRoomByCodeResponse");
-        temp.put("roomCode", code);
-        temp.put("success", joining);
-        temp.put("message", msg);
-
-        send.put("waitingRoomData", temp);
-        sendMessage(send.toString());
-    }
-
-/*
-    private void sendCloseResponse(){
-
-        JSONObject send = new JSONObject();
-
-        send.put("sender", "Server");
-        send.put("ip", SERVER.getIp());
-        send.put("port", SERVER.getPort());
-        send.put("requestType", "Close");
-        send.put("response", true);
-        send.put("responseMsg", "Closing Connection");
-
-        sendMessage(send.toString());
-        closeEverything();
-
-    }
-*/
 
     //==============================================================================
     //

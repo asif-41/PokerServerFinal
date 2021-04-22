@@ -105,6 +105,7 @@ public class User {
     private int playerCount;            //      PLAYER COUNT IN GAME
 
     private User[] inGamePlayers;         //      IN GAME PLAYERS DATA STORED HERE
+    private User[] inWaitingRoomPlayers;    //      IN WAITING ROOM PLAYERS
 
     private int tempId;                 //      INVITATION ID
     private int tempCode;               //      INVITATION CODE
@@ -169,8 +170,8 @@ public class User {
         inGame = false;
         gameRunning = false;
         boardCoin = 0;
+        inWaitingRoomPlayers = null;
         deInitializeGameData();
-        deInitializeInvitationData();
     }
 
 
@@ -256,22 +257,34 @@ public class User {
 
 
 
-    public void initializeInvitationData(int tempId, int tempCode, String tempBoardType, long tempMinEntryValue, long tempMinCallValue) {
+    public void initializeInvitationData(int gameId, int gameCode, int maxPlayerCount, String boardType, long minEntryValue, long minCallValue, int owner_id, int seatPosition, long boardCoin) {
 
-        this.tempId = tempId;
-        this.tempCode = tempCode;
-        this.tempMinCallValue = tempMinCallValue;
-        this.tempMinEntryValue = tempMinEntryValue;
-        this.tempBoardType = tempBoardType;
+        this.maxPlayerCount = maxPlayerCount;
+        this.gameId = gameId;
+        this.gameCode = gameCode;
+        this.boardType = boardType;
+        this.minEntryValue = minEntryValue;
+        this.minCallValue = minCallValue;
+        this.owner_id = owner_id;
+        this.seatPosition = seatPosition;
+        this.boardCoin = boardCoin;
+        currentCoin = currentCoin - boardCoin;
+
+        inWaitingRoomPlayers = new User[maxPlayerCount];
     }
 
     public void deInitializeInvitationData() {
 
-        tempId = -1;
-        tempCode = -1;
-        tempMinEntryValue = 0;
-        tempMinCallValue = 0;
-        tempBoardType = "";
+        gameId = -1;
+        gameCode = -1;
+        boardType = "";
+        minEntryValue = 0;
+        minCallValue = 0;
+        owner_id = -1;
+        seatPosition = -1;
+        currentCoin = currentCoin + boardCoin;
+        boardCoin = 0;
+        inWaitingRoomPlayers = null;
     }
 
 
@@ -696,6 +709,14 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public User[] getInWaitingRoomPlayers() {
+        return inWaitingRoomPlayers;
+    }
+
+    public void setInWaitingRoomPlayers(User[] inWaitingRoomPlayers) {
+        this.inWaitingRoomPlayers = inWaitingRoomPlayers;
     }
 
     public int getId() {

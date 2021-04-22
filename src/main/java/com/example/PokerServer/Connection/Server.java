@@ -4,7 +4,6 @@ import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.Randomizer;
 import com.example.PokerServer.Objects.User;
-import org.json.JSONArray;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.swing.*;
@@ -55,6 +54,9 @@ public class Server extends JFrame {
     private int maxGuestLimit;                  //      MAX GUEST LIMIT
     private long initialCoin;                    //      INITIAL COIN
 
+    public int waitingRoomWaitAtStart;
+    public int delayInStartingGame;
+
     //====================================================
 
 
@@ -86,9 +88,13 @@ public class Server extends JFrame {
 
 
     public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] minCallValue, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount, int queueCheckTimeInterval,
-                  int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin) {
+                  int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
+                  int waitingRoomWaitAtStart, int delayInStartingGame ) {
 
         setGui();
+
+        this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
+        this.delayInStartingGame = delayInStartingGame;
 
         this.boardTypeCount = boardTypeCount;
         this.boardType = boardType;
@@ -324,35 +330,22 @@ public class Server extends JFrame {
     //
     //================================================================================
 
-    private void createWaitingRoom(ArrayList<ServerToClient> invitedUsers, ServerToClient owner, int boardKey) {
+    public void createWaitingRoom(ServerToClient owner, String boardName) {
 
         int id = gameIdGenerator();
         int code = gameCodeGenerator();
+        int boardKey = getBoardKey(boardName);
 
-        WaitingRoom w = new WaitingRoom(invitedUsers, owner, id, code, maxPlayerCount, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey]);
+        WaitingRoom w = new WaitingRoom(owner, id, code, maxPlayerCount, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey]);
         addWaitingRoom(w);
 
+        owner.sendCreateWaitingRoomResponse(id, code, boardName);
         new Thread(w).start();
 
         String bleh = "Waiting room created. id: " + id + " code: " + code + "\n";
-        bleh += "        invited users: ";
-        for (int i = 0; i < invitedUsers.size(); i++) bleh += invitedUsers.get(i).getUser().getUsername() + " ";
+        bleh += "        Owner : " + owner.getUser().getUsername();
 
         addTextInGui(bleh);
-    }
-
-    public void createWaitingRoom(JSONArray usernames, ServerToClient owner, String boardName) {
-
-        ArrayList invitedUsers = new ArrayList<ServerToClient>();
-
-        for (int i = 0; i < usernames.length(); i++) {
-
-            String temp = usernames.getString(i);
-            ServerToClient temp2 = getConnectionThroughUsername(temp);
-
-            if (temp2 != null) invitedUsers.add(temp2);
-        }
-        createWaitingRoom(invitedUsers, owner, getBoardKey(boardName));
     }
 
     private void removeFromWaitingRoom(ServerToClient s) {
@@ -360,7 +353,8 @@ public class Server extends JFrame {
         WaitingRoom w = s.getWaitingRoom();
         if (w == null) return;
 
-        w.exitRequestResponse(s, false, null);
+        int loc = s.getUser().getSeatPosition();
+        w.removeFromWaitingRoom(loc);
     }
 
     //================================================================================
@@ -422,7 +416,7 @@ public class Server extends JFrame {
         for (int i = 0; i < clients.size(); i++) bleh += ((ServerToClient) clients.get(i)).getUser().getUsername() + " ";
         addTextInGui(bleh);
 
-        removeFromWaitingRoom(owner);
+        removeWaitingRoom(w);
     }
 
     public void removeFromGameThread(ServerToClient s) {
@@ -588,7 +582,6 @@ public class Server extends JFrame {
         if (w == null) return;
 
         int typeLoc = getBoardKey(w.getBoardType());
-
         if (typeLoc == -1) return;
 
         waitingRoom[typeLoc].remove(w);
@@ -745,7 +738,7 @@ public class Server extends JFrame {
 
             ret += "Type -> " + boardType[i] + "\n";
             for (int j = 0; j < gameThreads[i].size(); j++)
-                ret += "        number " + i + " " + gameThreads[i].get(j).toString();
+                ret += "        number " + j + " " + gameThreads[i].get(j).toString();
 
         }
         addTextInGui(ret);
@@ -760,7 +753,7 @@ public class Server extends JFrame {
 
             ret += "Type -> " + boardType[i] + "\n";
             for (int j = 0; j < waitingRoom[i].size(); j++)
-                ret += "        number " + i + " " + waitingRoom[i].get(j).toString();
+                ret += "        number " + j + " " + waitingRoom[i].get(j).toString();
 
         }
         addTextInGui(ret);
