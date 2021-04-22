@@ -102,7 +102,7 @@ WAITING ROOMS:
 
 CHANGES
 	USER.JAVA BOTH END E CHANGE HOISE........
-	CLIENT TO SERVER.JAVA CHANG HOISE AMAR CODE ER ( 1480-1786 )
+	CLIENT TO SERVER.JAVA CHANG HOISE AMAR CODE ER ( 1480-1887 )
 												AR INCOMING MSG E WAITING 
 												ROOM ER PURA PART
 
@@ -172,7 +172,14 @@ FLOW:
 20.	owner er kase approve request chawar shomoy room full thakle 
 	approve korar option disable kore dibi..........
 
-
+21.	waiting room e dhokar por ar game start howar aag porjonto, 
+	board coin edit korte chaile call korbe 
+	sendEditBoardCoinInWaitingRoomRequest(value) 
+	value hoitese boardCoin = value set korte chay........
+	
+	server theke response ashbe editBoardCoinInWaitingRoomResponse() e 
+	success = true hole client side e data set korbe......
+	success = true hoile player data shobaire pathay......
 
 
 

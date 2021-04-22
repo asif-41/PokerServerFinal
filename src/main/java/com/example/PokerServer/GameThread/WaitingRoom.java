@@ -175,6 +175,10 @@ public class WaitingRoom implements Runnable {
                 int loc = waitingRoomData.getInt("seatPosition");
                 removeFromWaitingRoom(loc);
             }
+            else if(waitingRoomData.get("requestType").equals("EditBoardCoin")){
+
+                editBoardCoin(jsonIncoming, from);
+            }
             else if (waitingRoomData.get("requestType").equals("StartGame")) {
 
                 startGame();
@@ -300,8 +304,6 @@ public class WaitingRoom implements Runnable {
 
     private void askBoardCoin(ServerToClient s){
 
-
-
         s.setWaitingRoom(this);
         sendAskBoardCoin(s);
     }
@@ -323,6 +325,41 @@ public class WaitingRoom implements Runnable {
 
         s.sendMessage(send.toString());
     }
+
+
+
+
+    private void editBoardCoin(JSONObject jsonObject, ServerToClient s){
+
+        JSONObject waitingRoomData = jsonObject.getJSONObject("waitingRoomData");
+        long amount = waitingRoomData.getLong("amount");
+        long current = s.getUser().getBoardCoin() + s.getUser().getCurrentCoin();
+
+        if(amount > current) sendEditBoardCoinResponse(false, -1, s);
+        else{
+            s.getUser().setBoardCoin(amount);
+            s.getUser().setCurrentCoin(current - amount);
+            sendEditBoardCoinResponse(true, s.getUser().getBoardCoin(), s);
+            sendPlayersDataToAll();
+        }
+    }
+
+    private void sendEditBoardCoinResponse(boolean success, long boardCoin, ServerToClient s){
+
+        JSONObject send = initiateJson();
+        JSONObject data = new JSONObject();
+
+        data.put("success", success);
+        data.put("currentCoin", s.getUser().getCurrentCoin());
+        data.put("boardCoin", s.getUser().getBoardCoin());
+        data.put("requestType", "EditBoardCoinResponse");
+        data.put("dataType", "EditBoardCoinResponse");
+
+        send.put("waitingRoomData", data);
+
+        s.sendMessage(send.toString());
+    }
+
 
 
 
