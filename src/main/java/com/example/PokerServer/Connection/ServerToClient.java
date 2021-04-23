@@ -583,18 +583,24 @@ public class ServerToClient implements Runnable {
         WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
 
 
-        if (w == null || w.getAtSeat(0) == null || w.getOwner() == null) sendAskJoinWaitingRoomByCodeResponse(code, "Waiting room with code " + code + " not found.");
-        else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(code, "Waiting room with code " + code + " is full.");
+        if (w == null || w.getAtSeat(0) == null || w.getOwner() == null) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found.");
+        else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " is full.");
         else {
-            sendAskJoinWaitingRoomByCodeResponse(code, "Joining waiting room in 5 seconds");
-
-            waitingRoom = w;
+            sendAskJoinWaitingRoomByCodeResponse(true, code, "Joining waiting room in 5 seconds");
             waitThread(5);
-            w.askBoardCoin(this);
+
+            w = Server.pokerServer.findWaitingRoomByCode(code);
+
+            if(w == null) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found.");
+            else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " is full.");
+            else{
+                waitingRoom = w;
+                waitingRoom.askBoardCoin(this);
+            }
         }
     }
 
-    private void sendAskJoinWaitingRoomByCodeResponse(int code, String msg) {
+    private void sendAskJoinWaitingRoomByCodeResponse(boolean success, int code, String msg) {
 
         JSONObject send = initiateJson();
 
@@ -606,6 +612,7 @@ public class ServerToClient implements Runnable {
         temp.put("gameCode", code);
         temp.put("message", msg);
         temp.put("dataType", "JoinByCodeResponse");
+        temp.put("success", success);
 
         send.put("waitingRoomData", temp);
         sendMessage(send.toString());
@@ -621,9 +628,20 @@ public class ServerToClient implements Runnable {
     //==============================================================================
 
 
+
+
+
+
+
+
+
+
+
+
+
     //===========================================================================================
     //
-    //              CLOSING CONNECTIONS
+    //              JOIN GAME BY CODE
     //
     //===========================================================================================
 
@@ -729,23 +747,6 @@ public class ServerToClient implements Runnable {
         }
 
         send.put("data", array);
-        sendMessage(send.toString());
-    }
-
-    private void sendWaitingRoomJoinRequestResponse(boolean joining, int code, String msg) {
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "WaitingRoom");
-
-        JSONObject temp = new JSONObject();
-
-        temp.put("requestType", "JoinWaitingRoomResponse");
-        temp.put("roomCode", code);
-        temp.put("success", joining);
-        temp.put("message", msg);
-
-        send.put("waitingRoomData", temp);
         sendMessage(send.toString());
     }
 
