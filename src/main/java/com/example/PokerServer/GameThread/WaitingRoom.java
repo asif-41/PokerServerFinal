@@ -6,7 +6,6 @@ import com.example.PokerServer.Objects.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -27,7 +26,6 @@ public class WaitingRoom implements Runnable {
 
     private ServerToClient owner;
     private ServerToClient seat[];
-    private ArrayList pendingApproval;
 
     private JSONObject jsonIncoming;
 
@@ -47,7 +45,6 @@ public class WaitingRoom implements Runnable {
 
         playerCount = 0;
         seat = new ServerToClient[maxPlayerCount];
-        pendingApproval = new ArrayList<ServerToClient>();
     }
 
     @Override
@@ -155,14 +152,6 @@ public class WaitingRoom implements Runnable {
 
                 joinAmountRequest(jsonIncoming, from);
             }
-            else if (waitingRoomData.get("requestType").equals("ApproveJoinRequest")) {
-
-                if (from == owner) {
-
-                    String username = waitingRoomData.getString("username");
-                    approveJoinRequestResponse(username);
-                }
-            }
             else if(waitingRoomData.get("requestType").equals("RemoveFromWaitingRoom")){
 
                 if(from == owner){
@@ -220,24 +209,6 @@ public class WaitingRoom implements Runnable {
         return ret;
     }
 
-    private ServerToClient findInPendingArray(String username){
-
-        ServerToClient ret = null;
-
-        for(int i=0; i<pendingApproval.size(); i++){
-
-            ServerToClient s = (ServerToClient) pendingApproval.get(i);
-
-            if(s.getUser().getUsername().equals(username)){
-
-                ret = s;
-                pendingApproval.remove(i);
-                break;
-            }
-        }
-        return ret;
-    }
-
     //==================================================================================================================
     //
     //==================================================================================================================
@@ -246,45 +217,6 @@ public class WaitingRoom implements Runnable {
 
 
 
-
-
-
-
-    //==================================================================================================================
-    //
-    //      APPROVE JOIN REQUESTS
-    //
-    //==================================================================================================================
-
-    public void sendAskOwnerForApproval(ServerToClient s) {
-
-        JSONObject send = initiateJson();
-        JSONObject data = new JSONObject();
-
-        String message = s.getUser().getUsername() + " wants your approval to join waiting room";
-
-        data.put("requestType", "AskApproveJoinRequest");
-        data.put("dataType", "AskApproveJoinRequest");
-        data.put("message", message);
-        data.put("userData", User.UserToJson(s.getUser()));
-
-        send.put("waitingRoomData", data);
-        sendMessage(owner, send.toString());
-    }
-
-    private void approveJoinRequestResponse(String username){
-
-        ServerToClient s = findInPendingArray(username);
-
-        if(s == null) return;
-        else if(playerCount == maxPlayerCount) s.askToJoinWaitingRoom(gameCode);
-
-        askBoardCoin(s);
-    }
-
-    //==================================================================================================================
-    //
-    //==================================================================================================================
 
 
 
@@ -302,7 +234,7 @@ public class WaitingRoom implements Runnable {
     //
     //==================================================================================================================
 
-    private void askBoardCoin(ServerToClient s){
+    public void askBoardCoin(ServerToClient s){
 
         s.setWaitingRoom(this);
         sendAskBoardCoin(s);
@@ -641,13 +573,6 @@ public class WaitingRoom implements Runnable {
         }
         ret += "\n";
 
-        ret += "Pending: ";
-        for(int i=0; i<pendingApproval.size(); i++){
-            ServerToClient s = (ServerToClient) pendingApproval.get(i);
-            ret += s.getUser().getUsername() + " ";
-        }
-        ret += "\n\n";
-
         return ret;
     }
 
@@ -717,13 +642,5 @@ public class WaitingRoom implements Runnable {
 
     public void setPlayerCount(int playerCount) {
         this.playerCount = playerCount;
-    }
-
-    public ArrayList getPendingApproval() {
-        return pendingApproval;
-    }
-
-    public void setPendingApproval(ArrayList pendingApproval) {
-        this.pendingApproval = pendingApproval;
     }
 }

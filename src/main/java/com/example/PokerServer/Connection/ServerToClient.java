@@ -586,11 +586,11 @@ public class ServerToClient implements Runnable {
         if (w == null || w.getAtSeat(0) == null || w.getOwner() == null) sendAskJoinWaitingRoomByCodeResponse(code, "Waiting room with code " + code + " not found.");
         else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(code, "Waiting room with code " + code + " is full.");
         else {
-            sendAskJoinWaitingRoomByCodeResponse(code, "Waiting for owner's permission");
+            sendAskJoinWaitingRoomByCodeResponse(code, "Joining waiting room in 5 seconds");
 
             waitingRoom = w;
-            w.getPendingApproval().add(this);
-            w.sendAskOwnerForApproval(this);
+            waitThread(5);
+            w.askBoardCoin(this);
         }
     }
 
@@ -612,11 +612,6 @@ public class ServerToClient implements Runnable {
     }
 
     private void cancelJoiningRequest(){
-
-        if(waitingRoom == null) return;
-
-        int loc = waitingRoom.getPendingApproval().indexOf(this);
-        if(loc != -1) waitingRoom.getPendingApproval().remove(loc);
 
         waitingRoom = null;
     }
@@ -642,6 +637,16 @@ public class ServerToClient implements Runnable {
     //              SETTER AND GETTERS
     //
     //===================================================================================
+
+    private void waitThread(long t){
+
+        try{
+            Thread.sleep(t * 1000);
+        }catch (Exception e){
+            System.out.println("Error in waiting in serverToClient thread -> " + e);
+        }
+
+    }
 
     public User getUser() {
         return user;
