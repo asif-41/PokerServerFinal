@@ -282,6 +282,20 @@ public class Server extends JFrame {
         return ret;
     }
 
+
+    public GameThread findGameThreadByCode(int code) {
+
+        for (int i = 0; i < boardTypeCount; i++) {
+
+            for (int j = 0; j < gameThreads[i].size(); j++) {
+
+                GameThread g = (GameThread) gameThreads[i].get(j);
+                if (g.getGameCode() == code) return g;
+            }
+        }
+        return null;
+    }
+
     public WaitingRoom findWaitingRoomByCode(int code) {
 
         for (int i = 0; i < boardTypeCount; i++) {
@@ -294,6 +308,7 @@ public class Server extends JFrame {
         }
         return null;
     }
+
 
     public ServerToClient getServerToClient(WebSocketSession session) {
 
@@ -840,6 +855,7 @@ public class Server extends JFrame {
         textArea.setText("");
     }
 
+    //================================================================================================================================================
     //
     //================================================================================================================================================
 

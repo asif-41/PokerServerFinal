@@ -1887,6 +1887,46 @@ public class GameThread implements Runnable {
 
 
 
+    //==================================================================================================================
+    //
+    //          ON JOIN BY CODE REQUESTS
+    //
+    //==================================================================================================================
+
+    public void askBoardCoin(ServerToClient s){
+
+        s.setGameThread(this);
+        sendAskBoardCoin(s);
+    }
+
+    private void sendAskBoardCoin(ServerToClient s){
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("gameId", gameId);
+        tempJson.put("gameCode", gameCode);
+        tempJson.put("boardType", boardType);
+        tempJson.put("ownerId", getOwnerId());
+        tempJson.put("minCallValue", minCallValue);
+        tempJson.put("minEntryValue", minEntryValue);
+        tempJson.put("gameRequest", "AskBoardCoin");
+
+        send.put("gameData", tempJson);
+        s.sendMessage(send.toString());
+    }
+
+    //==================================================================================================================
+    //
+    //==================================================================================================================
+
+
+
+
+
+
+
 
 
 
@@ -2070,6 +2110,23 @@ public class GameThread implements Runnable {
 
     public boolean isPrivate() {
         return isPrivate;
+    }
+
+    public int getOwnerId(){
+
+        int k;
+        if(owner == null) k = -1;
+        else k = owner.getUser().getId();
+
+        return k;
+    }
+
+    public long getMinCallValue() {
+        return minCallValue;
+    }
+
+    public long getMinEntryValue() {
+        return minEntryValue;
     }
 
     //==================================================================================================================

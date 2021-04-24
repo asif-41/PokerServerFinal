@@ -181,7 +181,23 @@ public class ServerToClient implements Runnable {
             sendOwnInGameData();
         }
         else if (jsonIncoming.get("requestType").equals("GameThread")) {
-            gameThread.incomingMessage(temp, this);
+
+            JSONObject gameData = jsonIncoming.getJSONObject("gameData");
+
+            if(gameData.get("requestType").equals("AskJoinGameThreadByCode")){
+
+                int code = gameData.getInt("gameCode");
+                askToJoinGameThread(code);
+            }
+            else if(gameData.get("requestType").equals("CancelJoinRequest")){
+
+                cancelJoiningGameRequest();
+            }
+            else if(gameData.get("requestType").equals("JoinAmount")){
+
+                joinGameAmountRequest(jsonIncoming);
+            }
+            else gameThread.incomingMessage(temp, this);
         }
         else if (jsonIncoming.get("requestType").equals("WaitingRoom")) {
 
@@ -645,9 +661,75 @@ public class ServerToClient implements Runnable {
     //
     //===========================================================================================
 
+    public void askToJoinGameThread(int code) {
+
+        GameThread g = Server.pokerServer.findGameThreadByCode(code);
+
+        if(g == null) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " not found");
+        //else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
+        else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
+        else {
+            sendAskJoinWaitingRoomByCodeResponse(true, code, "Joining game room in 5 seconds");
+            waitThread(5);
+
+            g = Server.pokerServer.findGameThreadByCode(code);
+
+            if(g == null) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " not found");
+            //else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
+            else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
+
+            gameThread = g;
+            g.askBoardCoin(this);
+        }
+    }
+
+    private void sendAskJoinGameThreadByCodeResponse(boolean success, int code, String msg) {
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "GameRoom");
+
+        JSONObject temp = new JSONObject();
+
+        temp.put("code", code);
+        temp.put("message", msg);
+        temp.put("success", success);
+        temp.put("dataType", "JoinByCodeResponse");
+        temp.put("gameRequest", "AskJoinGameThreadByCodeResponse");
+
+        send.put("gameData", temp);
+        sendMessage(send.toString());
+    }
+
+    private void cancelJoiningGameRequest(){
+
+        gameThread = null;
+        user.deInitializeGameData();
+    }
+
+
+    private void joinGameAmountRequest(JSONObject jsonObject){
+
+        JSONObject gameData = jsonObject.getJSONObject("gameData");
+        long boardCoin = gameData.getLong("amount");
+
+        if(gameThread == null) sendAskJoinGameThreadByCodeResponse(false, -1, "Game room not found");
+
+        user.initializeGameData(gameThread.getGameId(), gameThread.getGameCode(), gameThread.getBoardType(),
+                                gameThread.getMinEntryValue(), gameThread.getMinCallValue(), gameThread.getOwnerId(),
+                                -1, boardCoin);
+
+        gameThread.addInGameThread(this);
+    }
+
     //===========================================================================================
     //
     //===========================================================================================
+
+
+
+
+
 
 
     //===================================================================================
