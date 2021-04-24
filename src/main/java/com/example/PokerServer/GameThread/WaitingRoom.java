@@ -148,11 +148,7 @@ public class WaitingRoom implements Runnable {
 
             JSONObject waitingRoomData = jsonIncoming.getJSONObject("waitingRoomData");
 
-            if(waitingRoomData.get("requestType").equals("JoinAmount")){
-
-                joinAmountRequest(jsonIncoming, from);
-            }
-            else if(waitingRoomData.get("requestType").equals("RemoveFromWaitingRoom")){
+            if(waitingRoomData.get("requestType").equals("RemoveFromWaitingRoom")){
 
                 if(from == owner){
 
@@ -295,11 +291,12 @@ public class WaitingRoom implements Runnable {
 
 
 
-    private void joinAmountRequest(JSONObject jsonObject, ServerToClient s){
+    public void joinAmountRequest(JSONObject jsonObject, ServerToClient s){
 
         JSONObject waitingRoomData = jsonObject.getJSONObject("waitingRoomData");
         long amount = waitingRoomData.getLong("amount");
         int seatPosition = getNextSeat();
+
 
         initiateUser(s, seatPosition, amount);
         sendInitiateUser(s, seatPosition, amount);

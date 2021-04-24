@@ -216,6 +216,10 @@ public class ServerToClient implements Runnable {
 
                 cancelJoiningRequest();
             }
+            else if(waitingRoomData.get("requestType").equals("JoinAmount")){
+
+                joinAmountRequest(jsonIncoming);
+            }
             else waitingRoom.incomingMsg(temp, this);
 
         }
@@ -639,6 +643,26 @@ public class ServerToClient implements Runnable {
         waitingRoom = null;
     }
 
+
+
+    public void joinAmountRequest(JSONObject jsonObject){
+
+        if(waitingRoom == null) sendAskJoinWaitingRoomByCodeResponse(false, -1, "Waiting room with code not found.");
+
+        int code = waitingRoom.getGameCode();
+        WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
+
+        if(w == null) {
+            sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found.");
+            waitingRoom = null;
+        }
+        else if(w.getPlayerCount() == w.getMaxPlayerCount()) {
+            sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " is full.");
+            waitingRoom = null;
+        }
+        else waitingRoom.joinAmountRequest(jsonObject, this);
+    }
+
     //==============================================================================
     //
     //==============================================================================
@@ -669,17 +693,17 @@ public class ServerToClient implements Runnable {
         //else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
         else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
         else {
-            sendAskJoinWaitingRoomByCodeResponse(true, code, "Joining game room in 5 seconds");
+            sendAskJoinGameThreadByCodeResponse(true, code, "Joining game room in 5 seconds");
             waitThread(5);
 
             g = Server.pokerServer.findGameThreadByCode(code);
 
             if(g == null) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " not found");
-            //else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
             else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
-
-            gameThread = g;
-            g.askBoardCoin(this);
+            else{
+                gameThread = g;
+                g.askBoardCoin(this);
+            }
         }
     }
 
@@ -711,15 +735,26 @@ public class ServerToClient implements Runnable {
     private void joinGameAmountRequest(JSONObject jsonObject){
 
         JSONObject gameData = jsonObject.getJSONObject("gameData");
+        int code = gameData.getInt("gameCode");
         long boardCoin = gameData.getLong("amount");
 
-        if(gameThread == null) sendAskJoinGameThreadByCodeResponse(false, -1, "Game room not found");
+        GameThread g = Server.pokerServer.findGameThreadByCode(code);
 
-        user.initializeGameData(gameThread.getGameId(), gameThread.getGameCode(), gameThread.getBoardType(),
-                                gameThread.getMinEntryValue(), gameThread.getMinCallValue(), gameThread.getOwnerId(),
-                                -1, boardCoin);
+        if(g == null) {
+            sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " not found");
+            gameThread = null;
+        }
+        else if(g.getPlayerCount() == g.getMaxPlayerCount()) {
+            sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
+            gameThread = null;
+        }
+        else {
+            user.initializeGameData(gameThread.getGameId(), gameThread.getGameCode(), gameThread.getBoardType(),
+                    gameThread.getMinEntryValue(), gameThread.getMinCallValue(), gameThread.getOwnerId(),
+                    -1, boardCoin);
 
-        gameThread.addInGameThread(this);
+            gameThread.addInGameThread(this);
+        }
     }
 
     //===========================================================================================

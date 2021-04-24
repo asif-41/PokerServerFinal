@@ -178,6 +178,27 @@ FLOW:
 
 
 
+JOIN GAME BY CODE 
+
+1.	joinGameThreadByCode(code) call kore join request pathabe 
+
+2.	er response ashbe joinGameThreadByCodeResponse() e 
+
+3.	join korte niye cancel dile cancelJoiningGameRequest() 
+	call kora lagbe 
+	
+4.	2 step e success = true hole 5 second por askBoardCoinForGame()
+	call hoye jigash korbe je koto niye dhukte chao
+	sathe aro kisu info diye initialize kore nibe 
+
+5.	amount ta pathaite hobe joinAmountForGame(amount) call kore 
+	eta pathaile join hoye jabe 
+	
+6.	join amount dite dite game close hoye gele 
+	2 step er oi function e msg ashbe je game not found
+	ar success = false hoye jabe 
+	(success ekta variable, step 2 er json e ase)
+
 
 
 
