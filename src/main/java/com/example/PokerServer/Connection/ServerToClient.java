@@ -606,17 +606,10 @@ public class ServerToClient implements Runnable {
         if (w == null || w.getAtSeat(0) == null || w.getOwner() == null) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found.");
         else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " is full.");
         else {
-            sendAskJoinWaitingRoomByCodeResponse(true, code, "Joining waiting room in 5 seconds");
-            waitThread(5);
+            sendAskJoinWaitingRoomByCodeResponse(true, code, "Joining waiting room");
 
-            w = Server.pokerServer.findWaitingRoomByCode(code);
-
-            if(w == null) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found.");
-            else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " is full.");
-            else{
-                waitingRoom = w;
-                waitingRoom.askBoardCoin(this);
-            }
+            waitingRoom = w;
+            waitingRoom.askBoardCoin(this);
         }
     }
 
@@ -693,17 +686,10 @@ public class ServerToClient implements Runnable {
         //else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
         else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
         else {
-            sendAskJoinGameThreadByCodeResponse(true, code, "Joining game room in 5 seconds");
-            waitThread(5);
+            sendAskJoinGameThreadByCodeResponse(true, code, "Joining game room");
 
-            g = Server.pokerServer.findGameThreadByCode(code);
-
-            if(g == null) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " not found");
-            else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
-            else{
-                gameThread = g;
-                g.askBoardCoin(this);
-            }
+            gameThread = g;
+            gameThread.askBoardCoin(this);
         }
     }
 

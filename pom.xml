@@ -15,9 +15,20 @@
     <description>Poker Server for Spring Boot</description>
     <properties>
         <java.version>11</java.version>
+
+
+
+        <!-- CHANGED HERE 1  -->
+
+
+        <!-- CHANGED HERE 1 DONE  -->
+
+
     </properties>
     <dependencies>
 
+
+        <!-- CHANGED HERE 2  -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -28,6 +39,7 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <!-- CHANGED HERE 2 DONE  -->
 
 
 

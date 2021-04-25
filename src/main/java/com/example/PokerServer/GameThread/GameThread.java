@@ -476,7 +476,7 @@ public class GameThread implements Runnable {
 
         for (int i = 0; i < maxPlayerCount; i++) sendWelcomeGameMsg(i);
 
-        waitGame(5);
+        //waitGame(5);
     }
 
     //==================================================================================================================
@@ -943,7 +943,7 @@ public class GameThread implements Runnable {
         send.put("message", "Round " + roundCount + " start");
         sendMessageToAll(send.toString());
 
-        waitGame(5);
+        //waitGame(5);
     }
 
 
@@ -1020,7 +1020,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(2);
+        //waitGame(2);
     }
 
     private void sendShowBoardInfo() {
@@ -1049,7 +1049,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(2);
+        //waitGame(2);
     }
 
     private void sendShowCards() {
@@ -1078,7 +1078,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(2);
+        //waitGame(2);
     }
 
     //==================================================================================================================
@@ -1381,7 +1381,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(5);
+        //waitGame(5);
     }
 
     //==================================================================================================================
@@ -1706,7 +1706,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(3);
+        waitGame(2);
     }
 
     private void sendAllCards() {
@@ -1758,7 +1758,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(5);
+        //waitGame(5);
     }
 
 
@@ -1779,7 +1779,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(10);
+        waitGame(5);
     }
 
     private void winnerResultSend() {
@@ -1832,7 +1832,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(10);
+        waitGame(5);
     }
 
 
@@ -1956,7 +1956,7 @@ public class GameThread implements Runnable {
 
         sendMessageToAll(send.toString());
 
-        waitGame(5);
+        //waitGame(5);
     }
 
     private void requestAddBoardCoin(ServerToClient s, JSONObject jsonObject) {
@@ -1999,7 +1999,7 @@ public class GameThread implements Runnable {
 
         sendMessage(loc, send.toString());
 
-        waitGame(3);
+        //waitGame(3);
     }
 
 
