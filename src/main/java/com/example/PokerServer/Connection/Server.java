@@ -91,7 +91,7 @@ public class Server extends JFrame {
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame ) {
 
-        setGui();
+        //setGui();
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
