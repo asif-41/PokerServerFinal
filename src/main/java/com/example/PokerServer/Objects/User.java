@@ -30,12 +30,10 @@ public class User {
 
     private static final long expIncrease = 25;
     public static final String rankString[] = {"Newbie", "Beginner", "Amateur", "Semi-Pro", "Pro", "World-Class", "Legendary"};
-    private static final long ranksValue[] = {0, 500, 2000, 7500, 20000, 50000};
+    private static final long ranksValue[] = {0, 50000, 100000, 1000000, 20000000, 500000000};
 
     private String username;            //      USERNAME
     private int id;                     //      USER ID
-    private Date DOB;                   //      DATE OF BIRTH
-    private int age;                    //      AGE
     private String fb_id;               //      USER FB ID
     private String gmail_id;            //      USER GMAIL ID
     private String loginMethod;         //      LOGIN METHOD OF USER
@@ -128,18 +126,15 @@ public class User {
     //
     //============================================================================
 
-    public User(int id, String username, Date DOB, int age, String fb_id, String gmail_id, String loginMethod,
-                long exp,
-                long currentCoin, long coinWon, long coinLost, int roundsWon, int roundsPlayed,
-                int winStreak, int totalCallCount, int callCount, int raiseCount,
+    public User(int id, String username, String fb_id, String gmail_id, String loginMethod,
+                long exp, long currentCoin, long coinWon, long coinLost, int roundsWon,
+                int roundsPlayed, int winStreak, int totalCallCount, int callCount, int raiseCount,
                 int foldCount, int allInCount, int checkCount, long biggestWin, String bestHand,
-                int coinVideoCount, Date lastCoinVideoAvailableTime,
-                Date lastLoggedInTime, Date lastFreeCoinTime, Date currentLoginTime) {
+                int coinVideoCount, Date lastCoinVideoAvailableTime, Date lastLoggedInTime,
+                Date lastFreeCoinTime, Date currentLoginTime) {
 
         this.id = id;
         this.username = username;
-        this.DOB = DOB;
-        this.age = age;
         this.fb_id = fb_id;
         this.gmail_id = gmail_id;
         this.loginMethod = loginMethod;
@@ -301,8 +296,6 @@ public class User {
 
         temp.put("id", user.getId());
         temp.put("username", user.getUsername());
-        temp.put("DOB", user.getDOB());
-        temp.put("age", user.getAge());
         temp.put("fb_id", user.getFb_id());
         temp.put("gmail_id", user.getGmail_id());
         temp.put("loginMethod", user.getLoginMethod());
@@ -337,8 +330,6 @@ public class User {
 
         User user = new User(temp.getInt("id"),
                 temp.getString("username"),
-                User.stringToDate(temp.getString("DOB")),
-                temp.getInt("age"),
                 temp.getString("fb_id"),
                 temp.getString("gmail_id"),
                 temp.getString("loginMethod"),
@@ -382,8 +373,6 @@ public class User {
 
         temp.put("id", user.getId());
         temp.put("username", user.getUsername());
-        temp.put("DOB", user.getDOB());
-        temp.put("age", user.getAge());
         temp.put("fb_id", user.getFb_id());
         temp.put("gmail_id", user.getGmail_id());
         temp.put("loginMethod", user.getLoginMethod());
@@ -433,8 +422,6 @@ public class User {
 
         User user = new User(temp.getInt("id"),
                 temp.getString("username"),
-                User.stringToDate(temp.getString("DOB")),
-                temp.getInt("age"),
                 temp.getString("fb_id"),
                 temp.getString("gmail_id"),
                 temp.getString("loginMethod"),
@@ -725,22 +712,6 @@ public class User {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Date getDOB() {
-        return DOB;
-    }
-
-    public void setDOB(Date DOB) {
-        this.DOB = DOB;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 
 
@@ -1255,8 +1226,6 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", DOB=" + DOB +
-                ", age=" + age +
                 ", fb_id='" + fb_id + '\'' +
                 ", gmail_id='" + gmail_id + '\'' +
                 ", loginMethod='" + loginMethod + '\'' +

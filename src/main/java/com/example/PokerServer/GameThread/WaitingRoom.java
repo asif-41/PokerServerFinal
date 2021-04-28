@@ -21,6 +21,8 @@ public class WaitingRoom implements Runnable {
     private int playerCount;
     private int maxPlayerCount;
 
+    private Timer startTimer;
+    private Timer closeTimer;
     private boolean removingMultiple;
     private boolean closing;
 
@@ -32,6 +34,8 @@ public class WaitingRoom implements Runnable {
 
     public WaitingRoom(ServerToClient owner, int gameId, int gameCode, int maxPlayerCount, String boardType, long minEntryValue, long minCallValue) {
 
+        startTimer = null;
+        closeTimer = null;
         removingMultiple = false;
         closing = false;
 
@@ -52,7 +56,8 @@ public class WaitingRoom implements Runnable {
 
         askBoardCoin(owner);
 
-        new Timer().schedule(new TimerTask() {
+        closeTimer = new Timer();
+        closeTimer.schedule(new TimerTask() {
             @Override
             public void run() {
                 if(playerCount == 0) closeEverything();
@@ -415,6 +420,7 @@ public class WaitingRoom implements Runnable {
 
     private void closeEverything() {
 
+        if(closeTimer != null) closeTimer.cancel();
         closing = true;
 
         for (int i = 1; i < maxPlayerCount; i++) {
@@ -457,7 +463,8 @@ public class WaitingRoom implements Runnable {
 
 
         if (willStart) {
-            new Timer().schedule(new TimerTask() {
+            startTimer = new Timer();
+            startTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     makeGame();
@@ -483,6 +490,8 @@ public class WaitingRoom implements Runnable {
     }
 
     private void makeGame() {
+
+        if(startTimer != null) startTimer.cancel();
 
         if( ! (playerCount > 1) ) {
             sendStartGameResponse("In sufficient players, player count must be greater than 1");

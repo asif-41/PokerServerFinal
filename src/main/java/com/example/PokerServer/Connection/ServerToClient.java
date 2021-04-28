@@ -759,16 +759,6 @@ public class ServerToClient implements Runnable {
     //
     //===================================================================================
 
-    private void waitThread(long t){
-
-        try{
-            Thread.sleep(t * 1000);
-        }catch (Exception e){
-            System.out.println("Error in waiting in serverToClient thread -> " + e);
-        }
-
-    }
-
     public User getUser() {
         return user;
     }

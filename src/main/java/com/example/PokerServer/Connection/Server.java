@@ -39,6 +39,7 @@ public class Server extends JFrame {
     private int port;                           //      SERVER PORT
     private int queueWaitLimit;                 //      WAIT LIMIT IN QUEUE
     private int queueCheckTimeInterval;         //      QUEUE CHECK INTERVAL
+    private int gameCodeLowerLimit;
     private int gameCodeUpperLimit;             //      ROOM CODE UPPER LIMIT
     private ArrayList[] waitingRoom;
     private ArrayList[] pendingQueue;
@@ -87,11 +88,12 @@ public class Server extends JFrame {
     //========================================================================================
 
 
-    public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] minCallValue, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount, int queueCheckTimeInterval,
+    public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] minCallValue, int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
+                  int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame ) {
 
-        //setGui();
+        setGui();
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
@@ -102,6 +104,7 @@ public class Server extends JFrame {
         this.minEntryValue = minEntryValue;
 
 
+        this.gameCodeLowerLimit = gameCodeLowerLimit;
         this.gameCodeUpperLimit = gameCodeUpperLimit;
         this.leastPlayerCount = leastPlayerCount;
         this.maxPlayerCount = maxPlayerCount;
@@ -169,10 +172,11 @@ public class Server extends JFrame {
         guests.add(id);
 
         User user;
-        user = new User(-1, "Guest_" + id, Calendar.getInstance().getTime(), -1, "", "", "guest",
+        user = new User(-1, "Guest_" + id, "", "", "guest",
                 0, initialCoin, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, "",
-                dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(), Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
+                dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
+                Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
 
         return user;
     }
@@ -264,7 +268,7 @@ public class Server extends JFrame {
                 temp.add(((WaitingRoom) waitingRoom[i].get(j)).getGameCode());
             }
         }
-        code = Randomizer.randomUnique(temp, gameCodeUpperLimit);
+        code = Randomizer.randomUnique(temp, gameCodeUpperLimit - gameCodeLowerLimit) + gameCodeLowerLimit;
 
         return code;
     }

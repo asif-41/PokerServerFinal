@@ -8,10 +8,13 @@ import com.example.PokerServer.Objects.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class GameThread implements Runnable {
 
@@ -620,6 +623,8 @@ public class GameThread implements Runnable {
 
     private void closeRoom() {
 
+        if(closeTimer != null) closeTimer.cancel();
+
         for (int i = 0; i < maxPlayerCount; i++) {
 
             if (inGamePlayers[i] == null) continue;
@@ -673,6 +678,25 @@ public class GameThread implements Runnable {
         return ret;
     }
 
+    private int findPrevAvailableSeatFromThisPosition(int position) {
+
+        int k, ret = -1;
+        int loc = position - 1;
+
+        for (int i = 0; i < maxPlayerCount; i++) {
+            k = (loc - i);
+            if(k < 0) k += maxPlayerCount;
+
+            if (inGamePlayers[k] != null && isActiveInRoom[k] != false) {
+                ret = k;
+                break;
+            }
+        }
+        return ret;
+    }
+
+
+
     private void setNextPlayer() {
 
         int newIterator = -1, k;
@@ -710,8 +734,8 @@ public class GameThread implements Runnable {
 
                 previousCycleStarterSeat = findNextAvailableSeatFromThisPosition(previousCycleStarterSeat);
                 roundIteratorSeat = previousCycleStarterSeat;
-                bigBlindSeat = roundIteratorSeat;
-                smallBlindSeat = findNextAvailableSeatFromThisPosition(roundIteratorSeat);
+                bigBlindSeat = findPrevAvailableSeatFromThisPosition(roundIteratorSeat);
+                smallBlindSeat = findPrevAvailableSeatFromThisPosition(bigBlindSeat);
                 bigBlindMsgSent = false;
                 smallBlindMsgSent = false;
 
@@ -1178,7 +1202,7 @@ public class GameThread implements Runnable {
             array.put(temp);
         }
 
-        if (hasAnyoneCalled == false) {
+        if (cardShowed>0 && !hasAnyoneCalled) {
 
             temp = new JSONObject();
             temp.put("name", "Check");
@@ -2010,14 +2034,17 @@ public class GameThread implements Runnable {
     //
     //==================================================================================================================
 
-    private void waitGame(long time){
+    private void waitGame(long t){
 
-        try{
-            Thread.sleep(time * 1000);
-        }catch (Exception e){
-            System.out.println("Error in waiting in game thread -> " + e);
+        LocalTime start = LocalTime.now();
+
+        while(true){
+
+            LocalTime cur = LocalTime.now();
+            long diff = SECONDS.between(start, cur);
+
+            if(diff >= t) break;
         }
-
     }
 
     private long max(long a, long b) {
