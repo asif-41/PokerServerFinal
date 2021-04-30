@@ -78,7 +78,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
         }
 
         s.closeEverything();
-        s = null;
     }
 
     private void createServerToClient(WebSocketSession session) {

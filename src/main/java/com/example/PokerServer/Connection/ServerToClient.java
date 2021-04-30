@@ -5,13 +5,11 @@ import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.User;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class ServerToClient implements Runnable {
@@ -171,12 +169,6 @@ public class ServerToClient implements Runnable {
 
             addFreeCoinResponse(jsonIncoming.getString("requestTime"));
         }
-        else if (jsonIncoming.get("requestType").equals("FriendsListRequest")) {
-
-            //  Send friends list
-
-            friendListRequestResponse();
-        }
         else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
@@ -260,10 +252,10 @@ public class ServerToClient implements Runnable {
         String account_id = data.getString("account_id");
         String account_type = data.getString("account_type");
         String account_username = data.getString("account_username");
-        String imageData = data.getString("imageData");
+        String imageLink = data.getString("imageLink");
 
 
-        user = Server.pokerServer.makeUser(account_id, account_type, account_username, imageData);
+        user = Server.pokerServer.makeUser(account_id, account_type, account_username, imageLink);
 
         if (user != null) {
             user.setLoggedIn(true);
@@ -822,52 +814,4 @@ public class ServerToClient implements Runnable {
     //
     //==============================================================================
 
-
-
-
-    private ArrayList<ServerToClient> loadFriendsList() {
-
-        ArrayList loggedUsers = Server.pokerServer.getLoggedInUsers();
-        ArrayList friends = new ArrayList<User>();
-
-        for (int i = 0; i < loggedUsers.size(); i++)
-            friends.add(((ServerToClient) loggedUsers.get(i)).getUser());
-
-        return friends;
-    }
-
-    private void friendListRequestResponse() {
-
-        //FRIENDS LIST REQUEST TO SERVER
-        //Get friends list here
-        ArrayList friends = loadFriendsList();
-
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "FriendsList");
-
-        JSONArray array = new JSONArray();
-
-        for (int i = 0; i < friends.size(); i++) {
-
-            User temp = (User) friends.get(i);
-            JSONObject tempJson = new JSONObject();
-
-            tempJson.put("username", temp.getUsername());
-            tempJson.put("currentCoin", temp.getCurrentCoin());
-            tempJson.put("coinWon", temp.getCoinWon());
-            tempJson.put("level", temp.getLevel());
-
-            array.put(tempJson);
-        }
-
-        send.put("data", array);
-        sendMessage(send.toString());
-    }
-
-
-    //==============================================================================
-    //
-    //==============================================================================
 }

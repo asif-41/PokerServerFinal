@@ -307,8 +307,8 @@ public class WaitingRoom implements Runnable {
         sendInitiateUser(s, seatPosition, amount);
         sendPlayersDataToAll();
 
-        sendAllImage(seatPosition);
-        sendImageToAll(seatPosition);
+        //sendAllImage(seatPosition);
+        //sendImageToAll(seatPosition);
     }
 
 
@@ -381,7 +381,7 @@ public class WaitingRoom implements Runnable {
         if(seatPosition < 0) return ;
         if(seat[seatPosition] == null) return ;
 
-        removeImageToAll(seatPosition);
+        //removeImageToAll(seatPosition);
 
         ServerToClient s = seat[seatPosition];
         s.setWaitingRoom(null);
@@ -546,7 +546,7 @@ public class WaitingRoom implements Runnable {
         sendMessageToAll(send.toString());
     }
 
-
+    /*
     private void sendAllImage(int loc){
 
         JSONObject send = initiateJson();
@@ -614,7 +614,7 @@ public class WaitingRoom implements Runnable {
         tempJson.put("imageData", array);
         send.put("waitingRoomData", tempJson);
         sendMessageToAll(send.toString());
-    }
+    }*/
 
     //==================================================================================================================
     //

@@ -222,7 +222,7 @@ public class GameThread implements Runnable {
 
         initializePlayers();
         sendPlayersDataToAll();
-        sendAllImagesToAll();
+        //sendAllImagesToAll();
 
         sendWelcomeGameMsgToAll();
 
@@ -234,6 +234,10 @@ public class GameThread implements Runnable {
     //==================================================================================================================
     //
     //==================================================================================================================
+
+
+
+
 
 
     //==================================================================================================================
@@ -260,19 +264,6 @@ public class GameThread implements Runnable {
 
         if (temp == null) return;
         temp.sendMessage(s);
-    }
-
-    private void sendMessageToAllExceptOne(String s, int loc, String exceptionMsg) {
-
-        if (!exceptionMsg.equals("")) sendMessage(loc, exceptionMsg);
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-
-            if (i == loc) continue;
-
-            sendMessage(i, s);
-        }
-
     }
 
     private void sendMessageToAll(String s) {
@@ -338,6 +329,10 @@ public class GameThread implements Runnable {
     //==================================================================================================================
     //
     //==================================================================================================================
+
+
+
+
 
 
     //==================================================================================================================
@@ -461,82 +456,6 @@ public class GameThread implements Runnable {
 
 
 
-    private void sendAllImage(int loc){
-
-        JSONObject send = initiateJson();
-
-        JSONObject tempJson = new JSONObject();
-
-        tempJson.put("id", gameId);
-        tempJson.put("code", gameCode);
-        tempJson.put("gameRequest", "LoadImages");
-
-        JSONArray array = new JSONArray();
-
-        for(int i=0; i<maxPlayerCount; i++){
-            if(inGamePlayers[i] == null) continue;
-
-            JSONObject temp = new JSONObject();
-            temp.put("seatPosition", i);
-            temp.put("username", inGamePlayers[i].getUser().getUsername());
-            temp.put("image", Server.pokerServer.getImage(inGamePlayers[i].getUser()));
-            array.put(temp);
-        }
-
-        tempJson.put("imageData", array);
-        send.put("gameData", tempJson);
-        sendMessage(loc, send.toString());
-    }
-
-    private void addImageToAll(int imageLoc){
-
-        JSONObject send = initiateJson();
-
-        JSONObject tempJson = new JSONObject();
-
-        tempJson.put("id", gameId);
-        tempJson.put("code", gameCode);
-        tempJson.put("gameRequest", "LoadImages");
-
-        JSONArray array = new JSONArray();
-
-            JSONObject temp = new JSONObject();
-            temp.put("seatPosition", imageLoc);
-            temp.put("username", inGamePlayers[imageLoc].getUser().getUsername());
-            temp.put("image", Server.pokerServer.getImage(inGamePlayers[imageLoc].getUser()));
-
-        array.put(temp);
-
-        tempJson.put("imageData", array);
-        send.put("gameData", tempJson);
-        sendMessageToAll(send.toString());
-    }
-
-    private void removeImageToAll(int imageLoc){
-
-        JSONObject send = initiateJson();
-
-        JSONObject tempJson = new JSONObject();
-
-        tempJson.put("id", gameId);
-        tempJson.put("code", gameCode);
-        tempJson.put("gameRequest", "RemoveImage");
-        tempJson.put("seatPosition", imageLoc);
-        tempJson.put("username", inGamePlayers[imageLoc].getUser().getUsername());
-
-        send.put("gameData", tempJson);
-        sendMessageToAll(send.toString());
-    }
-
-    private void sendAllImagesToAll(){
-
-        for(int i=0; i<maxPlayerCount; i++){
-            if(inGamePlayers[i] != null) sendAllImage(i);
-        }
-    }
-
-
-
     private void sendWelcomeGameMsg(int loc) {
 
         if (inGamePlayers[loc] == null) return;
@@ -565,6 +484,12 @@ public class GameThread implements Runnable {
     //==================================================================================================================
     //
     //==================================================================================================================
+
+
+
+
+
+
 
 
     //==================================================================================================================
@@ -598,8 +523,8 @@ public class GameThread implements Runnable {
         initializePlayer(loc);
 
         sendPlayersDataToAll();
-        sendAllImage(loc);
-        addImageToAll(loc);
+        //sendAllImage(loc);
+        //addImageToAll(loc);
 
         sendWelcomeGameMsg(loc);
 
@@ -669,7 +594,7 @@ public class GameThread implements Runnable {
             tempUser.setRoundsPlayed(tempUser.getRoundsPlayed() + 1);
             tempUser.setCoinLost(tempUser.getCoinLost() + playerTotalCallValues[seatPosition]);
         }
-        removeImageToAll(seatPosition);
+        //removeImageToAll(seatPosition);
         s.leaveGameRoom();
 
         if (isActiveInRound[seatPosition] == true) activeCountInRound--;
@@ -738,6 +663,15 @@ public class GameThread implements Runnable {
     //==================================================================================================================
     //
     //==================================================================================================================
+
+
+
+
+
+
+
+
+
 
 
     //==================================================================================================================
@@ -1029,6 +963,12 @@ public class GameThread implements Runnable {
     //==================================================================================================================
 
 
+
+
+
+
+
+
     //==================================================================================================================
     //
     //              ROUND OPERATING JSON SEND DATA
@@ -1188,6 +1128,9 @@ public class GameThread implements Runnable {
 
         //waitGame(2);
     }
+
+
+
 
     //==================================================================================================================
     //

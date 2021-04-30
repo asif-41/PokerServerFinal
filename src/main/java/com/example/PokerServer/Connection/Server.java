@@ -2,19 +2,15 @@ package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
-import com.example.PokerServer.Objects.ImageManipulation;
 import com.example.PokerServer.Objects.Randomizer;
 import com.example.PokerServer.Objects.User;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -153,12 +149,15 @@ public class Server extends JFrame {
                 queueIterator();
             }
         }, 0, 1000);
-
     }
 
     //========================================================================================
     //
     //========================================================================================
+
+
+
+
 
 
     //========================================================================================
@@ -167,54 +166,7 @@ public class Server extends JFrame {
     //
     //========================================================================================
 
-    private String imageFileName(User user){
-
-        String fileName = user.getLoginMethod() + "_" + user.getUsername() + "_";
-
-        if(user.getLoginMethod().equals("facebook")) fileName += user.getFb_id();
-        else if(user.getLoginMethod().equals("google")) fileName += user.getGmail_id();
-        else if(user.getLoginMethod().equals("guest")) fileName += "guest";
-
-        return fileName + ".png";
-
-    }
-
-    private String imageFilePath(User user){
-
-        String path;
-        path = "./././././Images/" + imageFileName(user);
-        return path;
-    }
-
-    private void saveImage(User user, String imageData){
-
-        try{
-            BufferedImage img = ImageManipulation.stringToImage(imageData);
-            ImageIO.write(img, "png", new File(imageFilePath(user)));
-        }catch (Exception e){
-            addTextInGui("Error in saving image " + e);
-        }
-    }
-
-    private void deleteImage(User user){
-
-        File f = new File(imageFilePath(user));
-        f.delete();
-    }
-
-    public String getImage(User user){
-
-        String data;
-        String path = imageFilePath(user);
-        data = ImageManipulation.imageToString(path);
-
-        return data;
-    }
-
-
-
-
-    private User makeGuestUser() {
+    private User makeGuestUser(String imageLink) {
 
         if (guests.size() == maxGuestLimit) return null;
 
@@ -223,7 +175,7 @@ public class Server extends JFrame {
         guests.add(id);
 
         User user;
-        user = new User(-1, "Guest_" + id, "", "", "guest",
+        user = new User(-1, "Guest_" + id, "", "", "guest", imageLink,
                 0, initialCoin, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, "",
                 dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
@@ -232,7 +184,7 @@ public class Server extends JFrame {
         return user;
     }
 
-    private User loadUserFromDatabase(String account_id, String account_type, String username) {
+    private User loadUserFromDatabase(String account_id, String account_type, String username, String imageLink) {
 
         //CREATE IF DOES NOT EXIST
         //RETURN EXISTING IF DOES EXIST
@@ -244,14 +196,12 @@ public class Server extends JFrame {
 
     }
 
-    public User makeUser(String account_id, String account_type, String username, String imageData) {
+    public User makeUser(String account_id, String account_type, String username, String imageLink) {
 
-        User user;
+        User user = null;
 
-        if (account_type.equals("guest")) user = makeGuestUser();
-        else user = loadUserFromDatabase(account_id, account_type, username);
-
-        if(user != null) saveImage(user, imageData);
+        if (account_type.equals("guest")) user = makeGuestUser(imageLink);
+        else if(account_type.equals("facebook") || account_type.equals("google")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
 
         return user;
     }
@@ -396,6 +346,8 @@ public class Server extends JFrame {
     //================================================================================
 
 
+
+
     //================================================================================
     //
     //              WAITING ROOM OPERATIONS
@@ -432,6 +384,9 @@ public class Server extends JFrame {
     //================================================================================
     //
     //================================================================================
+
+
+
 
 
     //================================================================================
@@ -504,6 +459,8 @@ public class Server extends JFrame {
     //================================================================================
 
 
+
+
     //================================================================================
     //
     //          QUEUE ITERATOR OPERATIONS
@@ -534,7 +491,6 @@ public class Server extends JFrame {
     }
 
     private void tryAddingToGameThread() {
-
 
         for (int i = 0; i < boardTypeCount; i++) {
 
@@ -585,6 +541,9 @@ public class Server extends JFrame {
     //================================================================================
     //
     //================================================================================
+
+
+
 
 
     //================================================================================
@@ -646,7 +605,6 @@ public class Server extends JFrame {
         if (typeLoc == -1) return;
 
         gameThreads[typeLoc].remove(g);
-        g = null;
     }
 
     public void removeWaitingRoom(WaitingRoom w) {
@@ -657,7 +615,6 @@ public class Server extends JFrame {
         if (typeLoc == -1) return;
 
         waitingRoom[typeLoc].remove(w);
-        w = null;
     }
 
     public boolean removeFromPendingQueue(ServerToClient s) {
@@ -695,9 +652,9 @@ public class Server extends JFrame {
         if (s.getUser().getLoginMethod().equals("guest")) {
             int nameCode = Integer.valueOf(s.getUser().getUsername().split("_")[1]);
             guests.remove((Integer) nameCode);
-        } else loadUserToDatabase(s.getUser());
+        }
+        else loadUserToDatabase(s.getUser());
 
-        deleteImage(s.getUser());
         loggedInUsers.remove(s);
     }
 
@@ -712,6 +669,14 @@ public class Server extends JFrame {
     //================================================================================
     //
     //================================================================================
+
+
+
+
+
+
+
+
 
 
     //================================================================================================================================================
