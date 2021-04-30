@@ -1,8 +1,9 @@
 package com.example.PokerServer;
 
 import com.example.PokerServer.Connection.Server;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +28,11 @@ public class PokerServerApplication {
                 2, 5, 1, 120, 8080, 1000,500000,
                 10, 50000, 100000, 60, 15);
 
-        SpringApplication.run(PokerServerApplication.class, args);
+        SpringApplicationBuilder builder = new SpringApplicationBuilder(PokerServerApplication.class);
+        builder.headless(false);
+        ConfigurableApplicationContext context = builder.run(args);
+
+        //SpringApplication.run(PokerServerApplication.class, args);
     }
 
 

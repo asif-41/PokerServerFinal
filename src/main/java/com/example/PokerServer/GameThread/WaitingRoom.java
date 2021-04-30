@@ -137,7 +137,7 @@ public class WaitingRoom implements Runnable {
 
     public void incomingMsg(String temp, ServerToClient from) {
 
-        System.out.println("Waiting room msg -> " + temp);
+        //System.out.println("Waiting room msg -> " + temp);
 
         try {
             jsonIncoming = new JSONObject(temp);
@@ -306,6 +306,9 @@ public class WaitingRoom implements Runnable {
         initiateUser(s, seatPosition, amount);
         sendInitiateUser(s, seatPosition, amount);
         sendPlayersDataToAll();
+
+        sendAllImage(seatPosition);
+        sendImageToAll(seatPosition);
     }
 
 
@@ -361,8 +364,8 @@ public class WaitingRoom implements Runnable {
     private void removeFromWaitingRoom(JSONObject jsonObject){
 
         removingMultiple = true;
-
         JSONArray data = jsonObject.getJSONArray("data");
+
         for(int i=0; i<data.length(); i++) {
 
             sendRemoveFromWaitingRoomMessage(data.getInt(i), "Owner removed you from waiting room");
@@ -377,6 +380,8 @@ public class WaitingRoom implements Runnable {
 
         if(seatPosition < 0) return ;
         if(seat[seatPosition] == null) return ;
+
+        removeImageToAll(seatPosition);
 
         ServerToClient s = seat[seatPosition];
         s.setWaitingRoom(null);
@@ -538,6 +543,76 @@ public class WaitingRoom implements Runnable {
             array.put(temp);
         }
         send.put("data", array);
+        sendMessageToAll(send.toString());
+    }
+
+
+    private void sendAllImage(int loc){
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("requestType", "LoadImages");
+
+        JSONArray array = new JSONArray();
+
+        for(int i=0; i<maxPlayerCount; i++){
+            if(seat[i] == null) continue;
+
+            JSONObject temp = new JSONObject();
+            temp.put("seatPosition", i);
+            temp.put("username", seat[i].getUser().getUsername());
+            temp.put("image", Server.pokerServer.getImage(seat[i].getUser()));
+            array.put(temp);
+        }
+
+        tempJson.put("imageData", array);
+        send.put("waitingRoomData", tempJson);
+        sendMessage(loc, send.toString());
+    }
+
+    private void removeImageToAll(int imageLoc){
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("requestType", "RemoveImage");
+        tempJson.put("seatPosition", imageLoc);
+        tempJson.put("username", seat[imageLoc].getUser().getUsername());
+
+        send.put("waitingRoomData", tempJson);
+        sendMessageToAll(send.toString());
+    }
+
+
+    private void sendImageToAll(int imageLoc){
+
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("requestType", "LoadImages");
+
+        JSONArray array = new JSONArray();
+
+        JSONObject temp = new JSONObject();
+        temp.put("seatPosition", imageLoc);
+        temp.put("username", seat[imageLoc].getUser().getUsername());
+        temp.put("image", Server.pokerServer.getImage(seat[imageLoc].getUser()));
+
+        array.put(temp);
+
+        tempJson.put("imageData", array);
+        send.put("waitingRoomData", tempJson);
         sendMessageToAll(send.toString());
     }
 

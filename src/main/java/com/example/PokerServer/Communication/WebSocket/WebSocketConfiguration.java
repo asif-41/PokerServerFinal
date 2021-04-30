@@ -12,6 +12,7 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
+
         webSocketHandlerRegistry.addHandler(new WebSocketHandler(), "/WebSocketServerEnd");
     }
 }

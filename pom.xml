@@ -39,6 +39,7 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+
         <!-- CHANGED HERE 2 DONE  -->
 
 
@@ -55,7 +56,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>30.1.1-jre</version>
+        </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

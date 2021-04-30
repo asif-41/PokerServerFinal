@@ -3,6 +3,8 @@ package com.example.PokerServer.Connection;
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.User;
+import com.google.common.base.Splitter;
+import com.google.common.collect.FluentIterable;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
@@ -103,24 +105,38 @@ public class ServerToClient implements Runnable {
 
     public void sendMessage(String temp) {
 
-        System.out.println("sending -> " + temp);
-
         try {
-            session.sendMessage(new TextMessage(temp));
+            System.out.println("sending length -> " + temp.toString().getBytes("UTF-8").length);
+
+            String[] splitted = FluentIterable.from(Splitter.fixedLength(8000).split(temp)).toArray(String.class);
+
+            for(int i=0; i<splitted.length-1; i++){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("done", false);
+                jsonObject.put("data", splitted[i]);
+
+                session.sendMessage(new TextMessage(jsonObject.toString()));
+            }
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("done", true);
+            jsonObject.put("data", splitted[splitted.length-1]);
+
+            session.sendMessage(new TextMessage(jsonObject.toString()));
 
         } catch (Exception e) {
 
             Server.pokerServer.addTextInGui("Error for connection with key -> " + webSocketKey);
             Server.pokerServer.addTextInGui("Error in sending data from server -> " + e);
         }
-
     }
 
     public void incomingMsg(String temp) {
 
         try {
             jsonIncoming = new JSONObject(temp);
-            System.out.println(jsonIncoming);
+            //System.out.println(jsonIncoming);
+            System.out.println("received length -> " + temp.toString().getBytes("UTF-8").length);
 
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
@@ -133,9 +149,7 @@ public class ServerToClient implements Runnable {
 
             //LOGIN REQUEST
 
-            JSONObject tempJson = jsonIncoming.getJSONObject("data");
-            loginRequestResponse(tempJson.getString("account_id"), tempJson.getString("account_type"), tempJson.getString("account_username"));
-
+            loginRequestResponse(jsonIncoming);
         }
         else if (jsonIncoming.get("requestType").equals("LogoutRequest")) {
 
@@ -239,9 +253,17 @@ public class ServerToClient implements Runnable {
     //
     //==============================================================================
 
-    private void loginRequestResponse(String account_id, String account_type, String username) {
+    private void loginRequestResponse(JSONObject jsonObject) {
 
-        user = Server.pokerServer.makeUser(account_id, account_type, username);
+        JSONObject data = jsonObject.getJSONObject("data");
+
+        String account_id = data.getString("account_id");
+        String account_type = data.getString("account_type");
+        String account_username = data.getString("account_username");
+        String imageData = data.getString("imageData");
+
+
+        user = Server.pokerServer.makeUser(account_id, account_type, account_username, imageData);
 
         if (user != null) {
             user.setLoggedIn(true);
@@ -260,7 +282,8 @@ public class ServerToClient implements Runnable {
 
             JSONObject temp = new JSONObject();
             send.put("data", temp);
-        } else {
+        }
+        else {
             send.put("response", true);
 
             JSONObject temp = User.UserToJson(user);

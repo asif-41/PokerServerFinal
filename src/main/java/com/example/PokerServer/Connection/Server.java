@@ -2,15 +2,19 @@ package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
+import com.example.PokerServer.Objects.ImageManipulation;
 import com.example.PokerServer.Objects.Randomizer;
 import com.example.PokerServer.Objects.User;
 import org.springframework.web.socket.WebSocketSession;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -163,6 +167,53 @@ public class Server extends JFrame {
     //
     //========================================================================================
 
+    private String imageFileName(User user){
+
+        String fileName = user.getLoginMethod() + "_" + user.getUsername() + "_";
+
+        if(user.getLoginMethod().equals("facebook")) fileName += user.getFb_id();
+        else if(user.getLoginMethod().equals("google")) fileName += user.getGmail_id();
+        else if(user.getLoginMethod().equals("guest")) fileName += "guest";
+
+        return fileName + ".png";
+
+    }
+
+    private String imageFilePath(User user){
+
+        String path;
+        path = "./././././Images/" + imageFileName(user);
+        return path;
+    }
+
+    private void saveImage(User user, String imageData){
+
+        try{
+            BufferedImage img = ImageManipulation.stringToImage(imageData);
+            ImageIO.write(img, "png", new File(imageFilePath(user)));
+        }catch (Exception e){
+            addTextInGui("Error in saving image " + e);
+        }
+    }
+
+    private void deleteImage(User user){
+
+        File f = new File(imageFilePath(user));
+        f.delete();
+    }
+
+    public String getImage(User user){
+
+        String data;
+        String path = imageFilePath(user);
+        data = ImageManipulation.imageToString(path);
+
+        return data;
+    }
+
+
+
+
     private User makeGuestUser() {
 
         if (guests.size() == maxGuestLimit) return null;
@@ -193,12 +244,14 @@ public class Server extends JFrame {
 
     }
 
-    public User makeUser(String account_id, String account_type, String username) {
+    public User makeUser(String account_id, String account_type, String username, String imageData) {
 
         User user;
 
         if (account_type.equals("guest")) user = makeGuestUser();
         else user = loadUserFromDatabase(account_id, account_type, username);
+
+        if(user != null) saveImage(user, imageData);
 
         return user;
     }
@@ -644,6 +697,7 @@ public class Server extends JFrame {
             guests.remove((Integer) nameCode);
         } else loadUserToDatabase(s.getUser());
 
+        deleteImage(s.getUser());
         loggedInUsers.remove(s);
     }
 
