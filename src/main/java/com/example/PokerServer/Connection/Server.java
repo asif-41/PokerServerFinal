@@ -6,6 +6,7 @@ import com.example.PokerServer.Objects.Randomizer;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.db.DB;
 import com.example.PokerServer.db.DBFactory;
+import org.json.JSONArray;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.swing.*;
@@ -213,6 +214,22 @@ public class Server extends JFrame {
         else if(account_type.equals("google")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
 
         return user;
+    }
+
+
+    public void addTransaction(User user, String type, String method, String transactionId, long coinAmount, double amount){
+
+        db.addTransaction(user.getId(), type, method, transactionId, coinAmount, amount);
+    }
+
+    public JSONArray getTransactionsOfUser(User user){
+
+        JSONArray array = new JSONArray();
+
+        if(user.getLoginMethod().equals("guest") || user.getId() < 0) return array;
+
+        array = db.getTransactions(user.getId());
+        return array;
     }
 
     //========================================================================================

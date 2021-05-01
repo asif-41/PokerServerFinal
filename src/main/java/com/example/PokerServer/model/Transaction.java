@@ -31,6 +31,28 @@ public class Transaction implements Serializable {
     @Column(name = "transaction_id")
     private String transactionId;
 
+    @Column(name = "coin_amount")
+    private long coinAmount;
+
+    @Column(name = "money")
+    private double money;
+
+    public double getMoney() {
+        return money;
+    }
+
+    public void setMoney(double money) {
+        this.money = money;
+    }
+
+    public long getCoinAmount() {
+        return coinAmount;
+    }
+
+    public void setCoinAmount(long coinAmount) {
+        this.coinAmount = coinAmount;
+    }
+
     public Account getAccount() {
         return account;
     }

@@ -2,6 +2,7 @@ package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
+import com.example.PokerServer.Objects.TransactionMethods;
 import com.example.PokerServer.Objects.User;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
@@ -154,11 +155,23 @@ public class ServerToClient implements Runnable {
 
             sendResponseLogout();
         }
-        else if (jsonIncoming.get("requestType").equals("BuyCoinRequest")) {
+        else if (jsonIncoming.get("requestType").equals("Transaction")) {
 
-            //REQUEST BUY COIN
+            JSONObject tempJson = jsonIncoming.getJSONObject("data");
 
-            buyCoinRequest(jsonIncoming);
+            if(tempJson.get("request").equals("BuyCoin")){
+
+                buyCoinRequest(jsonIncoming);
+            }
+            else if(tempJson.get("request").equals("ShowTransactions")){
+
+                allTransactionsResponse();
+            }
+            else if(tempJson.get("request").equals("WwithdrawCoin")){
+
+                withdrawCoinRequest(jsonIncoming);
+            }
+
         }
         else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
 
@@ -362,36 +375,32 @@ public class ServerToClient implements Runnable {
     //
     //==============================================================================
 
-    private boolean validateBuyCoinRequest(long value, String method, String transactionId) {
-
-        //      AUTHENTICATE HERE
-
-        return true;
-
-    }
-
     private void buyCoinRequest(JSONObject temp) {
 
-        JSONObject tempJson = jsonIncoming.getJSONObject("data");
+        JSONObject tempJson = temp.getJSONObject("data");
 
-        long value = tempJson.getLong("value");
+        long coinAmount = tempJson.getLong("coinAmount");
+        String type = "buy";
         String method = tempJson.getString("method");
-        String tr_id = tempJson.getString("transactionId");
+        String transactionId = tempJson.getString("transactionId");
+        double price = TransactionMethods.getCurrencyAmount(coinAmount);
 
-        boolean validation = validateBuyCoinRequest(value, method, tr_id);
-        String msg;
+        boolean success = TransactionMethods.validateBuyCoinRequest(coinAmount, method, transactionId);
 
-        if (!validation) msg = "Authentication failed";
-        else {
-            msg = "Coin buy successful";
-            user.setCurrentCoin(user.getCurrentCoin() + value);
+        if(success){
+
+            user.setCurrentCoin(user.getCurrentCoin() + coinAmount);
             Server.pokerServer.updateDatabase(user, "addBuyCoin");
-        }
+            Server.pokerServer.addTransaction(user, type, method, transactionId, coinAmount, price);
 
-        sendBuyCoinResponse(validation, msg);
+            sendBuyCoinResponse(true, "Coin buy successful", price);
+        }
+        else{
+            sendBuyCoinResponse(false, "Buy coin request failed", 0.0);
+        }
     }
 
-    private void sendBuyCoinResponse(boolean success, String msg) {
+    private void sendBuyCoinResponse(boolean success, String msg, double price) {
 
         JSONObject send = initiateJson();
 
@@ -399,9 +408,60 @@ public class ServerToClient implements Runnable {
         send.put("success", success);
         send.put("message", msg);
         send.put("currentCoin", user.getCurrentCoin());
+        send.put("price", price);
 
         sendMessage(send.toString());
     }
+
+
+    private void withdrawCoinRequest(JSONObject temp){
+
+        JSONObject tempJson = temp.getJSONObject("data");
+
+        String method = tempJson.getString("method");
+        String receiverAccount = tempJson.getString("receiver");
+        long coinAmount = tempJson.getLong("coinAmount");
+        double price = TransactionMethods.getCurrencyAmount(coinAmount);
+
+        String transactionId = TransactionMethods.validateWithdrawCoinRequest(coinAmount, method, receiverAccount);
+
+        if(transactionId.equals("")){
+            sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0);
+        }
+        else{
+            user.setCurrentCoin(user.getCurrentCoin() - coinAmount);
+            Server.pokerServer.updateDatabase(user, "removeWithdrawCoin");
+            Server.pokerServer.addTransaction(user, "withdraw", method, transactionId, coinAmount, price);
+
+            sendWithdrawCoinResponse(true, "Coin withdraw successful", price);
+        }
+    }
+
+    private void sendWithdrawCoinResponse(boolean success, String msg, double price){
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "WithdrawCoinResponse");
+        send.put("success", success);
+        send.put("message", msg);
+        send.put("currentCoin", user.getCurrentCoin());
+        send.put("price", price);
+
+        sendMessage(send.toString());
+    }
+
+    private void allTransactionsResponse(){
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "AllTransactionsResponse");
+        send.put("data", Server.pokerServer.getTransactionsOfUser(user));
+
+        sendMessage(send.toString());
+
+    }
+
+
 
 
     private void addCoinVideoResponse(String requestTime) {

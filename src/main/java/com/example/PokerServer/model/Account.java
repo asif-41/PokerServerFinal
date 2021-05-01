@@ -90,7 +90,7 @@ public class Account implements Serializable {
     private Integer winStreak;              //      CURRENT WIN STREAK
 
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     private List<Transaction> transactions;
 
 

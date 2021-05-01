@@ -4,8 +4,11 @@ package com.example.PokerServer.db;
 import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.model.Account;
+import com.example.PokerServer.model.Transaction;
 import com.example.PokerServer.repository.AccountRepository;
 import com.example.PokerServer.repository.TransactionRepository;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Calendar;
@@ -187,6 +190,9 @@ public class DB {
             else if(columns.equals("addBuyCoin")){
                 acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
             }
+            else if(columns.equals("removeWithdrawCoin")){
+                acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
+            }
 
         accountRepository.saveAndFlush(acc);
     }
@@ -237,5 +243,51 @@ public class DB {
     //==========================================================================
     //
     //==========================================================================
+
+
+
+    //=======================================================================
+    //
+    //              TRANSACTION TABLE STUFF
+    //
+    //=======================================================================
+
+    public void addTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double money){
+
+        Transaction tr = new Transaction();
+
+        tr.setAccount(findById(accountId));
+        tr.setType(trType);
+        tr.setMethod(trMethod);
+        tr.setTransactionId(trId);
+        tr.setCoinAmount(coinAmount);
+        tr.setMoney(money);
+
+        transactionRepository.saveAndFlush(tr);
+    }
+
+    public JSONArray getTransactions(int accountId){
+
+        JSONArray array = new JSONArray();
+        Account acc = accountRepository.findById(accountId).get();
+
+        for(Transaction x : acc.getTransactions()){
+
+            JSONObject jsonObject = new JSONObject();
+
+            jsonObject.put("type", x.getType());
+            jsonObject.put("method", x.getMethod());
+            jsonObject.put("transactionId", x.getTransactionId());
+            jsonObject.put("coinAmount", x.getCoinAmount());
+            jsonObject.put("money", x.getMoney());
+
+            array.put(jsonObject);
+        }
+        return array;
+    }
+
+    //=======================================================================
+    //
+    //=======================================================================
 
 }
