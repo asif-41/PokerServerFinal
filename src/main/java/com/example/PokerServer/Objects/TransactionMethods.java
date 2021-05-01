@@ -2,6 +2,8 @@ package com.example.PokerServer.Objects;
 
 public class TransactionMethods {
 
+    //returns coin price
+
     public static double getCurrencyAmount(long coinAmount){
 
         return 10.0;
@@ -13,6 +15,10 @@ public class TransactionMethods {
 
         return true;
     }
+
+
+
+    //returns transaction id
 
     public static String validateWithdrawCoinRequest(long coinAmount, String method, String receiverAccount){
 
