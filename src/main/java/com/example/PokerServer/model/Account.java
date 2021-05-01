@@ -4,6 +4,7 @@ package com.example.PokerServer.model;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "account")
@@ -16,6 +17,7 @@ public class Account implements Serializable {
             sequenceName = "user_sequence",
             initialValue = 1
     )
+    @Column(name = "account_id")
     private int id;
 
     @Column(name = "username")
@@ -87,6 +89,18 @@ public class Account implements Serializable {
     @Column(name = "winStreak")
     private Integer winStreak;              //      CURRENT WIN STREAK
 
+
+    @OneToMany(mappedBy = "account")
+    private List<Transaction> transactions;
+
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
 
     public Integer getTotalCallCount() {
         return totalCallCount;

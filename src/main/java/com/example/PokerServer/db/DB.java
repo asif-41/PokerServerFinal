@@ -5,6 +5,7 @@ import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.model.Account;
 import com.example.PokerServer.repository.AccountRepository;
+import com.example.PokerServer.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Calendar;
@@ -17,9 +18,23 @@ public class DB {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private TransactionRepository transactionRepository;
+
+
     public static <U> Function<Object, U> filterAndCast(Class<? extends U> clazz) {
         return t -> clazz.isInstance(t) ? clazz.cast(t) : null;
     }
+
+
+
+
+
+    //=======================================================================
+    //
+    //              ACCOUNT TABLE STUFF
+    //
+    //=======================================================================
 
 
     public User getUserData(String account_id, String account_type, String username) throws ClassCastException {
@@ -177,7 +192,6 @@ public class DB {
     }
 
 
-
     public int findByGoogleId(String googleId){
 
         int ret = 0;
@@ -219,5 +233,9 @@ public class DB {
         Account ret = accountRepository.findById(id).get();
         return ret;
     }
+
+    //==========================================================================
+    //
+    //==========================================================================
 
 }
