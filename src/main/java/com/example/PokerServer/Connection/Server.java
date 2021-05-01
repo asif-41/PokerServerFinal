@@ -9,18 +9,13 @@ import com.example.PokerServer.db.DBFactory;
 import org.json.JSONArray;
 import org.springframework.web.socket.WebSocketSession;
 
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import java.awt.*;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Server extends JFrame {
+public class Server {
 
 
     //=====================================================
@@ -65,24 +60,6 @@ public class Server extends JFrame {
     //====================================================
 
 
-    //========================================
-    //
-    //      JFRAME GUI SHITS
-    //
-    //========================================
-
-    private JTextArea textArea;
-    private JButton printAll;
-    private JButton printConnections;
-    private JButton printLoggedInUsers;
-    private JButton printQueue;
-    private JButton printGameThread;
-    private JButton clearButton;
-    private JPanel buttons;
-
-    //=========================================
-
-
     //========================================================================================
     //
     //          CONSTRUCTOR
@@ -96,8 +73,6 @@ public class Server extends JFrame {
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame ) {
-
-        setGui();
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
@@ -142,7 +117,7 @@ public class Server extends JFrame {
             host = InetAddress.getLocalHost().getHostAddress();
 
         } catch (Exception e) {
-            Server.pokerServer.addTextInGui("Exception in fetching ip -> " + e);
+            System.out.println("Exception in fetching ip -> " + e);
         }
 
         //TIMER TO CHECK QUEUE
@@ -391,11 +366,6 @@ public class Server extends JFrame {
 
         owner.sendCreateWaitingRoomResponse(id, code, boardName);
         new Thread(w).start();
-
-        String bleh = "Waiting room created. id: " + id + " code: " + code + "\n";
-        bleh += "        Owner : " + owner.getUser().getUsername();
-
-        addTextInGui(bleh);
     }
 
     private void removeFromWaitingRoom(ServerToClient s) {
@@ -433,12 +403,6 @@ public class Server extends JFrame {
 
         //setting gameThreads in serverToClient side
         new Thread(g).start();
-
-        String bleh = "Game thread created. id: " + id + " code: " + code + "\n";
-        bleh += "        users: ";
-        for (int i = 0; i < clients.size(); i++) bleh += clients.get(i).getUser().getUsername() + " ";
-
-        addTextInGui(bleh);
     }
 
     public void makeGameThread(WaitingRoom w) {
@@ -463,11 +427,6 @@ public class Server extends JFrame {
 
         //setting gameThreads in serverToClient side
         new Thread(g).start();
-
-        String bleh = "Game thread created. id: " + id + " code: " + code + "\n";
-        bleh += "        users: ";
-        for (int i = 0; i < clients.size(); i++) bleh += ((ServerToClient) clients.get(i)).getUser().getUsername() + " ";
-        addTextInGui(bleh);
 
         removeWaitingRoom(w);
     }
@@ -726,187 +685,4 @@ public class Server extends JFrame {
     //================================================================================================================================================
     //
     //================================================================================================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //=================================================================
-    //
-    //      QUEUE PRINTERS FOR DEBUGGING PURPOSE
-    //
-    //
-    //=================================================================
-
-    private void printQueue() {
-
-        String ret = "Queue info: \n";
-
-        for (int i = 0; i < boardTypeCount; i++) {
-
-            ret += "Type " + i + "\n";
-            for (int j = 0; j < pendingQueue[i].size(); j++) {
-                ret += "        " + ((ServerToClient) pendingQueue[i].get(j)).getUser().toString();
-            }
-        }
-        addTextInGui(ret);
-    }
-
-    private void printConnections() {
-        String ret = "Currently active connections: " + casualConnections.size();
-        addTextInGui(ret);
-    }
-
-    private void printLoggedInUsers() {
-
-        String ret = "Logged in users: " + loggedInUsers.size() + "\n";
-
-        for (int i = 0; i < loggedInUsers.size(); i++) {
-
-            ret += "        " + ((ServerToClient) loggedInUsers.get(i)).getUser().toString();
-        }
-
-        addTextInGui(ret);
-    }
-
-    private void printGameThread() {
-        String ret = "Currently running game threads: ";
-
-        for (int i = 0; i < boardTypeCount; i++) {
-
-            ret += "Type -> " + boardType[i] + "\n";
-            for (int j = 0; j < gameThreads[i].size(); j++)
-                ret += "        number " + j + " " + gameThreads[i].get(j).toString();
-
-        }
-        addTextInGui(ret);
-
-    }
-
-    private void printWaitingRoom() {
-
-        String ret = "Currently running waiting rooms: ";
-
-        for (int i = 0; i < boardTypeCount; i++) {
-
-            ret += "Type -> " + boardType[i] + "\n";
-            for (int j = 0; j < waitingRoom[i].size(); j++)
-                ret += "        number " + j + " " + waitingRoom[i].get(j).toString();
-
-        }
-        addTextInGui(ret);
-
-    }
-
-    private void printAll() {
-        printConnections();
-        printLoggedInUsers();
-        printQueue();
-        printGameThread();
-        printWaitingRoom();
-    }
-
-    //==================================================================
-    //
-    //==================================================================
-
-
-    //================================================================================================================================================
-    //
-    //          SETTING UP GUI          DONE
-    //
-    //================================================================================================================================================
-
-    private void setGui() {
-
-        setTitle("Server");
-
-        textArea = new JTextArea();
-        addTextInGui("\n        Welcome to the server");
-        textArea.setEditable(false);
-
-        printAll = new JButton("Print All");
-        printConnections = new JButton("Print connections");
-        printLoggedInUsers = new JButton("Print Logged users");
-        printQueue = new JButton("Print queued users");
-        printGameThread = new JButton("Print game threads");
-        clearButton = new JButton("Clear text");
-
-
-        buttons = new JPanel();
-        buttons.setLayout(new BoxLayout(buttons, BoxLayout.Y_AXIS));
-        buttons.setPreferredSize(new Dimension(200, 200));
-        buttons.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        printAll.setBorder(new CompoundBorder(new LineBorder(buttons.getBackground(), 10), printAll.getBorder()));
-        printQueue.setBorder(new CompoundBorder(new LineBorder(buttons.getBackground(), 10), printQueue.getBorder()));
-        printLoggedInUsers.setBorder(new CompoundBorder(new LineBorder(buttons.getBackground(), 10), printLoggedInUsers.getBorder()));
-        printConnections.setBorder(new CompoundBorder(new LineBorder(buttons.getBackground(), 10), printConnections.getBorder()));
-        printGameThread.setBorder(new CompoundBorder(new LineBorder(buttons.getBackground(), 10), printGameThread.getBorder()));
-        clearButton.setBorder(new CompoundBorder(new LineBorder(buttons.getBackground(), 10), clearButton.getBorder()));
-
-        clearButton.addActionListener(e -> clearGui());
-        printAll.addActionListener(e -> printAll());
-        printQueue.addActionListener(e -> printQueue());
-        printConnections.addActionListener(e -> printConnections());
-        printLoggedInUsers.addActionListener(e -> printLoggedInUsers());
-        printGameThread.addActionListener(e -> printGameThread());
-
-        buttons.add(printAll);
-        buttons.add(printConnections);
-        buttons.add(printLoggedInUsers);
-        buttons.add(printQueue);
-        buttons.add(printGameThread);
-        buttons.add(clearButton);
-
-
-        add(new JScrollPane(textArea));
-        add(buttons, BorderLayout.EAST);
-        setSize(650, 500);
-        setVisible(true);
-        setResizable(false);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-    public void addTextInGui(String text) {
-        String temp = textArea.getText();
-        temp += "        " + text + "\n\n";
-        textArea.setText(temp);
-    }
-
-    private void clearGui() {
-        textArea.setText("");
-    }
-
-    //================================================================================================================================================
-    //
-    //================================================================================================================================================
-
-
 }

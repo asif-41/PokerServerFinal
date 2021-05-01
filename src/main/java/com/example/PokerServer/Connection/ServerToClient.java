@@ -69,7 +69,7 @@ public class ServerToClient implements Runnable {
             host = InetAddress.getLocalHost().getHostAddress();
 
         } catch (Exception e) {
-            Server.pokerServer.addTextInGui("Exception in fetching ip -> " + e);
+            System.out. println("Exception in fetching ip -> " + e);
         }
 
     }
@@ -77,7 +77,7 @@ public class ServerToClient implements Runnable {
     @Override
     public void run() {
 
-        Server.pokerServer.addTextInGui("A connection has been established");
+        System.out. println("A connection has been established");
     }
 
     //============================================================
@@ -105,8 +105,6 @@ public class ServerToClient implements Runnable {
     public void sendMessage(String temp) {
 
         try {
-            System.out.println("sending length -> " + temp.toString().getBytes("UTF-8").length);
-
             String[] splitted = FluentIterable.from(Splitter.fixedLength(8000).split(temp)).toArray(String.class);
 
             for(int i=0; i<splitted.length-1; i++){
@@ -124,9 +122,8 @@ public class ServerToClient implements Runnable {
             session.sendMessage(new TextMessage(jsonObject.toString()));
 
         } catch (Exception e) {
-
-            Server.pokerServer.addTextInGui("Error for connection with key -> " + webSocketKey);
-            Server.pokerServer.addTextInGui("Error in sending data from server -> " + e);
+            System.out. println("Error for connection with key -> " + webSocketKey);
+            System.out. println("Error in sending data from server -> " + e);
         }
     }
 
@@ -134,8 +131,6 @@ public class ServerToClient implements Runnable {
 
         try {
             jsonIncoming = new JSONObject(temp);
-            System.out.println("received length -> " + temp.toString().getBytes("UTF-8").length);
-
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
             jsonIncoming = null;
@@ -353,12 +348,12 @@ public class ServerToClient implements Runnable {
 
         try {
 
-            Server.pokerServer.addTextInGui("A Connection got removed");
+            System.out. println("A Connection got removed");
             Server.pokerServer.removeFromCasualConnections(this);
             session.close();
 
         } catch (Exception e) {
-            Server.pokerServer.addTextInGui("Error in closing connection in Server side, error -> " + e);
+            System.out. println("Error in closing connection in Server side, error -> " + e);
         }
     }
 

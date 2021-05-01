@@ -37,12 +37,8 @@ public class PokerServerApplication {
         long mcr[] = {0, 0, 2500000, 7000000, 15000000, 40000000, 100000000, 150000000, 400000000, 1000000000};
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, minCallValue, 10000000, 100000000,
-                2, 5, 1, 120, 8080, 1000,500000,
+                2, 5, 1, 120, 1112, 1000,500000,
                 10, 50000, 100000, 60, 10);
-
-
-
-        //SpringApplication.run(PokerServerApplication.class, args);
     }
 
 
@@ -50,9 +46,9 @@ public class PokerServerApplication {
     @RequestMapping("/")
     public String readIp(HttpServletRequest request, HttpServletResponse response){
 
-        String show = "Welcom to server\n";
+        String show = "Welcom to server      ";
 
-        show += "Server ip " + request.getLocalAddr() + "\n";
+        show += "Server ip " + request.getLocalAddr() + "        ";
         show += "Client ip " + request.getRemoteAddr();
 
         return show;

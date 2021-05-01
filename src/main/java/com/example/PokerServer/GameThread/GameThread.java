@@ -573,8 +573,6 @@ public class GameThread implements Runnable {
         int seatPosition = s.getUser().getSeatPosition();
         User tempUser = s.getUser();
 
-        System.out.println(gameRunning);
-
         if (gameRunning == true) {
 
             if (seatPosition == roundIteratorSeat) {
