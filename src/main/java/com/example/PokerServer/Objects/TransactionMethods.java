@@ -2,16 +2,47 @@ package com.example.PokerServer.Objects;
 
 public class TransactionMethods {
 
+    private static long coinAmountOnBuy[] = {10000000};
+    private static long coinPriceOnBuy[] = {30};
+
+    private static long coinAmountOnWithdraw[] = {10000000};
+    private static long coinPriceOnWithdraw[] = {26};
+
     //returns coin price
 
-    public static double getCurrencyAmount(long coinAmount){
+    public static double getCurrencyAmount(long coinAmount, String req){
 
-        return 10.0;
+        long[] coinAmounts = {};
+        long[] coinPrices = {};
+
+        if(req.equals("buy")) {
+            coinAmounts = coinAmountOnBuy;
+            coinPrices = coinPriceOnBuy;
+        }
+        else if(req.equals("withdraw")){
+            coinAmounts = coinAmountOnWithdraw;
+            coinPrices = coinPriceOnWithdraw;
+        }
+
+        double price = 0.0;
+
+        for(int i=0; i<coinAmounts.length; i++){
+
+            if(coinAmount == coinAmounts[i]){
+                price = coinPrices[i];
+                break;
+            }
+        }
+
+        return price;
     }
+
+
+
 
     public static boolean validateBuyCoinRequest(long coinAmount, String method, String transactionId){
 
-        double money = getCurrencyAmount(coinAmount);
+        double money = getCurrencyAmount(coinAmount, "buy");
 
         return true;
     }
@@ -24,7 +55,7 @@ public class TransactionMethods {
 
         String ret = "";
 
-        double price = getCurrencyAmount(coinAmount);
+        double price = getCurrencyAmount(coinAmount, "withdraw");
 
         ret = "lol";            // return "" if not success
 

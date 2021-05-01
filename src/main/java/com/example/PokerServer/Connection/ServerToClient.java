@@ -383,7 +383,7 @@ public class ServerToClient implements Runnable {
         String type = "buy";
         String method = tempJson.getString("method");
         String transactionId = tempJson.getString("transactionId");
-        double price = TransactionMethods.getCurrencyAmount(coinAmount);
+        double price = TransactionMethods.getCurrencyAmount(coinAmount, "buy");
 
         boolean success = TransactionMethods.validateBuyCoinRequest(coinAmount, method, transactionId);
 
@@ -421,7 +421,7 @@ public class ServerToClient implements Runnable {
         String method = tempJson.getString("method");
         String receiverAccount = tempJson.getString("receiver");
         long coinAmount = tempJson.getLong("coinAmount");
-        double price = TransactionMethods.getCurrencyAmount(coinAmount);
+        double price = TransactionMethods.getCurrencyAmount(coinAmount, "withdraw");
 
         String transactionId = TransactionMethods.validateWithdrawCoinRequest(coinAmount, method, receiverAccount);
 
