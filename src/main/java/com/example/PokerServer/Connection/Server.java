@@ -4,6 +4,8 @@ import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.Randomizer;
 import com.example.PokerServer.Objects.User;
+import com.example.PokerServer.db.DB;
+import com.example.PokerServer.db.DBFactory;
 import org.springframework.web.socket.WebSocketSession;
 
 import javax.swing.*;
@@ -53,8 +55,9 @@ public class Server extends JFrame {
     private long minCallValue[];                  //      MIN CALL VALUE FOR EACH TYPE {10000, 10000, 10000, 10000, 10000};
     private ArrayList guests;                   //      GUEST INTEGERS
     private int maxGuestLimit;                  //      MAX GUEST LIMIT
-    private long initialCoin;                    //      INITIAL COIN
+    public long initialCoin;                    //      INITIAL COIN
 
+    public DB db;
     public int waitingRoomWaitAtStart;
     public int delayInStartingGame;
 
@@ -131,8 +134,7 @@ public class Server extends JFrame {
             queueTimeCount[i] = new ArrayList<Integer>();
             waitingRoom[i] = new ArrayList<WaitingRoom>();
         }
-
-
+        db = DBFactory.getDB();
 
         try {
             this.port = port;
@@ -171,7 +173,6 @@ public class Server extends JFrame {
         if (guests.size() == maxGuestLimit) return null;
 
         int id = Randomizer.randomUnique(guests, maxGuestLimit) + 10000;
-
         guests.add(id);
 
         User user;
@@ -186,14 +187,21 @@ public class Server extends JFrame {
 
     private User loadUserFromDatabase(String account_id, String account_type, String username, String imageLink) {
 
-        //CREATE IF DOES NOT EXIST
-        //RETURN EXISTING IF DOES EXIST
+        User user = db.getUserData(account_id, account_type, username);
+        user.setImageLink(imageLink);
 
-        return null;
+        return user;
     }
 
-    private void loadUserToDatabase(User user) {
+    public void loadUserToDatabase(User user) {
 
+        if(user == null || user.getLoginMethod().equals("guest")) return ;
+        db.saveUser(user, false);
+    }
+
+    public void updateDatabase(User user, String cmd){
+
+        db.updateUser(user, cmd);
     }
 
     public User makeUser(String account_id, String account_type, String username, String imageLink) {
@@ -201,7 +209,8 @@ public class Server extends JFrame {
         User user = null;
 
         if (account_type.equals("guest")) user = makeGuestUser(imageLink);
-        else if(account_type.equals("facebook") || account_type.equals("google")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
+        else if(account_type.equals("facebook")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
+        else if(account_type.equals("google")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
 
         return user;
     }
@@ -653,8 +662,8 @@ public class Server extends JFrame {
             int nameCode = Integer.valueOf(s.getUser().getUsername().split("_")[1]);
             guests.remove((Integer) nameCode);
         }
-        else loadUserToDatabase(s.getUser());
 
+        loadUserToDatabase(s.getUser());
         loggedInUsers.remove(s);
     }
 

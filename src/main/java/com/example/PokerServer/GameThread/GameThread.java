@@ -222,8 +222,6 @@ public class GameThread implements Runnable {
 
         initializePlayers();
         sendPlayersDataToAll();
-        //sendAllImagesToAll();
-
         sendWelcomeGameMsgToAll();
 
         roundCount = 0;
@@ -275,7 +273,7 @@ public class GameThread implements Runnable {
 
     public void incomingMessage(String tempp, ServerToClient serverToClient) {
 
-        JSONObject gameData, callData;
+        JSONObject gameData;
 
         try {
             jsonIncoming = new JSONObject(tempp);
@@ -296,31 +294,38 @@ public class GameThread implements Runnable {
 
                 handleUserCallRequest(username);
 
-            } else if (gameData.getString("call").equals("Fold")) {
+            }
+            else if (gameData.getString("call").equals("Fold")) {
 
                 handleUserFoldRequest(username);
 
-            } else if (gameData.getString("call").equals("Raise")) {
+            }
+            else if (gameData.getString("call").equals("Raise")) {
 
                 long value = gameData.getLong("cost");
                 handleUserRaiseRequest(username, value);
 
-            } else if (gameData.getString("call").equals("Check")) {
+            }
+            else if (gameData.getString("call").equals("Check")) {
 
                 handleUserCheckRequest(username);
 
-            } else if (gameData.getString("call").equals("AllIn")) {
+            }
+            else if (gameData.getString("call").equals("AllIn")) {
 
                 handleUserAllInRequest(username);
 
             }
-        } else if (gameData.getString("requestType").equals("AddBoardCoin")) {
+        }
+        else if (gameData.getString("requestType").equals("AddBoardCoin")) {
 
             requestAddBoardCoin(serverToClient, jsonIncoming);
-        } else if (gameData.getString("requestType").equals("StartNewRound")) {
+        }
+        else if (gameData.getString("requestType").equals("StartNewRound")) {
 
             startNewRound();
-        } else if (gameData.getString("requestType").equals("ExitGame")) {
+        }
+        else if (gameData.getString("requestType").equals("ExitGame")) {
 
             exitGameResponse(serverToClient);
         }
@@ -477,8 +482,6 @@ public class GameThread implements Runnable {
     private void sendWelcomeGameMsgToAll() {
 
         for (int i = 0; i < maxPlayerCount; i++) sendWelcomeGameMsg(i);
-
-        //waitGame(5);
     }
 
     //==================================================================================================================
@@ -523,9 +526,6 @@ public class GameThread implements Runnable {
         initializePlayer(loc);
 
         sendPlayersDataToAll();
-        //sendAllImage(loc);
-        //addImageToAll(loc);
-
         sendWelcomeGameMsg(loc);
 
         if (gameRunning == false) startNewRound();
@@ -570,12 +570,10 @@ public class GameThread implements Runnable {
 
     public void exitGameResponse(ServerToClient s) {
 
-        //VALUE SET KORBI
-        //DEINITIALIZE KORBI
-        //ROUND CONTINUE KORAR JONNO DATA FATA SET KORBI!.......
-
         int seatPosition = s.getUser().getSeatPosition();
         User tempUser = s.getUser();
+
+        System.out.println(gameRunning);
 
         if (gameRunning == true) {
 
@@ -594,7 +592,6 @@ public class GameThread implements Runnable {
             tempUser.setRoundsPlayed(tempUser.getRoundsPlayed() + 1);
             tempUser.setCoinLost(tempUser.getCoinLost() + playerTotalCallValues[seatPosition]);
         }
-        //removeImageToAll(seatPosition);
         s.leaveGameRoom();
 
         if (isActiveInRound[seatPosition] == true) activeCountInRound--;
@@ -990,8 +987,6 @@ public class GameThread implements Runnable {
         send.put("dataType", "RoundStart");
         send.put("message", "Round " + roundCount + " start");
         sendMessageToAll(send.toString());
-
-        //waitGame(5);
     }
 
 
@@ -1067,8 +1062,6 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
-
-        //waitGame(2);
     }
 
     private void sendShowBoardInfo() {
@@ -1096,8 +1089,6 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
-
-        //waitGame(2);
     }
 
     private void sendShowCards() {
@@ -1125,8 +1116,6 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
-
-        //waitGame(2);
     }
 
 
@@ -1431,8 +1420,6 @@ public class GameThread implements Runnable {
         send.put("data", temp);
 
         sendMessageToAll(send.toString());
-
-        //waitGame(5);
     }
 
     //==================================================================================================================
@@ -1526,7 +1513,6 @@ public class GameThread implements Runnable {
         roundResultPower = "";
         resultFoundAtLevel = -1;
         roundWinnersSeat = new ArrayList<Integer>();
-
 
         //STORES WINNER DATA INITIALIZED VALUES
 
@@ -1808,8 +1794,6 @@ public class GameThread implements Runnable {
         send.put("data", allCards);
 
         sendMessageToAll(send.toString());
-
-        //waitGame(5);
     }
 
 
@@ -2006,8 +1990,6 @@ public class GameThread implements Runnable {
         send.put("gameData", tempJson);
 
         sendMessageToAll(send.toString());
-
-        //waitGame(5);
     }
 
     private void requestAddBoardCoin(ServerToClient s, JSONObject jsonObject) {
@@ -2049,9 +2031,9 @@ public class GameThread implements Runnable {
         send.put("dataType", "AddBoardCoin");
 
         sendMessage(loc, send.toString());
-
-        //waitGame(3);
     }
+
+
 
 
 

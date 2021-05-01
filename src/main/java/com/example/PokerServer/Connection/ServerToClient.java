@@ -133,7 +133,6 @@ public class ServerToClient implements Runnable {
 
         try {
             jsonIncoming = new JSONObject(temp);
-            //System.out.println(jsonIncoming);
             System.out.println("received length -> " + temp.toString().getBytes("UTF-8").length);
 
         } catch (Exception e) {
@@ -227,7 +226,6 @@ public class ServerToClient implements Runnable {
                 joinAmountRequest(jsonIncoming);
             }
             else waitingRoom.incomingMsg(temp, this);
-
         }
     }
 
@@ -253,7 +251,6 @@ public class ServerToClient implements Runnable {
         String account_type = data.getString("account_type");
         String account_username = data.getString("account_username");
         String imageLink = data.getString("imageLink");
-
 
         user = Server.pokerServer.makeUser(account_id, account_type, account_username, imageLink);
 
@@ -388,6 +385,7 @@ public class ServerToClient implements Runnable {
         else {
             msg = "Coin buy successful";
             user.setCurrentCoin(user.getCurrentCoin() + value);
+            Server.pokerServer.updateDatabase(user, "addBuyCoin");
         }
 
         sendBuyCoinResponse(validation, msg);
@@ -427,8 +425,10 @@ public class ServerToClient implements Runnable {
         if (user.getCoinVideoCount() > 0) {
             user.setCoinVideoCount(user.getCoinVideoCount() - 1);
             user.setCurrentCoin(user.getCurrentCoin() + Server.pokerServer.eachVideoCoin);
+            Server.pokerServer.updateDatabase(user, "addCoinVideo");
             sendAddCoinVideoResponse(true);
-        } else sendAddCoinVideoResponse(false);
+        }
+        else sendAddCoinVideoResponse(false);
     }
 
     private void sendAddCoinVideoResponse(boolean success) {
@@ -468,8 +468,10 @@ public class ServerToClient implements Runnable {
         if (reqDay != prevDay || reqMonth != prevMonth || reqYear != prevYear) {
             user.setLastFreeCoinTime(rqTime);
             user.setCurrentCoin(user.getCurrentCoin() + Server.pokerServer.freeLoginCoin);
+            Server.pokerServer.updateDatabase(user, "addLoginCoin");
             sendAddFreeCoinResponse(true);
-        } else sendAddFreeCoinResponse(false);
+        }
+        else sendAddFreeCoinResponse(false);
     }
 
     private void sendAddFreeCoinResponse(boolean success) {
@@ -495,6 +497,10 @@ public class ServerToClient implements Runnable {
     //==============================================================================
     //
     //==============================================================================
+
+
+
+
 
 
     //==============================================================================
@@ -562,6 +568,7 @@ public class ServerToClient implements Runnable {
 
         gameThread = null;
         user.deInitializeGameData();
+        Server.pokerServer.updateDatabase(user, "gameEnd");
     }
 
     //==============================================================================
@@ -698,7 +705,7 @@ public class ServerToClient implements Runnable {
         GameThread g = Server.pokerServer.findGameThreadByCode(code);
 
         if(g == null) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " not found");
-        //else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
+        else if(g.isPrivate() == false) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is not private");
         else if(g.getPlayerCount() == g.getMaxPlayerCount()) sendAskJoinGameThreadByCodeResponse(false, code, "Game room with code " + code + " is full");
         else {
             sendAskJoinGameThreadByCodeResponse(true, code, "Joining game room");

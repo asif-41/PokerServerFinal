@@ -109,19 +109,6 @@ public class WaitingRoom implements Runnable {
         ss.sendMessage(s);
     }
 
-    private void sendMessageToAllExceptOne(String s, int loc, String exceptionMsg) {
-
-        if (!exceptionMsg.equals("")) sendMessage(loc, exceptionMsg);
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-
-            if (i == loc) continue;
-
-            sendMessage(i, s);
-        }
-
-    }
-
     private void sendMessageToAll(String s) {
 
         for (int i = 0; i < maxPlayerCount; i++) {
@@ -137,11 +124,8 @@ public class WaitingRoom implements Runnable {
 
     public void incomingMsg(String temp, ServerToClient from) {
 
-        //System.out.println("Waiting room msg -> " + temp);
-
         try {
             jsonIncoming = new JSONObject(temp);
-            System.out.println(jsonIncoming);
 
         } catch (Exception e) {
             System.out.println("Error in getting json in waiting room in server side\n" + e);
@@ -306,9 +290,6 @@ public class WaitingRoom implements Runnable {
         initiateUser(s, seatPosition, amount);
         sendInitiateUser(s, seatPosition, amount);
         sendPlayersDataToAll();
-
-        //sendAllImage(seatPosition);
-        //sendImageToAll(seatPosition);
     }
 
 
@@ -381,8 +362,6 @@ public class WaitingRoom implements Runnable {
         if(seatPosition < 0) return ;
         if(seat[seatPosition] == null) return ;
 
-        //removeImageToAll(seatPosition);
-
         ServerToClient s = seat[seatPosition];
         s.setWaitingRoom(null);
         seat[seatPosition] = null;
@@ -414,7 +393,7 @@ public class WaitingRoom implements Runnable {
         temp.put("message", message);
 
         send.put("waitingRoomData", temp);
-        seat[loc].sendMessage(send.toString());
+        sendMessage(loc, message);
     }
 
 

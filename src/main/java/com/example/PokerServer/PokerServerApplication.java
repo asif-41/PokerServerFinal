@@ -25,6 +25,9 @@ public class PokerServerApplication {
 
     public static void main(String[] args) {
 
+        SpringApplicationBuilder builder = new SpringApplicationBuilder(PokerServerApplication.class);
+        builder.headless(false);
+        ConfigurableApplicationContext context = builder.run(args);
 
         int boardTypeCount = 10;
         long minCallValue[] = {10000, 20000, 100000, 200000, 500000, 1000000, 2000000, 4000000, 10000000, 20000000};
@@ -35,11 +38,9 @@ public class PokerServerApplication {
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, minCallValue, 10000000, 100000000,
                 2, 5, 1, 120, 8080, 1000,500000,
-                10, 50000, 100000, 60, 15);
+                10, 50000, 100000, 60, 10);
 
-        SpringApplicationBuilder builder = new SpringApplicationBuilder(PokerServerApplication.class);
-        builder.headless(false);
-        ConfigurableApplicationContext context = builder.run(args);
+
 
         //SpringApplication.run(PokerServerApplication.class, args);
     }
