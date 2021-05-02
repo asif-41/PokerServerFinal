@@ -291,10 +291,32 @@ public class ServerToClient implements Runnable {
             send.put("response", true);
 
             JSONObject temp = User.UserToJson(user);
+            temp.put("appData", getAppData());
             send.put("data", temp);
         }
-
         sendMessage(send.toString());
+    }
+
+    private JSONObject getAppData(){
+
+        JSONObject jsonObject = new JSONObject();
+
+        jsonObject.put("coinPricePerCrore", TransactionMethods.getCoinPricePerCrore());
+        jsonObject.put("coinAmountOnBuy", TransactionMethods.getCoinAmountOnBuy());
+        jsonObject.put("coinPriceOnBuy", TransactionMethods.getCoinPriceOnBuy());
+
+        jsonObject.put("boardTypeCount", Server.pokerServer.getBoardTypeCount());
+        jsonObject.put("minCallValue", Server.pokerServer.getMinCallValue());
+        jsonObject.put("boardType", Server.pokerServer.getBoardType());
+        jsonObject.put("minEntryValue", Server.pokerServer.getMinEntryValue());
+        jsonObject.put("maxEntryValue", Server.pokerServer.getMaxEntryValue());
+        jsonObject.put("mcr", Server.pokerServer.getMcr());
+
+        jsonObject.put("expIncrease", User.getExpIncrease());
+        jsonObject.put("rankString", User.getRankString());
+        jsonObject.put("ranksValue", User.getRanksValue());
+
+        return jsonObject;
     }
 
     private void sendResponseLogout() {

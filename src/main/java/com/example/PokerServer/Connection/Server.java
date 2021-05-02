@@ -49,6 +49,8 @@ public class Server {
     private String boardType[];                  //      BOARD NAME FOR EACH TYPE {"board1", "board2", "board3", "board4", "board5"};
     private long minEntryValue[];                 //      MIN ENTRY VALUE FOR EACH TYPE {100000, 100000, 100000, 100000, 100000};
     private long minCallValue[];                  //      MIN CALL VALUE FOR EACH TYPE {10000, 10000, 10000, 10000, 10000};
+    private long maxEntryValue[];
+    private long mcr[];
     private ArrayList guests;                   //      GUEST INTEGERS
     private int maxGuestLimit;                  //      MAX GUEST LIMIT
     public long initialCoin;                    //      INITIAL COIN
@@ -69,7 +71,8 @@ public class Server {
     //========================================================================================
 
 
-    public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] minCallValue, int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
+    public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] maxEntryValue, long[] minCallValue, long[] mcr,
+                  int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame ) {
@@ -81,6 +84,8 @@ public class Server {
         this.boardType = boardType;
         this.minCallValue = minCallValue;
         this.minEntryValue = minEntryValue;
+        this.maxEntryValue = maxEntryValue;
+        this.mcr = mcr;
 
 
         this.gameCodeLowerLimit = gameCodeLowerLimit;
@@ -766,6 +771,22 @@ public class Server {
 
     public int getBoardTypeCount() {
         return boardTypeCount;
+    }
+
+    public long[] getMaxEntryValue() {
+        return maxEntryValue;
+    }
+
+    public void setMaxEntryValue(long[] maxEntryValue) {
+        this.maxEntryValue = maxEntryValue;
+    }
+
+    public long[] getMcr() {
+        return mcr;
+    }
+
+    public void setMcr(long[] mcr) {
+        this.mcr = mcr;
     }
 
     //================================================================================================================================================
