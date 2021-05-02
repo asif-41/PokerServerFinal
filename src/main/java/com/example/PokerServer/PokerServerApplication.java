@@ -66,6 +66,12 @@ public class PokerServerApplication {
 
     }
 
+    @RequestMapping("/memory")
+    public String readMemory(HttpServletRequest request, HttpServletResponse response){
+
+        return "Free memory: " + Runtime.getRuntime().freeMemory() + " total memory: " + Runtime.getRuntime().totalMemory()
+                + " Max memory: " + Runtime.getRuntime().maxMemory();
+    }
 
 
 }
