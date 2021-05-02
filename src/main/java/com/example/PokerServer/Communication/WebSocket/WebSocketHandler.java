@@ -19,7 +19,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
-        session.setTextMessageSizeLimit(209715200);
         createServerToClient(session);
     }
 

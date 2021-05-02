@@ -163,6 +163,8 @@ public class Server {
 
     private User loadUserFromDatabase(String account_id, String account_type, String username, String imageLink) {
 
+        if(account_type.equals("guest")) return null;
+
         User user = db.getUserData(account_id, account_type, username);
         user.setImageLink(imageLink);
 
@@ -176,6 +178,8 @@ public class Server {
     }
 
     public void updateDatabase(User user, String cmd){
+
+        if(user.getLoginMethod().equals("guest")) return ;
 
         db.updateUser(user, cmd);
     }
@@ -193,6 +197,8 @@ public class Server {
 
 
     public void addTransaction(User user, String type, String method, String transactionId, long coinAmount, double amount){
+
+        if(user.getLoginMethod().equals("guest")) return ;
 
         db.addTransaction(user.getId(), type, method, transactionId, coinAmount, amount);
     }
@@ -678,8 +684,88 @@ public class Server {
         return port;
     }
 
+    public ArrayList getGuests() {
+        return guests;
+    }
+
+    public void setGuests(ArrayList guests) {
+        this.guests = guests;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public ArrayList[] getWaitingRoom() {
+        return waitingRoom;
+    }
+
+    public void setWaitingRoom(ArrayList[] waitingRoom) {
+        this.waitingRoom = waitingRoom;
+    }
+
+    public ArrayList[] getPendingQueue() {
+        return pendingQueue;
+    }
+
+    public void setPendingQueue(ArrayList[] pendingQueue) {
+        this.pendingQueue = pendingQueue;
+    }
+
+    public ArrayList[] getGameThreads() {
+        return gameThreads;
+    }
+
+    public void setGameThreads(ArrayList[] gameThreads) {
+        this.gameThreads = gameThreads;
+    }
+
+    public ArrayList getCasualConnections() {
+        return casualConnections;
+    }
+
+    public void setCasualConnections(ArrayList casualConnections) {
+        this.casualConnections = casualConnections;
+    }
+
     public ArrayList getLoggedInUsers() {
         return loggedInUsers;
+    }
+
+    public void setLoggedInUsers(ArrayList loggedInUsers) {
+        this.loggedInUsers = loggedInUsers;
+    }
+
+    public String[] getBoardType() {
+        return boardType;
+    }
+
+    public void setBoardType(String[] boardType) {
+        this.boardType = boardType;
+    }
+
+    public long[] getMinEntryValue() {
+        return minEntryValue;
+    }
+
+    public void setMinEntryValue(long[] minEntryValue) {
+        this.minEntryValue = minEntryValue;
+    }
+
+    public long[] getMinCallValue() {
+        return minCallValue;
+    }
+
+    public void setMinCallValue(long[] minCallValue) {
+        this.minCallValue = minCallValue;
+    }
+
+    public int getBoardTypeCount() {
+        return boardTypeCount;
     }
 
     //================================================================================================================================================

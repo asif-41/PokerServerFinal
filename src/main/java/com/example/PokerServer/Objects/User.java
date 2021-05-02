@@ -1296,6 +1296,47 @@ public class User {
                 '}' + "\n";
     }
 
+    public String printUser(){
+
+        String ret = "";
+
+        ret += "Id: " + id + "\n";
+        ret += "Username: " + username + "\n";
+        ret += "Facebook: " + fb_id + "\n";
+        ret += "Gmail: " + gmail_id + "\n";
+        ret += "Login Method: " + loginMethod + "\n";
+        ret += "Exp: " + exp + "\n";
+        ret += "Current coin: " + (currentCoin + boardCoin) + "\n";
+        ret += "Coin won: " + coinWon + "\n";
+        ret += "Coin lost: " + coinLost + "\n";
+        ret += "Rounds won: " + roundsWon + "\n";
+        ret += "Rounds played: " + roundsPlayed + "\n";
+        ret += "Win percentage: " + winPercentage + "\n";
+        ret += "Win streak: " + winStreak + "\n";
+        ret += "Level: " + level + "\n";
+        ret += "Rank: " + rank + "\n";
+        ret += "Biggest win: " + biggestWin + "\n";
+        ret += "Best hand: " + bestHand + "\n";
+        ret += "In game: " + inGame + "\n";
+        if(inGame == true){
+            ret += "Game id: " + gameId + "\n";
+            ret += "Game code: " + gameCode + "\n";
+        }
+        ret += "In waiting room: " + (inWaitingRoomPlayers == null) + "\n";
+        if(inWaitingRoomPlayers != null){
+            ret += "Game id: " + gameId + "\n";
+            ret += "Game code: " + gameCode + "\n";
+        }
+        ret += "Coin video count: " + coinVideoCount + "\n";
+        ret += "Last coin video available time: " + lastCoinVideoAvailableTime + "\n";
+        ret += "Last free coin time: " + lastFreeCoinTime + "\n";
+        ret += "Last login time: " + lastLoggedInTime + "\n";
+        ret += "Current login time: " + currentLoginTime + "\n";
+        ret += "\n";
+
+        return ret;
+    }
+
 
     //========================================================================================
     //

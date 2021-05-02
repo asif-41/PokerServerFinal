@@ -570,19 +570,27 @@ public class GameThread implements Runnable {
 
     public void exitGameResponse(ServerToClient s) {
 
+        boolean sendBoardInfo = false;
         int seatPosition = s.getUser().getSeatPosition();
         User tempUser = s.getUser();
 
         if (gameRunning == true) {
 
-            if (seatPosition == roundIteratorSeat) {
-                tempUser.setBoardCoin(tempUser.getBoardCoin() - foldCost);
-                playerTotalCallValues[seatPosition] += foldCost;
-                roundCoins += foldCost;
-            } else if (seatPosition == smallBlindSeat && foldCost > 0) {
-                tempUser.setBoardCoin(tempUser.getBoardCoin() - foldCost / 2);
-                playerTotalCallValues[seatPosition] += foldCost / 2;
-                roundCoins += foldCost / 2;
+            if(seatPosition == bigBlindSeat){
+                if(!bigBlindMsgSent || (bigBlindMsgSent && roundIteratorSeat == seatPosition && cycleCount == 1)){
+                    tempUser.setBoardCoin(tempUser.getBoardCoin() - minCallValue);
+                    playerTotalCallValues[seatPosition] += minCallValue;
+                    roundCoins += minCallValue;
+                    sendBoardInfo = true;
+                }
+            }
+            else if(seatPosition == smallBlindSeat){
+                if(!smallBlindMsgSent || (smallBlindMsgSent && roundIteratorSeat == seatPosition && cycleCount == 1)){
+                    tempUser.setBoardCoin(tempUser.getBoardCoin() - minCallValue/2);
+                    playerTotalCallValues[seatPosition] += minCallValue/2;
+                    roundCoins += minCallValue/2;
+                    sendBoardInfo = true;
+                }
             }
             tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
             tempUser.setFoldCount(tempUser.getFoldCount() + 1);
@@ -621,6 +629,7 @@ public class GameThread implements Runnable {
         }
 
         sendPlayersDataToAll();
+        if(sendBoardInfo) sendShowBoardInfo();
         if (activeCountInRound == 1 || activeCountInRound == 0) endRound();
     }
 
