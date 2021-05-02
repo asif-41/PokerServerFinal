@@ -2,6 +2,7 @@ package com.example.PokerServer.Communication.WebSocket;
 
 import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Connection.ServerToClient;
+import org.json.JSONObject;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.AbstractWebSocketHandler;
 
@@ -41,7 +42,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 
-        receiveMessage(session, "Error -> " + exception.toString());
+        receiveErrorMessage(session, "Error -> " + exception.toString());
     }
 
     @Override
@@ -64,7 +65,31 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private void receiveMessage(WebSocketSession session, String message) {
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
-        if (s != null) s.incomingMsg(message);
+        if (s != null) {
+
+            try{
+                JSONObject jsonObject = new JSONObject(message);
+                boolean done = jsonObject.getBoolean("done");
+                String data = jsonObject.getString("data");
+
+                s.setIncoming(s.getIncoming() + data);
+                if(done){
+                    s.incomingMsg(s.getIncoming());
+                    s.setIncoming("");
+                }
+            }catch (Exception e){
+                System.out.println("Error in converting incoming message to json " + e);
+            }
+        }
+    }
+
+    private void receiveErrorMessage(WebSocketSession session, String message) {
+
+        ServerToClient s = Server.pokerServer.getServerToClient(session);
+        if (s != null) {
+            s.incomingMsg(message);
+            s.setIncoming("");
+        }
     }
 
     private void closeServerToClient(WebSocketSession session) {
@@ -82,6 +107,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     private void createServerToClient(WebSocketSession session) {
 
         ServerToClient s = new ServerToClient(session);
+        s.setIncoming("");
 
         Server.pokerServer.addInCasualConnection(s);
         new Thread(s).start();
