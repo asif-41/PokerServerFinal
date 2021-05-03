@@ -15,8 +15,6 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     //
     //==================================================================
 
-
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
@@ -87,7 +85,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
         ServerToClient s = Server.pokerServer.getServerToClient(session);
         if (s != null) {
-            s.incomingMsg(message);
+            System.out.println(message);
             s.setIncoming("");
         }
     }

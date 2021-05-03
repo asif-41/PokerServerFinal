@@ -41,7 +41,7 @@ public class PokerServerApplication {
         long mcr[] = {0, 0, 2500000, 7000000, 15000000, 40000000, 100000000, 150000000, 400000000, 1000000000};
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
-                2, 5, 1, 120, 1112, 1000,500000,
+                2, 5, 1, 120, 1112, 10000,500000,
                 10, 50000, 100000, 60, 10);
     }
 
@@ -70,14 +70,6 @@ public class PokerServerApplication {
 
     }
 
-    @RequestMapping(value = "/memory", produces = "text/plain")
-    public String readMemory(HttpServletRequest request, HttpServletResponse response){
-
-        return "Free memory: " + Runtime.getRuntime().freeMemory() + "\n" +
-                "Total memory: " + Runtime.getRuntime().totalMemory() + "\n" +
-                "Max memory: " + Runtime.getRuntime().maxMemory();
-    }
-
 
 
 
@@ -89,6 +81,22 @@ public class PokerServerApplication {
     private boolean authorizeAdmin(String username, String password){
         if(username.equals(this.username) && password.equals(this.password)) return true;
         else return false;
+    }
+
+    @RequestMapping(value = "/memory", produces = "text/plain")
+    public String readMemory(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret +=  "Free memory: " + Runtime.getRuntime().freeMemory() + "\n" +
+                    "Total memory: " + Runtime.getRuntime().totalMemory() + "\n" +
+                    "Max memory: " + Runtime.getRuntime().maxMemory();
+        }
+        else ret += "Unauthorized access request: failed";
+
+        return ret;
     }
 
     @RequestMapping(value = "/data", produces = "text/plain")
