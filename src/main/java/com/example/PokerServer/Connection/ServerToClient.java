@@ -447,8 +447,9 @@ public class ServerToClient implements Runnable {
         long coinAmount = tempJson.getLong("coinAmount");
         double price = TransactionMethods.getCurrencyAmount(coinAmount, "withdraw");
 
-        String transactionId = TransactionMethods.validateWithdrawCoinRequest(coinAmount, method, receiverAccount);
+        if(coinAmount > user.getCurrentCoin()) sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0, "");
 
+        String transactionId = TransactionMethods.validateWithdrawCoinRequest(coinAmount, method, receiverAccount);
         if(transactionId.equals("")){
             sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0, transactionId);
         }
