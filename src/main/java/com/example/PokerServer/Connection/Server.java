@@ -638,25 +638,22 @@ public class Server {
 
     public void removeFromLoggedUsers(ServerToClient s) {
 
-        if (s == null) return;
-        if (s.getUser() == null) return;
+        if (s != null && s.getUser() != null){
+            removeFromWaitingRoom(s);
+            removeFromGameThread(s);
+            s.requestAbort();
 
-        removeFromWaitingRoom(s);
-        removeFromGameThread(s);
-        s.requestAbort();
-
-        if (s.getUser().getLoginMethod().equals("guest")) {
-            int nameCode = Integer.valueOf(s.getUser().getUsername().split("_")[1]);
-            guests.remove((Integer) nameCode);
+            if (s.getUser().getLoginMethod().equals("guest")) {
+                int nameCode = Integer.valueOf(s.getUser().getUsername().split("_")[1]);
+                guests.remove((Integer) nameCode);
+            }
+            loadUserToDatabase(s.getUser());
         }
 
-        loadUserToDatabase(s.getUser());
         loggedInUsers.remove(s);
     }
 
     public void removeFromCasualConnections(ServerToClient s) {
-
-        if (s == null) return;
 
         removeFromLoggedUsers(s);
         casualConnections.remove(s);

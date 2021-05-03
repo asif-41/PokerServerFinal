@@ -150,7 +150,9 @@ public class PokerServerApplication {
             for(Object x : Server.pokerServer.getLoggedInUsers()){
 
                 User user = ( (ServerToClient) x ).getUser();
-                ret += user.printUser() + "\n";
+
+                if(user == null) ret += "Pay nai ekjon!\n\n";
+                else ret += user.printUser() + "\n";
             }
         }
         else ret = "Unauthorized access request: failed";

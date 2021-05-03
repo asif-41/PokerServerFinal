@@ -41,6 +41,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 
         receiveErrorMessage(session, "Error -> " + exception.toString());
+        closeServerToClient(session);
     }
 
     @Override
@@ -88,6 +89,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             System.out.println(message);
             s.setIncoming("");
         }
+
     }
 
     private void closeServerToClient(WebSocketSession session) {
