@@ -192,6 +192,9 @@ public class Server {
     public User makeUser(String account_id, String account_type, String username, String imageLink) {
 
         User user = null;
+        boolean alreadyLoggedIn = checkIfAlreadyLoggedIn(account_id, account_type, username);
+
+        if(alreadyLoggedIn == true) return user;
 
         if (account_type.equals("guest")) user = makeGuestUser(imageLink);
         else if(account_type.equals("facebook")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
@@ -216,6 +219,28 @@ public class Server {
 
         array = db.getTransactions(user.getId());
         return array;
+    }
+
+    private boolean checkIfAlreadyLoggedIn(String account_id, String account_type, String username){
+
+        if(account_type.equals("guest")) return false;
+
+        for(int i=0; i < loggedInUsers.size(); i++){
+
+            ServerToClient s = (ServerToClient) loggedInUsers.get(i);
+            if(s == null || s.getUser() == null) continue;
+
+            User user = s.getUser();
+
+            String userAccountType = user.getLoginMethod();
+            String userAccountId = "";
+            if(userAccountType.equals("facebook")) userAccountId = user.getFb_id();
+            else if(userAccountType.equals("google")) userAccountId = user.getGmail_id();
+
+            if(userAccountType.equals(account_type) && userAccountId.equals(account_id)) return true;
+        }
+
+        return false;
     }
 
     //========================================================================================
