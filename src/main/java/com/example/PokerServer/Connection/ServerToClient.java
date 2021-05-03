@@ -450,18 +450,18 @@ public class ServerToClient implements Runnable {
         String transactionId = TransactionMethods.validateWithdrawCoinRequest(coinAmount, method, receiverAccount);
 
         if(transactionId.equals("")){
-            sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0);
+            sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0, transactionId);
         }
         else{
             user.setCurrentCoin(user.getCurrentCoin() - coinAmount);
             Server.pokerServer.updateDatabase(user, "removeWithdrawCoin");
             Server.pokerServer.addTransaction(user, "withdraw", method, transactionId, coinAmount, price);
 
-            sendWithdrawCoinResponse(true, "Coin withdraw successful", price);
+            sendWithdrawCoinResponse(true, "Coin withdraw successful", price, transactionId);
         }
     }
 
-    private void sendWithdrawCoinResponse(boolean success, String msg, double price){
+    private void sendWithdrawCoinResponse(boolean success, String msg, double price, String transactionId){
 
         JSONObject send = initiateJson();
 
@@ -470,6 +470,7 @@ public class ServerToClient implements Runnable {
         send.put("message", msg);
         send.put("currentCoin", user.getCurrentCoin());
         send.put("price", price);
+        send.put("transactionId", transactionId);
 
         sendMessage(send.toString());
     }
