@@ -50,10 +50,12 @@ public class PokerServerApplication {
     @RequestMapping(value = "/", produces = "text/plain")
     public String readIp(HttpServletRequest request, HttpServletResponse response){
 
-        String show = "Welcom to server      ";
+        String show = "Welcom to server\n";
 
-        show += "Server ip " + request.getLocalAddr() + "        ";
+        show += "Server ip " + request.getLocalAddr() + "\n";
         show += "Client ip " + request.getRemoteAddr();
+
+        Server.pokerServer.setHost(request.getLocalAddr());
 
         return show;
     }

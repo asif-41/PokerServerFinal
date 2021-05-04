@@ -9,7 +9,7 @@ import com.example.PokerServer.db.DBFactory;
 import org.json.JSONArray;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.net.InetAddress;
+import java.net.Inet4Address;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
@@ -119,7 +119,10 @@ public class Server {
 
         try {
             this.port = port;
-            host = InetAddress.getLocalHost().getHostAddress();
+
+
+            host = Inet4Address.getLoopbackAddress().getHostAddress();
+            //host = InetAddress.getLocalHost().getHostAddress();
 
         } catch (Exception e) {
             System.out.println("Exception in fetching ip -> " + e);
@@ -161,7 +164,7 @@ public class Server {
                 0, initialCoin, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, "",
                 dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
-                Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
+                User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
 
         return user;
     }

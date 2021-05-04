@@ -585,6 +585,14 @@ public class User {
 
     */
 
+    public static Date firstLastFreeCoinTime(){
+
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DAY_OF_MONTH, -5);
+
+        return c.getTime();
+    }
+
     public static String getRank(long coins_won, long coins_lost) {
 
         long diff = coins_won - coins_lost;

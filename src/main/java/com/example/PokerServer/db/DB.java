@@ -80,7 +80,7 @@ public class DB {
                         0, Server.pokerServer.initialCoin, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, "",
                         Server.pokerServer.dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
-                        Calendar.getInstance().getTime(), Calendar.getInstance().getTime());
+                        User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
                 saveUser(user, true);
 
                 int thisId = -1;

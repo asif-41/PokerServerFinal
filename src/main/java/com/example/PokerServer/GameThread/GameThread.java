@@ -1472,9 +1472,6 @@ public class GameThread implements Runnable {
             roundWinnersSeat.clear();
             roundWinnerCount = 0;
 
-            loadWinnerData();
-            noWinnerResult();
-
             startNewRound();
             return;
         }
@@ -1803,26 +1800,6 @@ public class GameThread implements Runnable {
         sendMessageToAll(send.toString());
     }
 
-
-    private void noWinnerResult() {
-
-        JSONObject send = initiateJson();
-
-        JSONObject tempJson = new JSONObject();
-
-        tempJson.put("id", gameId);
-        tempJson.put("code", gameCode);
-        tempJson.put("gameRequest", "Result");
-
-        send.put("gameData", tempJson);
-        send.put("dataType", "Result");
-
-        send.put("data", new JSONArray());
-
-        sendMessageToAll(send.toString());
-
-        waitGame(5);
-    }
 
     private void winnerResultSend() {
 
