@@ -1220,30 +1220,31 @@ public class GameThread implements Runnable {
         array.put(temp);
 
 
-        //All In button
-
-        temp = new JSONObject();
-        temp.put("name", "AllIn");
-        temp.put("cost", tempUser.getBoardCoin());
-
-        array.put(temp);
-
-
         //Call or raise button
 
 
         if (roundCall <= tempUser.getBoardCoin()) {
 
-            temp = new JSONObject();
-            temp.put("name", "Call");
-            temp.put("cost", roundCall);
+            if(cycleCount == 1){
+                temp = new JSONObject();
+                temp.put("name", "Call");
+                temp.put("cost", roundCall);
 
-            array.put(temp);
-
+                array.put(temp);
+            }
 
             temp = new JSONObject();
             temp.put("name", "Raise");
             temp.put("cost", roundCall);
+
+            array.put(temp);
+        }
+        else{
+            //All In button
+
+            temp = new JSONObject();
+            temp.put("name", "AllIn");
+            temp.put("cost", tempUser.getBoardCoin());
 
             array.put(temp);
         }
