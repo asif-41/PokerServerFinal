@@ -529,6 +529,13 @@ public class GameThread implements Runnable {
         sendWelcomeGameMsg(loc);
 
         if (gameRunning == false) startNewRound();
+        else {
+            sendShowCards();
+            sendShowBoardInfo();
+
+            sendShowNextTurnInfo();
+            disableButtons(loc);
+        }
     }
 
 
@@ -614,7 +621,6 @@ public class GameThread implements Runnable {
         isActiveInRound[seatPosition] = false;
 
         setOwner();
-
         if (gameRunning == false) return;
 
 
@@ -860,7 +866,6 @@ public class GameThread implements Runnable {
         if (activeCountInRound == 0 || activeCountInRound == 1) {
 
             gameRunning = false;
-
             if (waitingToClose == true) return;
 
             waitForPlayersToBuyMsg();
@@ -1133,6 +1138,24 @@ public class GameThread implements Runnable {
     //              SENDING BUTTON INFO
     //
     //==================================================================================================================
+
+    private void disableButtons(int loc){
+
+        if (inGamePlayers[loc] == null) return;
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("gameRequest", "DisableGameButtons");
+
+        send.put("gameData", tempJson);
+        send.put("dataType", "DisableButtons");
+
+        sendMessage(loc, send.toString());
+    }
 
     private void disableButtonsExcept(int j) {
 
@@ -1466,10 +1489,8 @@ public class GameThread implements Runnable {
         showAllCardsAtEnd = false;
 
         if (activeCountInRound == 0) {
-
             roundStarterSeat = -1;
-
-            roundWinnersSeat.clear();
+            if(roundWinnersSeat != null) roundWinnersSeat.clear();
             roundWinnerCount = 0;
 
             startNewRound();
@@ -1509,7 +1530,6 @@ public class GameThread implements Runnable {
 
             if (inGamePlayers[i] == null || isActiveInRoom[i] == false || isPlaying[i] == false) checker[i] = 0;
         }
-
 
         //INITIALIZING NECESSARY VALUES
 
@@ -2094,6 +2114,39 @@ public class GameThread implements Runnable {
                 ", roundResultPower='" + roundResultPower + '\'' +
                 ", resultFoundAtLevel=" + resultFoundAtLevel +
                 '}' + "\n";
+    }
+
+    public String printGameThread(){
+
+        String ret = "";
+
+        ret += "Id: " + gameId + "\n";
+        ret += "Code: " + gameCode + "\n";
+        ret += "Board Type: " + boardType + "\n";
+        ret += "Min Entry Value: " + ( (double) minEntryValue / 100000 ) + "lac\n";
+        ret += "Min Call Value: " + ( (double) minCallValue / 100000 ) + "lac\n";
+        ret += "Player Count: " + playerCount + "\n";
+        ret += "Players: " + "\n";
+
+
+        for(int i=0; i<maxPlayerCount; i++){
+            if(inGamePlayers[i] == null) continue;
+
+            User user = inGamePlayers[i].getUser();
+
+            ret += "Seat: " + i + " ";
+            ret += "Username: " + user.getUsername() + " ";
+            ret += "Id: " + user.getId() + " ";
+
+            if(user.getLoginMethod().equals("facebook")) ret += "Login id: " + user.getFb_id() + " ";
+            else if(user.getLoginMethod().equals("google")) ret += "Login id: " + user.getGmail_id() + " ";
+
+            ret += "Board coin: " + ( (double) user.getBoardCoin() / 100000 ) + "lac ";
+            ret += "\n";
+        }
+        ret += "\n";
+        return ret;
+
     }
 
     public int getGameCode() {

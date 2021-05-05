@@ -379,7 +379,7 @@ public class ServerToClient implements Runnable {
 
             System.out. println("A Connection got removed");
             Server.pokerServer.removeFromCasualConnections(this);
-            session.close();
+            if(session != null && session.isOpen()) session.close();
 
         } catch (Exception e) {
             System.out. println("Error in closing connection in Server side, error -> " + e);

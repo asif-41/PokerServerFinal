@@ -566,6 +566,40 @@ public class WaitingRoom implements Runnable {
         return ret;
     }
 
+    public String printWaitingRoom(){
+
+        String ret = "";
+
+        ret += "Id: " + gameId + "\n";
+        ret += "Code: " + gameCode + "\n";
+        ret += "Board Type: " + boardType + "\n";
+        ret += "Min Entry Value: " + ( (double) minEntryValue / 100000 ) + "lac\n";
+        ret += "Min Call Value: " + ( (double) minCallValue / 100000 ) + "lac\n";
+        ret += "Player Count: " + playerCount + "\n";
+        ret += "Owner Username: " + owner.getUser().getUsername() + "\n";
+        ret += "Players: " + "\n";
+
+
+        for(int i=0; i<maxPlayerCount; i++){
+            if(seat[i] == null) continue;
+
+            User user = seat[i].getUser();
+
+            ret += "Seat: " + i + " ";
+            ret += "Username: " + user.getUsername() + " ";
+            ret += "Id: " + user.getId() + " ";
+
+            if(user.getLoginMethod().equals("facebook")) ret += "Login id: " + user.getFb_id() + " ";
+            else if(user.getLoginMethod().equals("google")) ret += "Login id: " + user.getGmail_id() + " ";
+
+            ret += "Board coin: " + ( (double) user.getBoardCoin() / 100000 ) + "lac ";
+            ret += "\n";
+        }
+        ret += "\n";
+
+        return ret;
+    }
+
     public int getGameId() {
         return gameId;
     }

@@ -1314,9 +1314,9 @@ public class User {
         ret += "Gmail: " + gmail_id + "\n";
         ret += "Login Method: " + loginMethod + "\n";
         ret += "Exp: " + exp + "\n";
-        ret += "Current coin: " + (currentCoin + boardCoin) + "\n";
-        ret += "Coin won: " + coinWon + "\n";
-        ret += "Coin lost: " + coinLost + "\n";
+        ret += "Current coin: " + ( (double) (currentCoin + boardCoin) / 100000 ) + "lac\n";
+        ret += "Coin won: " + ( (double) coinWon / 100000 ) + "lac\n";
+        ret += "Coin lost: " + ( (double) coinLost / 100000 ) + "lac\n";
         ret += "Rounds won: " + roundsWon + "\n";
         ret += "Rounds played: " + roundsPlayed + "\n";
         ret += "Win percentage: " + winPercentage + "\n";
@@ -1329,11 +1329,13 @@ public class User {
         if(inGame == true){
             ret += "Game id: " + gameId + "\n";
             ret += "Game code: " + gameCode + "\n";
+            ret += "Board coin: " + ( (double) boardCoin / 100000 ) + "lac\n";
         }
         ret += "In waiting room: " + (inWaitingRoomPlayers == null) + "\n";
         if(inWaitingRoomPlayers != null){
             ret += "Game id: " + gameId + "\n";
             ret += "Game code: " + gameCode + "\n";
+            ret += "Board coin: " + ( (double) boardCoin / 100000 ) + "lac\n";
         }
         ret += "Coin video count: " + coinVideoCount + "\n";
         ret += "Last coin video available time: " + lastCoinVideoAvailableTime + "\n";

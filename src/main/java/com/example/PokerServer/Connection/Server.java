@@ -814,6 +814,46 @@ public class Server {
         this.mcr = mcr;
     }
 
+    public int getQueueWaitLimit() {
+        return queueWaitLimit;
+    }
+
+    public void setQueueWaitLimit(int queueWaitLimit) {
+        this.queueWaitLimit = queueWaitLimit;
+    }
+
+    public ArrayList[] getQueueTimeCount() {
+        return queueTimeCount;
+    }
+
+    public void setQueueTimeCount(ArrayList[] queueTimeCount) {
+        this.queueTimeCount = queueTimeCount;
+    }
+
+    public int getMaxGuestLimit() {
+        return maxGuestLimit;
+    }
+
+    public void setMaxGuestLimit(int maxGuestLimit) {
+        this.maxGuestLimit = maxGuestLimit;
+    }
+
+    public int getMaxPlayerCount() {
+        return maxPlayerCount;
+    }
+
+    public void setMaxPlayerCount(int maxPlayerCount) {
+        this.maxPlayerCount = maxPlayerCount;
+    }
+
+    public DB getDb() {
+        return db;
+    }
+
+    public void setDb(DB db) {
+        this.db = db;
+    }
+
     //================================================================================================================================================
     //
     //================================================================================================================================================

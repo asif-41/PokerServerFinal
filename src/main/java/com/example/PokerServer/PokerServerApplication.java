@@ -2,7 +2,11 @@ package com.example.PokerServer;
 
 import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Connection.ServerToClient;
+import com.example.PokerServer.GameThread.GameThread;
+import com.example.PokerServer.GameThread.WaitingRoom;
+import com.example.PokerServer.Objects.TransactionMethods;
 import com.example.PokerServer.Objects.User;
+import com.example.PokerServer.db.DB;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 @RestController
 @SpringBootApplication
@@ -137,6 +142,70 @@ public class PokerServerApplication {
         return ret;
     }
 
+    @RequestMapping(value = "/data/printBasicData", produces = "text/plain")
+    public @ResponseBody String printBasicData(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += "Welcome admin\n\n";
+            ret += "Server info:\n\n";
+
+            ret += "New user registration coin: " + ( (double) Server.pokerServer.initialCoin / 100000 ) + "lac\n";
+            ret += "Max guest limit: " + Server.pokerServer.getMaxGuestLimit() + "\n";
+            ret += "Wait in queue: " + Server.pokerServer.getQueueWaitLimit() + "seconds\n";
+            ret += "Each day, free login coin: " + ( (double) Server.pokerServer.freeLoginCoin / 100000 ) + "lac\n";
+            ret += "Each day, available video: " + Server.pokerServer.dailyCoinVideoCount + "\n";
+            ret += "Each video ad coin: " + ( (double) Server.pokerServer.eachVideoCoin / 100000 ) + "lac\n";
+            ret += "Max player in a game: " + Server.pokerServer.getMaxPlayerCount() + "\n\n";
+
+            ret += "Board type: " + Server.pokerServer.getBoardTypeCount() + "\n\n";
+            for(int i=0; i<Server.pokerServer.getBoardTypeCount(); i++){
+
+                ret += "Board type: " + (i+1) + "\n";
+                ret += "Minimum entry value: " + ( (double) Server.pokerServer.getMinEntryValue()[i] / 100000 ) + "lac\n";
+                ret += "Maximum entry value: " + ( (double) Server.pokerServer.getMaxEntryValue()[i] / 100000 ) + "lac\n";
+                ret += "Minimum call value: " + ( (double) Server.pokerServer.getMinCallValue()[i] / 100000 ) + "lac\n";
+                ret += "Minimum coin to enter: " + ( (double) Server.pokerServer.getMcr()[i] / 100000 ) + "lac\n";
+                ret += "\n";
+            }
+            ret += "\n";
+
+            ret += "Withdraw price per crore: " + TransactionMethods.getCoinPricePerCrore() + "\n";
+            ret += "Buy coin packages: " + TransactionMethods.getCoinAmountOnBuy().length + "\n";
+
+            for(int i=0; i<TransactionMethods.getCoinAmountOnBuy().length; i++){
+                ret += "Package " + (i+1) + ": ";
+                ret += "Coin: " + ( (double) TransactionMethods.getCoinAmountOnBuy()[i] / 100000 ) + "lac ";
+                ret += "Price: " + TransactionMethods.getCoinPriceOnBuy()[i] + "\n";
+            }
+            ret += "\n";
+
+            ret += "Exp increase after each game: " + User.getExpIncrease() + "\n";
+            ret += "User ranks: ";
+            for(String x : User.rankString) ret += x + " ";
+            ret += "\n\n";
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printDatabase", produces = "text/plain")
+    public @ResponseBody String printDatabase(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += DB.printDatabase(Server.pokerServer.getDb()) + "\n";
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
     @RequestMapping(value = "/data/printLoggedUsers", produces = "text/plain")
     public @ResponseBody String printLoggedUsers(@RequestParam String username, @RequestParam String password){
 
@@ -155,6 +224,117 @@ public class PokerServerApplication {
 
                 if(user == null) ret += "Pay nai ekjon!\n\n";
                 else ret += user.printUser() + "\n";
+            }
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printGuestUsers", produces = "text/plain")
+    public @ResponseBody String printGuestUsers(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += "Guest limit: " + Server.pokerServer.getMaxGuestLimit() + "\n";
+            ret += "Guest user count: " + Server.pokerServer.getGuests().size() + "\n";
+            ret += "Guest users id: " + "\n\n";
+
+            for(Object x : Server.pokerServer.getGuests()){
+
+                ret += (int) x + "\n";
+            }
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printPendingQueue", produces = "text/plain")
+    public @ResponseBody String printPendingQueue(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            int cnt = Server.pokerServer.getBoardTypeCount();
+            ArrayList[] pendingQueue = Server.pokerServer.getPendingQueue();
+            ArrayList[] queueTimer = Server.pokerServer.getQueueTimeCount();
+
+            ret += "Board types: " + cnt + "\n\n";
+
+            for(int i=0; i<cnt; i++){
+
+                ret += "Type-" + i + ": " + "\n";
+                for(int j=0; j<pendingQueue[i].size(); j++){
+
+                    ServerToClient s = (ServerToClient) pendingQueue[i].get(j);
+                    User user = s.getUser();
+
+                    ret += "Username: " + user.getUsername() + " Board Coin: " + ( (double) user.getBoardCoin() / 100000 ) + "lac " +
+                            " waited: " + queueTimer[i].get(j) + " limit: " + Server.pokerServer.getQueueWaitLimit() + "\n";
+                }
+                ret += "\n";
+            }
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printGameThreads", produces = "text/plain")
+    public @ResponseBody String printGameThreads(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            int cnt = Server.pokerServer.getBoardTypeCount();
+            ArrayList[] gameThreads = Server.pokerServer.getGameThreads();
+
+            ret += "Game Thread types: " + cnt + "\n\n";
+
+            for(int i=0; i<cnt; i++){
+
+                ret += "Type-" + i + ": " + "\n\n";
+
+                for(int j=0; j<gameThreads[i].size(); j++){
+
+                    GameThread g = (GameThread) gameThreads[i].get(j);
+                    ret += g.printGameThread() + "\n";
+                }
+                ret += "\n";
+            }
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printWaitingRooms", produces = "text/plain")
+    public @ResponseBody String printWaitingRooms(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            int cnt = Server.pokerServer.getBoardTypeCount();
+            ArrayList[] waitingRoom = Server.pokerServer.getWaitingRoom();
+
+            ret += "Waiting Room types: " + cnt + "\n\n";
+
+            for(int i=0; i<cnt; i++){
+
+                ret += "Type-" + i + ": " + "\n\n";
+
+                for(int j=0; j<waitingRoom[i].size(); j++){
+
+                    WaitingRoom w = (WaitingRoom) waitingRoom[i].get(j);
+                    ret += w.printWaitingRoom() + "\n";
+                }
+                ret += "\n";
             }
         }
         else ret = "Unauthorized access request: failed";

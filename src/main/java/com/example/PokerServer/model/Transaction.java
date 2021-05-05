@@ -92,4 +92,18 @@ public class Transaction implements Serializable {
     public void setTransactionId(String transactionId) {
         this.transactionId = transactionId;
     }
+
+    public String printTransaction(){
+
+        String ret = "";
+        ret += "Id: " + id + "\n";
+        ret += "Account id: " + account.getId() + "\n";
+        ret += "Type: " + type + "\n";
+        ret += "Method: " + method + "\n";
+        ret += "Transaction id: " + transactionId + "\n";
+        ret += "Coin amount: " + coinAmount + "\n";
+        ret += "Price: " + money + "\n";
+
+        return ret;
+    }
 }

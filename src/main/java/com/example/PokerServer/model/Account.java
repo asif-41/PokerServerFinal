@@ -294,4 +294,41 @@ public class Account implements Serializable {
         this.bestHand = bestHand;
     }
 
+    public String printAccount(){
+
+        String ret = "";
+
+        ret += "Id: " + id + "\n";
+        ret += "Username: " + username + "\n";
+        ret += "Login method: " + login_method + "\n";
+        if(login_method.equals("facebook")) ret += "Facebook: " + fb_id + "\n";
+        if(login_method.equals("google")) ret += "Google: " + google_id + "\n";
+        ret += "Current coin: " + current_coins + "\n";
+        ret += "Coin won: " + coins_won + "\n";
+        ret += "Coin lost: " + coins_lost + "\n";
+        ret += "Win streak: " + winStreak + "\n";
+        ret += "Rounds played: " + rounds_played + "\n";
+        ret += "Rounds won: " + rounds_won + "\n";
+        ret += "Biggest win: " + biggestWin + "\n";
+        ret += "Best hand: " + bestHand + "\n";
+        ret += "Exp: " + exp + "\n";
+        ret += "Call count: " + call_count + "\n";
+        ret += "Raise count: " + raise_count + "\n";
+        ret += "AllIn count: " + allInCount + "\n";
+        ret += "Fold count: " + fold_count + "\n";
+        ret += "Check count: " + check_count + "\n";
+        ret += "Total call count: " + totalCallCount + "\n";
+        ret += "Coin video count: " + coinVideoCount + "\n";
+        ret += "Coin video available time: " + lastCoinVideoAvailableTime + "\n";
+        ret += "Last free coin time: " + lastFreeCoinTime + "\n";
+        ret += "Last login time: " + lastLoggedInTime + "\n";
+        ret += "\n";
+
+        ret += "Transaction count: " + transactions.size() + "\n";
+        for(Transaction x : transactions){
+            ret += x.printTransaction() + "\n";
+        }
+
+        return ret;
+    }
 }

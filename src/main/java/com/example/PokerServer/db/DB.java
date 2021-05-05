@@ -290,4 +290,23 @@ public class DB {
     //
     //=======================================================================
 
+
+    public AccountRepository getAccountRepository() {
+        return accountRepository;
+    }
+
+    public TransactionRepository getTransactionRepository() {
+        return transactionRepository;
+    }
+
+    public static String printDatabase(DB database){
+
+        List<Account> accounts = database.getAccountRepository().findAll();
+
+        String ret = "Account count: " + accounts.size() + "\n";
+        for(Account x : accounts) ret += x.printAccount() + "\n";
+
+        return ret;
+    }
+
 }
