@@ -1397,7 +1397,7 @@ public class GameThread implements Runnable {
         playerCallValues[roundIteratorSeat] = v;
         playerTotalCallValues[roundIteratorSeat] += v;
         roundCoins += v;
-        roundCall = v;
+        roundCall = value;
 
         if (tempUser.getBoardCoin() == 0) {
             isActiveInRound[roundIteratorSeat] = false;
