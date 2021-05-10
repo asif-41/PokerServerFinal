@@ -123,6 +123,7 @@ public class GameThread implements Runnable {
     private int cardShowed;                             //  THE NUMBER OF CARDS SENT TO PLAYERS
     //  0, THEN 3, THEN 4, THEN 5
 
+    private boolean hasAnyoneRaised;
     private boolean hasAnyoneCalled;                    //  HAS ANYONE CALLED IN CURRENT ROUND
     private int activeCountInRound;                     //  ACTIVE PLAYERS IN CURRENT ROUND
     //  PLAYER COUNT - ( LOW PLAYERS + FOLD PLAYERS)
@@ -133,8 +134,6 @@ public class GameThread implements Runnable {
     private int bigBlindSeat;                           //  LOCATION OF PLAYER WHO WILL HAVE BIG BLIND
 
     private long foldCost;                               //  FOLD COST FOR BLINDINGS
-    private boolean smallBlindMsgSent;                  //  HAVE WE SENT THE SMALL BLIND MESSAGE?
-    private boolean bigBlindMsgSent;                    //  HAVE WE SENT THE BIG BLIND MESSAGE?
     private boolean showAllCardsAtEnd;                  //  DO WE NEED TO SHOW ALL, EVERYONES CARDS AT THE END OF THE ROUND
     //  IF GAME ENDS BEFORE cardShowed = 5, THEN WE DONT HAVE TO
 
@@ -582,23 +581,6 @@ public class GameThread implements Runnable {
         User tempUser = s.getUser();
 
         if (gameRunning == true) {
-
-            if(seatPosition == bigBlindSeat){
-                if(!bigBlindMsgSent || (bigBlindMsgSent && roundIteratorSeat == seatPosition && cycleCount == 1)){
-                    tempUser.setBoardCoin(tempUser.getBoardCoin() - minCallValue);
-                    playerTotalCallValues[seatPosition] += minCallValue;
-                    roundCoins += minCallValue;
-                    sendBoardInfo = true;
-                }
-            }
-            else if(seatPosition == smallBlindSeat){
-                if(!smallBlindMsgSent || (smallBlindMsgSent && roundIteratorSeat == seatPosition && cycleCount == 1)){
-                    tempUser.setBoardCoin(tempUser.getBoardCoin() - minCallValue/2);
-                    playerTotalCallValues[seatPosition] += minCallValue/2;
-                    roundCoins += minCallValue/2;
-                    sendBoardInfo = true;
-                }
-            }
             tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
             tempUser.setFoldCount(tempUser.getFoldCount() + 1);
 
@@ -724,6 +706,58 @@ public class GameThread implements Runnable {
     }
 
 
+    private void deductBlindCoins(){
+
+        User user;
+
+        user = inGamePlayers[smallBlindSeat].getUser();
+        user.setBoardCoin(user.getBoardCoin() - (minCallValue/2));
+        roundCoins += (minCallValue/2);
+        playerCallValues[smallBlindSeat] = (minCallValue/2);
+        playerTotalCallValues[smallBlindSeat] += (minCallValue/2);
+
+        user = inGamePlayers[bigBlindSeat].getUser();
+        user.setBoardCoin(user.getBoardCoin() - minCallValue);
+        roundCoins += minCallValue;
+        playerCallValues[bigBlindSeat] = minCallValue;
+        playerTotalCallValues[bigBlindSeat] += minCallValue;
+
+        sendDeductBlindCoins();
+        sendPlayersDataToAll();
+    }
+
+    private void sendDeductBlindCoins(){
+
+        JSONObject send = initiateJson();
+
+        JSONObject tempJson = new JSONObject();
+
+        tempJson.put("id", gameId);
+        tempJson.put("code", gameCode);
+        tempJson.put("gameRequest", "DeductBlindCoins");
+
+        send.put("gameData", tempJson);
+
+        JSONArray array = new JSONArray();
+
+        JSONObject temp = new JSONObject();
+        temp.put("seatPosition", smallBlindSeat);
+        temp.put("amount", (minCallValue/2));
+        array.put(temp);
+
+        temp = new JSONObject();
+        temp.put("seatPosition", bigBlindSeat);
+        temp.put("amount", minCallValue);
+        array.put(temp);
+
+        send.put("data", array);
+        send.put("roundCoins", roundCoins);
+        send.put("message", "Deducting blind coins");
+        sendMessageToAll(send.toString());
+
+        waitGame(1);
+    }
+
 
     private void setNextPlayer() {
 
@@ -757,6 +791,7 @@ public class GameThread implements Runnable {
 
         if (turnCount == 1) {
             hasAnyoneCalled = false;
+            hasAnyoneRaised = false;
 
             if (roundStarterSeat == -1) {
 
@@ -764,9 +799,8 @@ public class GameThread implements Runnable {
                 roundIteratorSeat = previousCycleStarterSeat;
                 bigBlindSeat = findPrevAvailableSeatFromThisPosition(roundIteratorSeat);
                 smallBlindSeat = findPrevAvailableSeatFromThisPosition(bigBlindSeat);
-                bigBlindMsgSent = false;
-                smallBlindMsgSent = false;
 
+                deductBlindCoins();
             } else {
                 roundIteratorSeat = roundStarterSeat;
                 roundStarterSeat = -1;
@@ -900,11 +934,11 @@ public class GameThread implements Runnable {
         sendPlayersDataToAll();
 
         roundStartMsg();
-
         loadCards();
 
         sendPlayerCardsToClient();
         sendBoardCardsToClient(new int[]{});
+
 
         playRound();
     }
@@ -1197,45 +1231,35 @@ public class GameThread implements Runnable {
         User tempUser = inGamePlayers[roundIteratorSeat].getUser();
 
         //      FOLD BUTTON
-        String blindType = "";
-
-        if (roundIteratorSeat == smallBlindSeat && smallBlindMsgSent == false) {
-            foldCost = minCallValue / 2;
-            blindType = "SmallBlind";
-            smallBlindMsgSent = true;
-        } else if (roundIteratorSeat == bigBlindSeat && bigBlindMsgSent == false) {
-            foldCost = minCallValue;
-            blindType = "BigBlind";
-            bigBlindMsgSent = true;
-        } else {
-            blindType = "NoBlind";
-            foldCost = 0;
-        }
-
         temp = new JSONObject();
         temp.put("name", "Fold");
-        temp.put("cost", foldCost);
-        temp.put("blindType", blindType);
-
+        temp.put("cost", 0);
         array.put(temp);
 
 
         //Call or raise button
 
+        long v;
+        if(cycleCount == 1 && roundIteratorSeat == smallBlindSeat) v = roundCall - minCallValue/2;
+        else if(cycleCount == 1 && roundIteratorSeat == bigBlindSeat) v = roundCall - minCallValue;
+        else v = roundCall;
 
-        if (roundCall <= tempUser.getBoardCoin()) {
+        if (v <= tempUser.getBoardCoin()) {
+            temp = new JSONObject();
+            temp.put("name", "Call");
+            temp.put("cost", v);
 
             if(cycleCount == 1){
-                temp = new JSONObject();
-                temp.put("name", "Call");
-                temp.put("cost", roundCall);
-
-                array.put(temp);
+                if(roundIteratorSeat == smallBlindSeat) array.put(temp);
+                else if(roundIteratorSeat == bigBlindSeat && hasAnyoneRaised) array.put(temp);
+                else if(roundIteratorSeat != bigBlindSeat) array.put(temp);
             }
+            else if(hasAnyoneRaised) array.put(temp);
 
             temp = new JSONObject();
             temp.put("name", "Raise");
-            temp.put("cost", roundCall);
+            if(v + minCallValue/2 <= tempUser.getBoardCoin()) temp.put("cost", roundCall + minCallValue/2);
+            else temp.put("cost", 0);
 
             array.put(temp);
         }
@@ -1249,7 +1273,7 @@ public class GameThread implements Runnable {
             array.put(temp);
         }
 
-        if (cardShowed>0 && !hasAnyoneCalled) {
+        if ((cycleCount == 1 && roundIteratorSeat == bigBlindSeat && !hasAnyoneRaised) || (cycleCount > 1 && !hasAnyoneCalled)){
 
             temp = new JSONObject();
             temp.put("name", "Check");
@@ -1300,11 +1324,17 @@ public class GameThread implements Runnable {
 
         tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
         tempUser.setCallCount(tempUser.getCallCount() + 1);
-        tempUser.setBoardCoin(tempUser.getBoardCoin() - roundCall);
+
+        long v;
+        if(cycleCount == 1 && roundIteratorSeat == smallBlindSeat) v = roundCall - minCallValue/2;
+        else if(cycleCount == 1 && roundIteratorSeat == bigBlindSeat) v = roundCall - minCallValue;
+        else v = roundCall;
+
+        tempUser.setBoardCoin(tempUser.getBoardCoin() - v);
         playerCalls[roundIteratorSeat] = "Call";
-        playerCallValues[roundIteratorSeat] = roundCall;
-        playerTotalCallValues[roundIteratorSeat] += roundCall;
-        roundCoins += roundCall;
+        playerCallValues[roundIteratorSeat] = v;
+        playerTotalCallValues[roundIteratorSeat] += v;
+        roundCoins += v;
 
         if (tempUser.getBoardCoin() == 0) {
             isActiveInRound[roundIteratorSeat] = false;
@@ -1328,11 +1358,9 @@ public class GameThread implements Runnable {
 
         tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
         tempUser.setFoldCount(tempUser.getFoldCount() + 1);
-        tempUser.setBoardCoin(tempUser.getBoardCoin() - foldCost);
         playerCalls[roundIteratorSeat] = "Fold";
         playerCallValues[roundIteratorSeat] = 0;
         playerTotalCallValues[roundIteratorSeat] += 0;
-        roundCoins += foldCost;
 
         isPlaying[roundIteratorSeat] = false;
         isActiveInRound[roundIteratorSeat] = false;
@@ -1352,17 +1380,24 @@ public class GameThread implements Runnable {
         foldCost = 0;
         roundStarterSeat = roundIteratorSeat;
         hasAnyoneCalled = true;
+        hasAnyoneRaised = true;
 
         User tempUser = inGamePlayers[roundIteratorSeat].getUser();
 
         tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
         tempUser.setRaiseCount(tempUser.getRaiseCount() + 1);
-        tempUser.setBoardCoin(tempUser.getBoardCoin() - value);
-        playerCalls[roundIteratorSeat] = "Call";
-        playerCallValues[roundIteratorSeat] = value;
-        playerTotalCallValues[roundIteratorSeat] += value;
-        roundCoins += value;
-        roundCall = value;
+
+        long v;
+        if(cycleCount == 1 && roundIteratorSeat == smallBlindSeat) v = value - minCallValue/2;
+        else if(cycleCount == 1 && roundIteratorSeat == bigBlindSeat) v = value - minCallValue;
+        else v = value;
+
+        tempUser.setBoardCoin(tempUser.getBoardCoin() - v);
+        playerCalls[roundIteratorSeat] = "Raise";
+        playerCallValues[roundIteratorSeat] = v;
+        playerTotalCallValues[roundIteratorSeat] += v;
+        roundCoins += v;
+        roundCall = v;
 
         if (tempUser.getBoardCoin() == 0) {
             isActiveInRound[roundIteratorSeat] = false;
@@ -1405,6 +1440,7 @@ public class GameThread implements Runnable {
 
         foldCost = 0;
         hasAnyoneCalled = true;
+        hasAnyoneRaised = true;
 
         User tempUser = inGamePlayers[roundIteratorSeat].getUser();
 
@@ -2057,6 +2093,7 @@ public class GameThread implements Runnable {
             LocalTime cur = LocalTime.now();
             long diff = SECONDS.between(start, cur);
 
+
             if(diff >= t) break;
         }
     }
@@ -2106,8 +2143,6 @@ public class GameThread implements Runnable {
                 ", smallBlindSeat=" + smallBlindSeat +
                 ", bigBlindSeat=" + bigBlindSeat +
                 ", foldCost=" + foldCost +
-                ", smallBlindMsgSent=" + smallBlindMsgSent +
-                ", bigBlindMsgSent=" + bigBlindMsgSent +
                 ", showAllCardsAtEnd=" + showAllCardsAtEnd +
                 ", previousCycleStarterSeat=" + previousCycleStarterSeat +
                 ", roundWinnerCount=" + roundWinnerCount +
