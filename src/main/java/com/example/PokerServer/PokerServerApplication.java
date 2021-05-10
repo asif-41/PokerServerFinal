@@ -19,10 +19,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 @RestController
 @SpringBootApplication
@@ -102,6 +104,28 @@ public class PokerServerApplication {
                     "Max memory: " + Runtime.getRuntime().maxMemory();
         }
         else ret += "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/terminal", produces = "text/plain")
+    public @ResponseBody String terminal(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+            ret += "Terminal\n\n";
+
+            try{
+                File f = new File("././././Images/terminal.out");
+                Scanner sc = new Scanner(f);
+                while(sc.hasNextLine()) ret += sc.nextLine() + "\n";
+
+            }catch (Exception e){
+                ret += "File not found......\n";
+            }
+        }
+        else ret = "Unauthorized access request: failed";
 
         return ret;
     }
