@@ -1332,7 +1332,7 @@ public class GameThread implements Runnable {
 
         tempUser.setBoardCoin(tempUser.getBoardCoin() - v);
         playerCalls[roundIteratorSeat] = "Call";
-        playerCallValues[roundIteratorSeat] = v;
+        playerCallValues[roundIteratorSeat] = roundCall;
         playerTotalCallValues[roundIteratorSeat] += v;
         roundCoins += v;
 
@@ -1394,7 +1394,7 @@ public class GameThread implements Runnable {
 
         tempUser.setBoardCoin(tempUser.getBoardCoin() - v);
         playerCalls[roundIteratorSeat] = "Raise";
-        playerCallValues[roundIteratorSeat] = v;
+        playerCallValues[roundIteratorSeat] = value;
         playerTotalCallValues[roundIteratorSeat] += v;
         roundCoins += v;
         roundCall = value;
