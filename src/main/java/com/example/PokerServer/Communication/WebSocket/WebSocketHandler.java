@@ -40,7 +40,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
 
-        receiveErrorMessage(session, "Error -> " + exception.toString());
+        System.out.println("Error -> " + exception.toString());
         closeServerToClient(session);
     }
 
@@ -79,18 +79,9 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
             }catch (Exception e){
                 if(message == null) System.out.println("message null");
                 System.out.println("Error in converting incoming message to json " + e);
+                s.setIncoming("");
             }
         }
-    }
-
-    private void receiveErrorMessage(WebSocketSession session, String message) {
-
-        ServerToClient s = Server.pokerServer.getServerToClient(session);
-        if (s != null) {
-            System.out.println(message);
-            s.setIncoming("");
-        }
-
     }
 
     private void closeServerToClient(WebSocketSession session) {
