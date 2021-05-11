@@ -393,7 +393,7 @@ public class WaitingRoom implements Runnable {
         temp.put("message", message);
 
         send.put("waitingRoomData", temp);
-        sendMessage(loc, message);
+        sendMessage(loc, send.toString());
     }
 
 
