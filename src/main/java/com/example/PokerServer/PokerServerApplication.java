@@ -119,7 +119,11 @@ public class PokerServerApplication {
             try{
                 File f = new File("././././Images/terminal.out");
                 Scanner sc = new Scanner(f);
-                while(sc.hasNextLine()) ret += sc.nextLine() + "\n";
+                int l = 1;
+                while(sc.hasNextLine()) {
+                    ret += l + ".   " + sc.nextLine() + "\n";
+                    l++;
+                }
 
             }catch (Exception e){
                 ret += "File not found......\n";

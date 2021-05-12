@@ -755,7 +755,7 @@ public class GameThread implements Runnable {
         send.put("message", "Deducting blind coins");
         sendMessageToAll(send.toString());
 
-        waitGame(1);
+        waitGame(2);
     }
 
 
