@@ -376,7 +376,6 @@ public class ServerToClient implements Runnable {
     public void closeEverything() {
 
         try {
-
             System.out. println("A Connection got removed");
             Server.pokerServer.removeFromCasualConnections(this);
             if(session != null && session.isOpen()) session.close();
@@ -846,7 +845,6 @@ public class ServerToClient implements Runnable {
     private void cancelJoiningGameRequest(){
 
         gameThread = null;
-        user.deInitializeGameData();
     }
 
 

@@ -9,7 +9,7 @@ import com.example.PokerServer.db.DBFactory;
 import org.json.JSONArray;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Timer;
@@ -119,11 +119,7 @@ public class Server {
 
         try {
             this.port = port;
-
-
-            host = Inet4Address.getLoopbackAddress().getHostAddress();
-            //host = InetAddress.getLocalHost().getHostAddress();
-
+            host = InetAddress.getLocalHost().getHostAddress();
         } catch (Exception e) {
             System.out.println("Exception in fetching ip -> " + e);
         }
@@ -197,7 +193,7 @@ public class Server {
         User user = null;
         boolean alreadyLoggedIn = checkIfAlreadyLoggedIn(account_id, account_type, username);
 
-        if(alreadyLoggedIn == true) return user;
+        if(alreadyLoggedIn) return null;
 
         if (account_type.equals("guest")) user = makeGuestUser(imageLink);
         else if(account_type.equals("facebook")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
@@ -364,7 +360,7 @@ public class Server {
         for (int i = 0; i < casualConnections.size(); i++) {
 
             ServerToClient c = (ServerToClient) casualConnections.get(i);
-            if (k.equals(c.getWebSocketKey()) == true) return c;
+            if (k.equals(c.getWebSocketKey())) return c;
         }
         return null;
     }
@@ -435,12 +431,9 @@ public class Server {
         int id = gameIdGenerator();
         int code = gameCodeGenerator();
 
-        //Making and starting game thread
-
         GameThread g = new GameThread(clients, false, null, id, code, maxPlayerCount, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey]);
         addGameThread(g);
 
-        //setting gameThreads in serverToClient side
         new Thread(g).start();
     }
 
@@ -459,12 +452,9 @@ public class Server {
         }
         ServerToClient owner = w.getOwner();
 
-        //Making and starting game thread
-
         GameThread g = new GameThread(clients, true, owner, id, code, w.getMaxPlayerCount(), boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey]);
         addGameThread(g);
 
-        //setting gameThreads in serverToClient side
         new Thread(g).start();
 
         removeWaitingRoom(w);
@@ -508,7 +498,6 @@ public class Server {
                 pendingQueue[i].remove(0);
                 queueTimeCount[i].remove(0);
             }
-
             makeGameThread(temp, i);
             temp.clear();
         }
@@ -526,7 +515,7 @@ public class Server {
 
                 GameThread g = (GameThread) gameThreads[i].get(j);
 
-                if (g.isPrivate() == true) continue;
+                if (g.isPrivate()) continue;
                 else if (g.getPlayerCount() == 0 || g.getPlayerCount() == g.getMaxPlayerCount()) continue;
 
                 for (int k = g.getPlayerCount(); k < g.getMaxPlayerCount(); k++) {
@@ -677,7 +666,6 @@ public class Server {
             }
             loadUserToDatabase(s.getUser());
         }
-
         loggedInUsers.remove(s);
     }
 

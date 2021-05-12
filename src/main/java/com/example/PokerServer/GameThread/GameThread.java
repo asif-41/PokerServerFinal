@@ -265,9 +265,7 @@ public class GameThread implements Runnable {
 
     private void sendMessageToAll(String s) {
 
-        for (int i = 0; i < maxPlayerCount; i++) {
-            sendMessage(i, s);
-        }
+        for (int i = 0; i < maxPlayerCount; i++) sendMessage(i, s);
     }
 
     public void incomingMessage(String tempp, ServerToClient serverToClient) {
@@ -576,7 +574,7 @@ public class GameThread implements Runnable {
 
     public void exitGameResponse(ServerToClient s) {
 
-        boolean sendBoardInfo = false;
+        //boolean sendBoardInfo = false;
         int seatPosition = s.getUser().getSeatPosition();
         User tempUser = s.getUser();
 
@@ -617,7 +615,7 @@ public class GameThread implements Runnable {
         }
 
         sendPlayersDataToAll();
-        if(sendBoardInfo) sendShowBoardInfo();
+        //if(sendBoardInfo) sendShowBoardInfo();
         if (activeCountInRound == 1 || activeCountInRound == 0) endRound();
     }
 
@@ -841,8 +839,11 @@ public class GameThread implements Runnable {
         //ALL IN DIYE EKJON BAKI THAKLE OITA NEXT TURN ER FUNCTION E HANDLE HOBE
 
         if (allInCountInRound == activeCountInRound) {
-            sendPlayersDataToAll();
+
             sendShowCards();
+            sendShowBoardInfo();
+            sendPlayersDataToAll();
+
             endRound();
             return;
         }
@@ -1446,14 +1447,22 @@ public class GameThread implements Runnable {
 
         tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
         tempUser.setAllInCount(tempUser.getAllInCount() + 1);
+
+        long v;
+        if(cycleCount == 1 && roundIteratorSeat == smallBlindSeat) v = tempUser.getBoardCoin() + minCallValue/2;
+        else if(cycleCount == 1 && roundIteratorSeat == bigBlindSeat) v = tempUser.getBoardCoin() + minCallValue;
+        else v = tempUser.getBoardCoin();
+
         playerCalls[roundIteratorSeat] = "AllIn";
-        playerCallValues[roundIteratorSeat] = tempUser.getBoardCoin();
+        playerCallValues[roundIteratorSeat] = v;
         playerTotalCallValues[roundIteratorSeat] += tempUser.getBoardCoin();
         roundCoins += tempUser.getBoardCoin();
-        if (tempUser.getBoardCoin() > roundCall) {
-            roundCall = tempUser.getBoardCoin();
+
+        if (v > roundCall) {
+            roundCall = v;
             roundStarterSeat = -1;
         }
+
         tempUser.setBoardCoin(0);
         allInCountInRound++;
         isActiveInRound[roundIteratorSeat] = false;
@@ -2092,7 +2101,6 @@ public class GameThread implements Runnable {
 
             LocalTime cur = LocalTime.now();
             long diff = SECONDS.between(start, cur);
-
 
             if(diff >= t) break;
         }

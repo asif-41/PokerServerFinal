@@ -252,16 +252,16 @@ public class WaitingRoom implements Runnable {
         long amount = waitingRoomData.getLong("amount");
         long current = s.getUser().getBoardCoin() + s.getUser().getCurrentCoin();
 
-        if(amount > current) sendEditBoardCoinResponse(false, -1, s);
+        if(amount > current) sendEditBoardCoinResponse(false, s);
         else{
             s.getUser().setBoardCoin(amount);
             s.getUser().setCurrentCoin(current - amount);
-            sendEditBoardCoinResponse(true, s.getUser().getBoardCoin(), s);
+            sendEditBoardCoinResponse(true,  s);
             sendPlayersDataToAll();
         }
     }
 
-    private void sendEditBoardCoinResponse(boolean success, long boardCoin, ServerToClient s){
+    private void sendEditBoardCoinResponse(boolean success, ServerToClient s){
 
         JSONObject send = initiateJson();
         JSONObject data = new JSONObject();
@@ -440,7 +440,7 @@ public class WaitingRoom implements Runnable {
 
         if (playerCount > 1) willStart = true;
 
-        if (willStart == false) msg = "In sufficient players, player count must be greater than 1";
+        if (!willStart) msg = "In sufficient players, player count must be greater than 1";
         else msg = "Will start game in " + Server.pokerServer.delayInStartingGame + " seconds";
 
         sendStartGameResponse(msg);
@@ -524,6 +524,8 @@ public class WaitingRoom implements Runnable {
         send.put("data", array);
         sendMessageToAll(send.toString());
     }
+
+
 
     //==================================================================================================================
     //

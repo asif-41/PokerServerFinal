@@ -3,8 +3,8 @@ package com.example.PokerServer.Objects;
 public class TransactionMethods {
 
     private static double coinPricePerCrore = 26.0;
-    private static long coinAmountOnBuy[] = { 30000000, 50000000, 100000000, 200000000, 500000000, 1000000000 };
-    private static double coinPriceOnBuy[] = { 100, 150, 300, 600, 1480, 2950 };
+    private static long[] coinAmountOnBuy = { 30000000, 50000000, 100000000, 200000000, 500000000, 1000000000 };
+    private static double[] coinPriceOnBuy = { 100, 150, 300, 600, 1480, 2950 };
 
     //returns coin price
 

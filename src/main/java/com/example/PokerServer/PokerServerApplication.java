@@ -135,7 +135,7 @@ public class PokerServerApplication {
     }
 
     @RequestMapping(value = "/data", produces = "text/plain")
-    public @ResponseBody String adminLogin(@RequestParam String username, @RequestParam String password){
+    public @ResponseBody String dataHome(@RequestParam String username, @RequestParam String password){
 
         String ret = "";
 
