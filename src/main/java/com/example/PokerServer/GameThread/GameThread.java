@@ -601,22 +601,22 @@ public class GameThread implements Runnable {
         isActiveInRound[seatPosition] = false;
 
         setOwner();
+        sendPlayersDataToAll();
         if (gameRunning == false) return;
 
 
         if (seatPosition == roundIteratorSeat) {
-
-            sendPlayersDataToAll();
             playRound();
             return;
         } else if (seatPosition == roundStarterSeat) {
 
             roundStarterSeat = getNextActivePlayer(roundStarterSeat, roundIteratorSeat);
         }
+        if (activeCountInRound == 1 || activeCountInRound == 0) {
 
-        sendPlayersDataToAll();
-        //if(sendBoardInfo) sendShowBoardInfo();
-        if (activeCountInRound == 1 || activeCountInRound == 0) endRound();
+            sendShowBoardInfo();
+            endRound();
+        }
     }
 
 
@@ -831,6 +831,10 @@ public class GameThread implements Runnable {
         //EKJON BAADE SHOBAI FOLD NAILE LOW
 
         if (activeCountInRound == 1 || activeCountInRound == 0) {
+
+            sendShowBoardInfo();
+            sendPlayersDataToAll();
+
             endRound();
             return;
         }
@@ -852,6 +856,10 @@ public class GameThread implements Runnable {
         //ROUND E EKBAR TOTAL GHURA HOISE
 
         if (roundIteratorSeat == roundStarterSeat) {
+
+            sendShowBoardInfo();
+            sendPlayersDataToAll();
+
             endRound();
             return;
         }
@@ -1149,18 +1157,6 @@ public class GameThread implements Runnable {
         tempJson.put("gameRequest", "ShowCards");
 
         send.put("gameData", tempJson);
-
-
-        JSONObject temp = new JSONObject();
-
-        temp.put("roundCount", roundCount);
-        temp.put("roundCoins", roundCoins);
-        temp.put("turnCount", turnCount);
-        temp.put("cycleCount", cycleCount);
-        temp.put("roundCall", roundCall);
-
-        send.put("dataType", "ShowBoardInfo");
-        send.put("data", temp);
 
         sendMessageToAll(send.toString());
     }
