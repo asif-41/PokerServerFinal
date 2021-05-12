@@ -121,7 +121,7 @@ public class PokerServerApplication {
                 Scanner sc = new Scanner(f);
                 int l = 1;
                 while(sc.hasNextLine()) {
-                    ret += l + ".   " + sc.nextLine() + "\n";
+                    ret += String.format("%06d", l) + ".   " + sc.nextLine() + "\n";
                     l++;
                 }
 

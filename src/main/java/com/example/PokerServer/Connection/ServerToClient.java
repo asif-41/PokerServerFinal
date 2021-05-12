@@ -74,7 +74,6 @@ public class ServerToClient implements Runnable {
         } catch (Exception e) {
             System.out. println("Exception in fetching ip -> " + e);
         }
-
     }
 
     @Override
