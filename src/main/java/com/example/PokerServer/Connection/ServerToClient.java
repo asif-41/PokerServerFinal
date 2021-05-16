@@ -6,7 +6,6 @@ import com.example.PokerServer.Objects.TransactionMethods;
 import com.example.PokerServer.Objects.User;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -180,10 +179,6 @@ public class ServerToClient implements Runnable {
                 withdrawCoinRequest(jsonIncoming);
             }
 
-        }
-        else if (jsonIncoming.get("requestType").equals("CoinBuyWithdrawDataRequest")){
-
-            sendCoinBuyWithdrawData();
         }
         else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
 
@@ -506,30 +501,6 @@ public class ServerToClient implements Runnable {
 
     }
     //change done
-
-    private void sendCoinBuyWithdrawData(){
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "CoinBuyWithdrawDataResponse");
-        send.put("withdrawPerCrore", TransactionMethods.getCoinPricePerCrore());
-
-        JSONArray array = new JSONArray();
-
-        long amount[] = TransactionMethods.getCoinAmountOnBuy();
-        double price[] = TransactionMethods.getCoinPriceOnBuy();
-
-        for(int i=0; i<amount.length; i++){
-
-            JSONObject temp = new JSONObject();
-            temp.put("amount", amount[i]);
-            temp.put("price", price[i]);
-
-            array.put(temp);
-        }
-        send.put("buyCoinData", array);
-        sendMessage(send.toString());
-    }
 
 
 
