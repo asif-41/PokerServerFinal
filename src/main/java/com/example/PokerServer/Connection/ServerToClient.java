@@ -13,6 +13,8 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.net.InetAddress;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ServerToClient implements Runnable {
 
@@ -42,7 +44,11 @@ public class ServerToClient implements Runnable {
     private JSONObject jsonIncoming;
     private User user;                                  //      USER, NULL IF NOT LOGGED IN
     private GameThread gameThread;                      //      GAME THREAD, NULL IF NOT IN ANY GAME
-    private WaitingRoom waitingRoom;
+    private WaitingRoom waitingRoom;                    //      WAITING ROOM, NULL IF NOT IN ANY ROOM
+
+    private Timer connectionChecker;                    //      CONNECTION CHECKER TIMER
+    private Timer connectionChecketWait;
+    private boolean isConnected;
 
     //============================================================
     //
@@ -63,6 +69,8 @@ public class ServerToClient implements Runnable {
         user = null;
         gameThread = null;
         waitingRoom = null;
+        connectionChecker = new Timer();
+        connectionChecketWait = new Timer();
 
         this.session = session;
         webSocketKey = session.getHandshakeHeaders().get("sec-websocket-key").get(0);
@@ -80,6 +88,7 @@ public class ServerToClient implements Runnable {
     public void run() {
 
         System.out. println("A connection has been established");
+        setupConnectionChecker();
     }
 
     //============================================================
@@ -130,6 +139,8 @@ public class ServerToClient implements Runnable {
     }
 
     public void incomingMsg(String temp) {
+
+        setupConnectionChecker();
 
         try {
             jsonIncoming = new JSONObject(temp);
@@ -198,6 +209,10 @@ public class ServerToClient implements Runnable {
         else if (jsonIncoming.get("requestType").equals("UpdateOwnInGame")) {
 
             sendOwnInGameData();
+        }
+        else if (jsonIncoming.get("requestType").equals("CheckConnection")) {
+
+            connectionCheckingResponse();
         }
         else if (jsonIncoming.get("requestType").equals("GameThread")) {
 
@@ -296,6 +311,15 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
+    public void sendForceLogout(String msg){
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "ForceLogout");
+        send.put("message", msg);
+        sendMessage(send.toString());
+    }
+
+    //change
     private JSONObject getAppData(){
 
         JSONObject jsonObject = new JSONObject();
@@ -376,6 +400,10 @@ public class ServerToClient implements Runnable {
 
         try {
             System.out. println("A Connection got removed");
+
+            if(connectionChecker != null) connectionChecker.cancel();
+            if(connectionChecketWait != null) connectionChecketWait.cancel();
+
             Server.pokerServer.removeFromCasualConnections(this);
             if(session != null && session.isOpen()) session.close();
 
@@ -397,6 +425,7 @@ public class ServerToClient implements Runnable {
     //
     //==============================================================================
 
+    //change
     private void buyCoinRequest(JSONObject temp) {
 
         JSONObject tempJson = temp.getJSONObject("data");
@@ -484,7 +513,7 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
 
     }
-
+    //change done
 
     private void sendCoinBuyWithdrawData(){
 
@@ -870,6 +899,66 @@ public class ServerToClient implements Runnable {
 
             gameThread.addInGameThread(this);
         }
+    }
+
+    //===========================================================================================
+    //
+    //===========================================================================================
+
+
+
+
+
+
+
+    //===========================================================================================
+    //
+    //              INTERNET CONNECTION CHECKING
+    //
+    //===========================================================================================
+
+    private void setupConnectionChecker(){
+
+        if(connectionChecker != null) connectionChecker.cancel();
+        if(connectionChecketWait != null) connectionChecketWait.cancel();
+
+        connectionChecker = new Timer();
+        connectionChecker.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                preConnectionCheck();
+                sendConnectionChecker();
+            }
+        }, 10000);
+    }
+
+    private void sendConnectionChecker(){
+        JSONObject send = initiateJson();
+        send.put("requestType", "CheckConnection");
+        sendMessage(send.toString());
+    }
+
+    private void preConnectionCheck(){
+
+        isConnected = false;
+        connectionChecketWait = new Timer();
+        connectionChecketWait.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                postConnectionCheck();
+            }
+        }, 5000);
+    }
+
+    private void postConnectionCheck(){
+
+        if(!isConnected) closeEverything();
+        connectionChecketWait.cancel();
+    }
+
+    private void connectionCheckingResponse(){
+
+        isConnected = true;
     }
 
     //===========================================================================================

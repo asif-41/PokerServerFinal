@@ -191,9 +191,7 @@ public class Server {
     public User makeUser(String account_id, String account_type, String username, String imageLink) {
 
         User user = null;
-        boolean alreadyLoggedIn = checkIfAlreadyLoggedIn(account_id, account_type, username);
-
-        if(alreadyLoggedIn) return null;
+        checkIfAlreadyLoggedIn(account_id, account_type, username);
 
         if (account_type.equals("guest")) user = makeGuestUser(imageLink);
         else if(account_type.equals("facebook")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
@@ -220,9 +218,9 @@ public class Server {
         return array;
     }
 
-    private boolean checkIfAlreadyLoggedIn(String account_id, String account_type, String username){
+    private void checkIfAlreadyLoggedIn(String account_id, String account_type, String username){
 
-        if(account_type.equals("guest")) return false;
+        if(account_type.equals("guest")) return ;
 
         for(int i=0; i < loggedInUsers.size(); i++){
 
@@ -236,10 +234,10 @@ public class Server {
             if(userAccountType.equals("facebook")) userAccountId = user.getFb_id();
             else if(userAccountType.equals("google")) userAccountId = user.getGmail_id();
 
-            if(userAccountType.equals(account_type) && userAccountId.equals(account_id)) return true;
+            if(userAccountType.equals(account_type) && userAccountId.equals(account_id)) {
+                s.sendForceLogout("Logged in from another device.");
+            }
         }
-
-        return false;
     }
 
     //========================================================================================
@@ -531,6 +529,8 @@ public class Server {
     }
 
     private void queueIterator() {
+
+        System.out.println("Active threads: " + Thread.activeCount());
 
         tryAddingToGameThread();
         tryMakeGameThread();
