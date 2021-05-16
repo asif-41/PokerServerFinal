@@ -311,14 +311,6 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
-    public void sendForceLogout(String msg){
-
-        JSONObject send = initiateJson();
-        send.put("requestType", "ForceLogout");
-        send.put("message", msg);
-        sendMessage(send.toString());
-    }
-
     //change
     private JSONObject getAppData(){
 
