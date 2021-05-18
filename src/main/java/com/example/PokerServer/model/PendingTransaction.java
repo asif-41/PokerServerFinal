@@ -1,6 +1,5 @@
 package com.example.PokerServer.model;
 
-
 import org.json.JSONObject;
 
 import javax.persistence.*;
@@ -8,27 +7,27 @@ import java.io.Serializable;
 import java.util.Date;
 
 @Entity
-@Table(name = "transaction")
-public class Transaction implements Serializable {
+@Table(name = "pending_transaction")
+public class PendingTransaction implements Serializable {
 
     @Id
-    @GeneratedValue(generator = "tr_generator")
+    @GeneratedValue(generator = "ptr_generator")
     @SequenceGenerator(
-            name = "tr_generator",
-            sequenceName = "tr_sequence",
+            name = "ptr_generator",
+            sequenceName = "ptr_sequence",
             initialValue = 1
     )
-    @Column(name = "tr_id")
+    @Column(name = "ptr_id")
     private int id;
 
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @Column(name = "tr_type")
+    @Column(name = "ptr_type")
     private String type;
 
-    @Column(name = "tr_method")
+    @Column(name = "ptr_method")
     private String method;
 
     @Column(name = "transaction_id")
@@ -40,25 +39,14 @@ public class Transaction implements Serializable {
     @Column(name = "price")
     private double price;
 
-    @Column(name = "receiver_number")
-    private String receiver;
+    @Column(name = "request_time")
+    private Date requestTime;
 
     @Column(name = "sender_number")
     private String sender;
 
-    @Column(name = "request_time")
-    private Date requestTime;
-
-    @Column(name = "approval_time")
-    private Date approvalTime;
-
-    public String getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(String receiver) {
-        this.receiver = receiver;
-    }
+    @Column(name = "receiver_number")
+    private String receiver;
 
     public String getSender() {
         return sender;
@@ -68,20 +56,20 @@ public class Transaction implements Serializable {
         this.sender = sender;
     }
 
+    public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
     public Date getRequestTime() {
         return requestTime;
     }
 
     public void setRequestTime(Date requestTime) {
         this.requestTime = requestTime;
-    }
-
-    public Date getApprovalTime() {
-        return approvalTime;
-    }
-
-    public void setApprovalTime(Date approvalTime) {
-        this.approvalTime = approvalTime;
     }
 
     public double getPrice() {
@@ -140,7 +128,7 @@ public class Transaction implements Serializable {
         this.transactionId = transactionId;
     }
 
-    public String printTransaction(){
+    public String printPendingTransaction(){
 
         String ret = "";
         ret += "Id: " + id + "\n";
@@ -150,10 +138,9 @@ public class Transaction implements Serializable {
         ret += "Transaction id: " + transactionId + "\n";
         ret += "Coin amount: " + coinAmount + "\n";
         ret += "Price: " + price + "\n";
-        ret += "Sender number: " + sender + "\n";
-        ret += "Receiver number: " + receiver + "\n";
+        ret += "Sender: " + sender + "\n";
+        ret += "Receiver: " + receiver + "\n";
         ret += "Request time: " + requestTime + "\n";
-        ret += "Approval time: " + approvalTime + "\n";
 
         return ret;
     }
@@ -172,7 +159,6 @@ public class Transaction implements Serializable {
         jsonObject.put("receiver", receiver);
         jsonObject.put("sender", sender);
         jsonObject.put("requestTime", requestTime);
-        jsonObject.put("approvalTime", approvalTime);
 
         return jsonObject;
     }

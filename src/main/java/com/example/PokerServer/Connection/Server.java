@@ -3,10 +3,11 @@ package com.example.PokerServer.Connection;
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.Randomizer;
+import com.example.PokerServer.Objects.TransactionNumber;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.db.DB;
 import com.example.PokerServer.db.DBFactory;
-import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.net.InetAddress;
@@ -59,6 +60,9 @@ public class Server {
     public int waitingRoomWaitAtStart;
     public int delayInStartingGame;
 
+    public int maxPendingReq;
+    public ArrayList<TransactionNumber> transactionNumbers;
+
     //====================================================
 
 
@@ -75,7 +79,7 @@ public class Server {
                   int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
-                  int waitingRoomWaitAtStart, int delayInStartingGame ) {
+                  int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq, ArrayList<TransactionNumber> transactionNumbers) {
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
@@ -87,6 +91,8 @@ public class Server {
         this.maxEntryValue = maxEntryValue;
         this.mcr = mcr;
 
+        this.transactionNumbers = transactionNumbers;
+        this.maxPendingReq = maxPendingReq;
 
         this.gameCodeLowerLimit = gameCodeLowerLimit;
         this.gameCodeUpperLimit = gameCodeUpperLimit;
@@ -208,14 +214,14 @@ public class Server {
         db.addTransaction(user.getId(), type, method, transactionId, coinAmount, amount);
     }
 
-    public JSONArray getTransactionsOfUser(User user){
+    public JSONObject getAllTransactionsOfUser(User user){
 
-        JSONArray array = new JSONArray();
+        JSONObject jsonObject = new JSONObject();
 
-        if(user.getLoginMethod().equals("guest") || user.getId() < 0) return array;
+        if(user.getLoginMethod().equals("guest") || user.getId() < 0) return jsonObject;
 
-        array = db.getTransactions(user.getId());
-        return array;
+        jsonObject = db.getAllTransactions(user.getId());
+        return jsonObject;
     }
 
     private boolean checkIfAlreadyLoggedIn(String account_id, String account_type, String username){
@@ -678,6 +684,34 @@ public class Server {
     //
     //================================================================================
 
+
+
+
+
+
+
+
+
+
+    //================================================================================
+    //
+    //      WEBPAGE CONTROLS
+    //
+    //================================================================================
+
+    private void forceLogoutAll(){
+
+        while(loggedInUsers.size() != 0){
+
+            ServerToClient x = (ServerToClient) loggedInUsers.get(0);
+            x.forceLogout("Updates are coming from server! please relogin");
+
+        }
+    }
+
+    //================================================================================
+    //
+    //================================================================================
 
 
 

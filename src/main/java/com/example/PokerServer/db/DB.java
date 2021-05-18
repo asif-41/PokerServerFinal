@@ -4,14 +4,17 @@ package com.example.PokerServer.db;
 import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.model.Account;
+import com.example.PokerServer.model.PendingTransaction;
 import com.example.PokerServer.model.Transaction;
 import com.example.PokerServer.repository.AccountRepository;
+import com.example.PokerServer.repository.PendingTransactionRepository;
 import com.example.PokerServer.repository.TransactionRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
@@ -23,6 +26,9 @@ public class DB {
 
     @Autowired
     private TransactionRepository transactionRepository;
+
+    @Autowired
+    private PendingTransactionRepository pendingTransactionRepository;
 
 
     public static <U> Function<Object, U> filterAndCast(Class<? extends U> clazz) {
@@ -252,7 +258,35 @@ public class DB {
     //
     //=======================================================================
 
-    public void addTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double money){
+    public int getPendingTransactionCount(int id){
+
+        int ret = 0;
+
+        Account acc = accountRepository.findById(id).get();
+        if(acc != null) ret = acc.getPendingTransactions().size();
+
+        return ret;
+    }
+
+    public void addPendingTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double price, Date requestTime, String sender, String receiver){
+
+        PendingTransaction ptr = new PendingTransaction();
+
+        ptr.setAccount(findById(accountId));
+        ptr.setType(trType);
+        ptr.setMethod(trMethod);
+        ptr.setTransactionId(trId);
+        ptr.setCoinAmount(coinAmount);
+        ptr.setPrice(price);
+        ptr.setRequestTime(requestTime);
+        ptr.setSender(sender);
+        ptr.setReceiver(receiver);
+
+        pendingTransactionRepository.saveAndFlush(ptr);
+    }
+
+
+    public void addTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double price){
 
         Transaction tr = new Transaction();
 
@@ -261,29 +295,26 @@ public class DB {
         tr.setMethod(trMethod);
         tr.setTransactionId(trId);
         tr.setCoinAmount(coinAmount);
-        tr.setMoney(money);
+        tr.setPrice(price);
 
         transactionRepository.saveAndFlush(tr);
     }
 
-    public JSONArray getTransactions(int accountId){
+    public JSONObject getAllTransactions(int accountId){
 
+        JSONObject ret = new JSONObject();
         JSONArray array = new JSONArray();
+
         Account acc = accountRepository.findById(accountId).get();
 
-        for(Transaction x : acc.getTransactions()){
+        for(Transaction x : acc.getTransactions()) array.put(x.getJson());
+        ret.put("transactions", array);
 
-            JSONObject jsonObject = new JSONObject();
+        array = new JSONArray();
+        for(PendingTransaction x : acc.getPendingTransactions()) array.put(x.getJson());
+        ret.put("pendingTransactions", array);
 
-            jsonObject.put("type", x.getType());
-            jsonObject.put("method", x.getMethod());
-            jsonObject.put("transactionId", x.getTransactionId());
-            jsonObject.put("coinAmount", x.getCoinAmount());
-            jsonObject.put("money", x.getMoney());
-
-            array.put(jsonObject);
-        }
-        return array;
+        return ret;
     }
 
     //=======================================================================
@@ -304,7 +335,7 @@ public class DB {
         List<Account> accounts = database.getAccountRepository().findAll();
 
         String ret = "Account count: " + accounts.size() + "\n";
-        for(Account x : accounts) ret += x.printAccount() + "\n";
+        for(Account x : accounts) ret += x.printAccount() + "\n\n\n\n";
 
         return ret;
     }

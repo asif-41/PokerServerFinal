@@ -5,6 +5,7 @@ import com.example.PokerServer.Connection.ServerToClient;
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.TransactionMethods;
+import com.example.PokerServer.Objects.TransactionNumber;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.db.DB;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -47,10 +48,28 @@ public class PokerServerApplication {
         long maxEntryValue[] = {1000000, 5000000, 10000000, 25000000, 50000000, 100000000, 250000000, 500000000, 1000000000, 2000000000};
         long mcr[] = {0, 0, 2500000, 7000000, 15000000, 40000000, 100000000, 150000000, 400000000, 1000000000};
 
+
+
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
                 2, 5, 1, 120, 1112, 10000,500000,
-                10, 50000, 100000, 60, 10);
+                10, 50000, 100000, 60, 10, 10, getTransactionNumbers());
     }
+
+    private static ArrayList<TransactionNumber> getTransactionNumbers(){
+
+        ArrayList<TransactionNumber> transactionNumbers = new ArrayList<>();
+
+        transactionNumbers.add(new TransactionNumber("Bkash", "0111"));
+        transactionNumbers.add(new TransactionNumber("Bkash", "0112"));
+        transactionNumbers.add(new TransactionNumber("Nagad", "0111"));
+
+        return transactionNumbers;
+    }
+
+
+
+
+
 
 
 

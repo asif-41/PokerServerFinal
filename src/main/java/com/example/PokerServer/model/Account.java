@@ -1,6 +1,9 @@
 package com.example.PokerServer.model;
 
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -91,8 +94,20 @@ public class Account implements Serializable {
 
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
     private List<Transaction> transactions;
 
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<PendingTransaction> pendingTransactions;
+
+    public List<PendingTransaction> getPendingTransactions() {
+        return pendingTransactions;
+    }
+
+    public void setPendingTransactions(List<PendingTransaction> pendingTransactions) {
+        this.pendingTransactions = pendingTransactions;
+    }
 
     public List<Transaction> getTransactions() {
         return transactions;
@@ -327,6 +342,11 @@ public class Account implements Serializable {
         ret += "Transaction count: " + transactions.size() + "\n";
         for(Transaction x : transactions){
             ret += x.printTransaction() + "\n";
+        }
+
+        ret += "Pending transaction count: " + pendingTransactions.size() + "\n";
+        for(PendingTransaction x : pendingTransactions){
+            ret += x.printPendingTransaction() + "\n";
         }
 
         return ret;

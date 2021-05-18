@@ -3,9 +3,11 @@ package com.example.PokerServer.Connection;
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.TransactionMethods;
+import com.example.PokerServer.Objects.TransactionNumber;
 import com.example.PokerServer.Objects.User;
 import com.google.common.base.Splitter;
 import com.google.common.collect.FluentIterable;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -170,15 +172,18 @@ public class ServerToClient implements Runnable {
 
                 buyCoinRequest(jsonIncoming);
             }
+            else if(tempJson.get("request").equals("WithdrawCoin")){
+
+                withdrawCoinRequest(jsonIncoming);
+            }
             else if(tempJson.get("request").equals("ShowTransactions")){
 
                 allTransactionsResponse();
             }
-            else if(tempJson.get("request").equals("WwithdrawCoin")){
+        }
+        else if (jsonIncoming.get("requestType").equals("ShopData")){
 
-                withdrawCoinRequest(jsonIncoming);
-            }
-
+            sendShopData();
         }
         else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
 
@@ -192,6 +197,10 @@ public class ServerToClient implements Runnable {
 
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
             requestJoin(true, tempJson);
+        }
+        else if (jsonIncoming.get("requestType").equals("BoardData")){
+
+            sendBoardData();
         }
         else if (jsonIncoming.get("requestType").equals("AbortRequest")) {
 
@@ -306,7 +315,20 @@ public class ServerToClient implements Runnable {
         sendMessage(send.toString());
     }
 
-    //change
+    public void forceLogout(String msg){
+
+        Server.pokerServer.removeFromLoggedUsers(this);
+        sendForceLogout(msg);
+    }
+
+    private void sendForceLogout(String msg){
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "ForceLogout");
+        send.put("message", msg);
+        sendMessage(send.toString());
+    }
+
     private JSONObject getAppData(){
 
         JSONObject jsonObject = new JSONObject();
@@ -327,6 +349,44 @@ public class ServerToClient implements Runnable {
         jsonObject.put("ranksValue", User.getRanksValue());
 
         return jsonObject;
+    }
+
+    private void sendBoardData() {
+        JSONObject send = initiateJson();
+        send.put("requestType", "LoadBoardData");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("boardTypeCount", Server.pokerServer.getBoardTypeCount());
+        jsonObject.put("minCallValue", Server.pokerServer.getMinCallValue());
+        jsonObject.put("boardType", Server.pokerServer.getBoardType());
+        jsonObject.put("minEntryValue", Server.pokerServer.getMinEntryValue());
+        jsonObject.put("maxEntryValue", Server.pokerServer.getMaxEntryValue());
+        jsonObject.put("mcr", Server.pokerServer.getMcr());
+
+        send.put("data", jsonObject);
+        sendMessage(send.toString());
+    }
+
+    private void sendShopData(){
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "LoadShopData");
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("coinPricePerCrore", TransactionMethods.getCoinPricePerCrore());
+        jsonObject.put("coinAmountOnBuy", TransactionMethods.getCoinAmountOnBuy());
+        jsonObject.put("coinPriceOnBuy", TransactionMethods.getCoinPriceOnBuy());
+
+        send.put("data", jsonObject);
+
+        JSONArray array = new JSONArray();
+        for(TransactionNumber x : Server.pokerServer.transactionNumbers)
+            array.put(x.getJSON());
+
+        send.put("Numbers", array);
+        send.put("requestLeft", Server.pokerServer.maxPendingReq - Server.pokerServer.getDb().getPendingTransactionCount(user.getId()));
+        sendMessage(send.toString());
+
     }
 
     private void sendResponseLogout() {
@@ -412,32 +472,91 @@ public class ServerToClient implements Runnable {
     //
     //==============================================================================
 
-    //change
     private void buyCoinRequest(JSONObject temp) {
 
         JSONObject tempJson = temp.getJSONObject("data");
 
-        long coinAmount = tempJson.getLong("coinAmount");
+        int id = user.getId();
+        int count = Server.pokerServer.getDb().getPendingTransactionCount(id);
+
+        if(count == Server.pokerServer.maxPendingReq) {
+            sendTransactionRequestResponse(false, 0, "You have reached max pending transaction request limit.");
+            return ;
+        }
+
         String type = "buy";
         String method = tempJson.getString("method");
         String transactionId = tempJson.getString("transactionId");
+        long coinAmount = tempJson.getLong("coinAmount");
+        Date requestTime = User.stringToDate(tempJson.getString("requestTime"));
+        String sender = tempJson.getString("sender");
+        TransactionNumber receiver = new TransactionNumber(new JSONObject(tempJson.getString("receiver")));
+        String receiverNumber = receiver.getNumber();
         double price = TransactionMethods.getCurrencyAmount(coinAmount, "buy");
 
-        boolean success = TransactionMethods.validateBuyCoinRequest(coinAmount, method, transactionId);
+        Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
+        sendTransactionRequestResponse(true, Server.pokerServer.maxPendingReq - count - 1, "Transaction request added.");
+    }
 
-        if(success){
+    private void withdrawCoinRequest(JSONObject temp){
 
-            user.setCurrentCoin(user.getCurrentCoin() + coinAmount);
-            Server.pokerServer.updateDatabase(user, "addBuyCoin");
-            Server.pokerServer.addTransaction(user, type, method, transactionId, coinAmount, price);
+        JSONObject tempJson = temp.getJSONObject("data");
 
-            sendBuyCoinResponse(true, "Coin buy successful", price);
+        int id = user.getId();
+        int count = Server.pokerServer.getDb().getPendingTransactionCount(id);
+
+        if(count == Server.pokerServer.maxPendingReq) {
+            sendTransactionRequestResponse(false, 0, "You have reached max pending transaction request limit.");
+            return ;
+        }
+
+        String type = "withdraw";
+        String method = tempJson.getString("method");
+        String transactionId = "";
+        long coinAmount = tempJson.getLong("coinAmount");
+        Date requestTime = User.stringToDate(tempJson.getString("requestTime"));
+        String sender = "";
+        String receiverNumber = tempJson.getString("receiver");
+        double price = TransactionMethods.getCurrencyAmount(coinAmount, "withdraw");
+
+        if(coinAmount > user.getCurrentCoin()) {
+            sendTransactionRequestResponse(false, Server.pokerServer.maxPendingReq - count, "Invalid request, insufficient coin!");
         }
         else{
-            sendBuyCoinResponse(false, "Buy coin request failed", 0.0);
+            user.setCurrentCoin(user.getCurrentCoin() - coinAmount);
+
+            Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
+            sendTransactionRequestResponse(true, Server.pokerServer.maxPendingReq - count - 1, "Transaction request added.");
         }
     }
 
+    private void sendTransactionRequestResponse(boolean added, int reqLeft, String msg){
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "AddTransactionResponse");
+        send.put("success", added);
+        send.put("requestLeft", reqLeft);
+        send.put("currentCoin", user.getCurrentCoin());
+        send.put("message", msg);
+
+        sendMessage(send.toString());
+    }
+
+    private void allTransactionsResponse(){
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "AllTransactionsResponse");
+        send.put("data", Server.pokerServer.getAllTransactionsOfUser(user));
+
+        sendMessage(send.toString());
+
+    }
+
+
+
+    //change here
+    /*
     private void sendBuyCoinResponse(boolean success, String msg, double price) {
 
         JSONObject send = initiateJson();
@@ -452,30 +571,6 @@ public class ServerToClient implements Runnable {
     }
 
 
-    private void withdrawCoinRequest(JSONObject temp){
-
-        JSONObject tempJson = temp.getJSONObject("data");
-
-        String method = tempJson.getString("method");
-        String receiverAccount = tempJson.getString("receiver");
-        long coinAmount = tempJson.getLong("coinAmount");
-        double price = TransactionMethods.getCurrencyAmount(coinAmount, "withdraw");
-
-        if(coinAmount > user.getCurrentCoin()) sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0, "");
-
-        String transactionId = TransactionMethods.validateWithdrawCoinRequest(coinAmount, method, receiverAccount);
-        if(transactionId.equals("")){
-            sendWithdrawCoinResponse(false, "Withdraw request not successful", 0.0, transactionId);
-        }
-        else{
-            user.setCurrentCoin(user.getCurrentCoin() - coinAmount);
-            Server.pokerServer.updateDatabase(user, "removeWithdrawCoin");
-            Server.pokerServer.addTransaction(user, "withdraw", method, transactionId, coinAmount, price);
-
-            sendWithdrawCoinResponse(true, "Coin withdraw successful", price, transactionId);
-        }
-    }
-
     private void sendWithdrawCoinResponse(boolean success, String msg, double price, String transactionId){
 
         JSONObject send = initiateJson();
@@ -489,17 +584,7 @@ public class ServerToClient implements Runnable {
 
         sendMessage(send.toString());
     }
-
-    private void allTransactionsResponse(){
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "AllTransactionsResponse");
-        send.put("data", Server.pokerServer.getTransactionsOfUser(user));
-
-        sendMessage(send.toString());
-
-    }
+    */
     //change done
 
 
