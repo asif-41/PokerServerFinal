@@ -2,6 +2,7 @@ package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
+import com.example.PokerServer.Objects.Notification;
 import com.example.PokerServer.Objects.TransactionMethods;
 import com.example.PokerServer.Objects.TransactionNumber;
 import com.example.PokerServer.Objects.User;
@@ -13,6 +14,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -192,6 +194,10 @@ public class ServerToClient implements Runnable {
         else if (jsonIncoming.get("requestType").equals("AddFreeCoinRequest")) {
 
             addFreeCoinResponse(jsonIncoming.getString("requestTime"));
+        }
+        else if (jsonIncoming.get("requestType").equals("NotificationRequest")){
+
+            getNotifications();
         }
         else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
@@ -494,8 +500,8 @@ public class ServerToClient implements Runnable {
         String receiverNumber = receiver.getNumber();
         double price = TransactionMethods.getCurrencyAmount(coinAmount, "buy");
 
-        Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
         sendTransactionRequestResponse(true, Server.pokerServer.maxPendingReq - count - 1, "Transaction request added.");
+        Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
     }
 
     private void withdrawCoinRequest(JSONObject temp){
@@ -524,9 +530,10 @@ public class ServerToClient implements Runnable {
         }
         else{
             user.setCurrentCoin(user.getCurrentCoin() - coinAmount);
+            Server.pokerServer.getDb().updateUser(user, "removeWithdrawCoin");
 
-            Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
             sendTransactionRequestResponse(true, Server.pokerServer.maxPendingReq - count - 1, "Transaction request added.");
+            Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
         }
     }
 
@@ -550,43 +557,34 @@ public class ServerToClient implements Runnable {
         send.put("data", Server.pokerServer.getAllTransactionsOfUser(user));
 
         sendMessage(send.toString());
-
     }
 
+    private void getNotifications(){
 
+        ArrayList list = Server.pokerServer.userUnsentNotifications(user);
+        sendNotifications(list);
+    }
 
-    //change here
-    /*
-    private void sendBuyCoinResponse(boolean success, String msg, double price) {
+    public void sendNotifications(ArrayList<Notification> notifications){
 
         JSONObject send = initiateJson();
+        JSONArray array = new JSONArray();
 
-        send.put("requestType", "BuyCoinResponse");
-        send.put("success", success);
-        send.put("message", msg);
-        send.put("currentCoin", user.getCurrentCoin());
-        send.put("price", price);
+        for(int i=0; i<notifications.size(); i++) {
 
+            array.put(notifications.get(i).getJson());
+
+            long addCoin = notifications.get(i).getCoinAdded();
+            if(addCoin > 0){
+                user.setCurrentCoin(user.getCurrentCoin() + addCoin);
+                Server.pokerServer.getDb().updateUser(user, "addCoin");
+            }
+        }
+
+        send.put("requestType", "ShowNotifications");
+        send.put("data", array);
         sendMessage(send.toString());
     }
-
-
-    private void sendWithdrawCoinResponse(boolean success, String msg, double price, String transactionId){
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "WithdrawCoinResponse");
-        send.put("success", success);
-        send.put("message", msg);
-        send.put("currentCoin", user.getCurrentCoin());
-        send.put("price", price);
-        send.put("transactionId", transactionId);
-
-        sendMessage(send.toString());
-    }
-    */
-    //change done
-
 
 
     private void addCoinVideoResponse(String requestTime) {

@@ -2,17 +2,15 @@ package com.example.PokerServer.db;
 
 
 import com.example.PokerServer.Connection.Server;
+import com.example.PokerServer.Objects.TransactionMethods;
 import com.example.PokerServer.Objects.User;
-import com.example.PokerServer.model.Account;
-import com.example.PokerServer.model.PendingTransaction;
-import com.example.PokerServer.model.Transaction;
-import com.example.PokerServer.repository.AccountRepository;
-import com.example.PokerServer.repository.PendingTransactionRepository;
-import com.example.PokerServer.repository.TransactionRepository;
+import com.example.PokerServer.model.*;
+import com.example.PokerServer.repository.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +27,12 @@ public class DB {
 
     @Autowired
     private PendingTransactionRepository pendingTransactionRepository;
+
+    @Autowired
+    private RefundRepository refundRepository;
+
+    @Autowired
+    private PendingRefundRepository pendingRefundRepository;
 
 
     public static <U> Function<Object, U> filterAndCast(Class<? extends U> clazz) {
@@ -193,13 +197,12 @@ public class DB {
                 acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
                 acc.setLastFreeCoinTime(user.getLastFreeCoinTime());
             }
-            else if(columns.equals("addBuyCoin")){
-                acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
-            }
             else if(columns.equals("removeWithdrawCoin")){
                 acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
             }
-
+            else if(columns.equals("addCoin")){
+                acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
+            }
         accountRepository.saveAndFlush(acc);
     }
 
@@ -258,6 +261,18 @@ public class DB {
     //
     //=======================================================================
 
+    private PendingTransaction findPendingTransactionById(int ptrId){
+
+        PendingTransaction ptr = pendingTransactionRepository.findById(ptrId).get();
+        return ptr;
+    }
+
+    private PendingRefund findPendingRefundById(int rrId){
+
+        PendingRefund rr = pendingRefundRepository.findById(rrId).get();
+        return rr;
+    }
+
     public int getPendingTransactionCount(int id){
 
         int ret = 0;
@@ -267,6 +282,9 @@ public class DB {
 
         return ret;
     }
+
+
+
 
     public void addPendingTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double price, Date requestTime, String sender, String receiver){
 
@@ -283,22 +301,116 @@ public class DB {
         ptr.setReceiver(receiver);
 
         pendingTransactionRepository.saveAndFlush(ptr);
+        TransactionMethods.notifyUser(ptr, "added");
+    }
+
+    public void removePendingTransaction(int id, boolean notify, String reason){
+
+        PendingTransaction ptr = findPendingTransactionById(id);
+        pendingTransactionRepository.delete(ptr);
+        if(notify) TransactionMethods.notifyUser(ptr, "rejected", reason);
     }
 
 
-    public void addTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double price){
+
+    public void addPendingRefund(int pendingTransactionId, double amount, String reason){
+
+        PendingRefund pr = new PendingRefund();
+        PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
+        removePendingTransaction(pendingTransactionId, false, "");
+
+        pr.setAccount( findById( ptr.getAccount().getId() ) );
+        pr.setType(ptr.getType());
+        pr.setMethod(ptr.getMethod());
+        pr.setTransactionId(ptr.getTransactionId());
+        pr.setCoinAmount(ptr.getCoinAmount());
+        pr.setRefundAmount(amount);
+        pr.setRequestTime(ptr.getRequestTime());
+        pr.setSender(ptr.getSender());
+        pr.setReceiver(ptr.getReceiver());
+        pr.setReason(reason);
+        pr.setRefundRequestTime(Calendar.getInstance().getTime());
+
+        pendingRefundRepository.saveAndFlush(pr);
+        TransactionMethods.notifyUser(pr, "added");
+    }
+
+    public void removePendingRefund(int id){
+
+        PendingRefund pr = findPendingRefundById(id);
+        pendingRefundRepository.delete(pr);
+    }
+
+
+
+    public void addRefund(int refundRequestId, String transactionId, String sender){
+
+        Refund r = new Refund();
+        PendingRefund pr = findPendingRefundById(refundRequestId);
+        removePendingRefund(refundRequestId);
+
+        r.setAccount( findById( pr.getAccount().getId() ) );
+        r.setType(pr.getType());
+        r.setMethod(pr.getMethod());
+        r.setTransactionId(pr.getTransactionId());
+        r.setRefundTransactionId(transactionId);
+        r.setCoinAmount(pr.getCoinAmount());
+        r.setRefundAmount(pr.getRefundAmount());
+        r.setReceiver(pr.getSender());
+        r.setSender(sender);
+        r.setRequestTime(pr.getRequestTime());
+        r.setRefundRequestTime(pr.getRefundRequestTime());
+        r.setRefundTime(Calendar.getInstance().getTime());
+        r.setReason(pr.getReason());
+
+        refundRepository.saveAndFlush(r);
+        TransactionMethods.notifyUser(r, "approved");
+    }
+
+
+
+    public void addTransaction(int pendingTransactionId){
 
         Transaction tr = new Transaction();
+        PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
+        removePendingTransaction(pendingTransactionId, false, "");
 
-        tr.setAccount(findById(accountId));
-        tr.setType(trType);
-        tr.setMethod(trMethod);
-        tr.setTransactionId(trId);
-        tr.setCoinAmount(coinAmount);
-        tr.setPrice(price);
+        tr.setAccount( findById( ptr.getAccount().getId() ) );
+        tr.setType(ptr.getType());
+        tr.setMethod(ptr.getMethod());
+        tr.setTransactionId(ptr.getTransactionId());
+        tr.setCoinAmount(ptr.getCoinAmount());
+        tr.setPrice(ptr.getPrice());
+        tr.setSender(ptr.getSender());
+        tr.setReceiver(ptr.getReceiver());
+        tr.setRequestTime(ptr.getRequestTime());
+        tr.setApprovalTime(Calendar.getInstance().getTime());
 
         transactionRepository.saveAndFlush(tr);
+        TransactionMethods.notifyUser(tr, "approved");
     }
+
+    public void addTransaction(int pendingTransactionId, String transactionId, String sender){
+
+        Transaction tr = new Transaction();
+        PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
+        removePendingTransaction(pendingTransactionId, false, "");
+
+        tr.setAccount( findById( ptr.getAccount().getId() ) );
+        tr.setType(ptr.getType());
+        tr.setMethod(ptr.getMethod());
+        tr.setTransactionId(transactionId);
+        tr.setCoinAmount(ptr.getCoinAmount());
+        tr.setPrice(ptr.getPrice());
+        tr.setSender(sender);
+        tr.setReceiver(ptr.getReceiver());
+        tr.setRequestTime(ptr.getRequestTime());
+        tr.setApprovalTime(Calendar.getInstance().getTime());
+
+        transactionRepository.saveAndFlush(tr);
+        TransactionMethods.notifyUser(tr, "approved");
+    }
+
 
     public JSONObject getAllTransactions(int accountId){
 
@@ -313,6 +425,14 @@ public class DB {
         array = new JSONArray();
         for(PendingTransaction x : acc.getPendingTransactions()) array.put(x.getJson());
         ret.put("pendingTransactions", array);
+
+        array = new JSONArray();
+        for(PendingRefund x : acc.getPendingRefunds()) array.put(x.getJson());
+        ret.put("pendingRefunds", array);
+
+        array = new JSONArray();
+        for(Refund x : acc.getRefunds()) array.put(x.getJson());
+        ret.put("refunds", array);
 
         return ret;
     }
@@ -330,7 +450,38 @@ public class DB {
         return transactionRepository;
     }
 
+    public PendingTransactionRepository getPendingTransactionRepository() {
+        return pendingTransactionRepository;
+    }
+
+    public RefundRepository getRefundRepository() {
+        return refundRepository;
+    }
+
+    public PendingRefundRepository getPendingRefundRepository() {
+        return pendingRefundRepository;
+    }
+
+
+
     public static String printDatabase(DB database){
+
+        String ret = "";
+        ret += printAccounts(database);
+        ret += "\n\n\n\n";
+        ret += printPendingTransactions(database);
+        ret += "\n\n\n\n";
+        ret += printPendingRefunds(database);
+        ret += "\n\n\n\n";
+        ret += printTransactions(database);
+        ret += "\n\n\n\n";
+        ret += printRefunds(database);
+        ret += "\n\n\n\n";
+
+        return ret;
+    }
+
+    public static String printAccounts(DB database){
 
         List<Account> accounts = database.getAccountRepository().findAll();
 
@@ -339,5 +490,120 @@ public class DB {
 
         return ret;
     }
+
+    public static String printPendingTransactions(DB database){
+
+        List<PendingTransaction> pendingTransactions = database.getPendingTransactionRepository().findAll();
+
+        String ret = "Pending transaction count: " + pendingTransactions.size() + "\n";
+        for(PendingTransaction x : pendingTransactions) ret += x.printPendingTransaction() + "\n";
+
+        return ret;
+    }
+
+    public static String printTransactions(DB database){
+
+        List<Transaction> transactions = database.getTransactionRepository().findAll();
+
+        String ret = "Transaction count: " + transactions.size() + "\n";
+        for(Transaction x : transactions) ret += x.printTransaction() + "\n";
+
+        return ret;
+    }
+
+    public static String printPendingRefunds(DB database){
+
+        List<PendingRefund> pendingRefunds = database.getPendingRefundRepository().findAll();
+
+        String ret = "Pending refund count: " + pendingRefunds.size() + "\n";
+        for(PendingRefund x : pendingRefunds) ret += x.printPendingRefund() + "\n";
+
+        return ret;
+    }
+
+    public static String printRefunds(DB database){
+
+        List<Refund> refunds = database.getRefundRepository().findAll();
+
+        String ret = "Refunds count: " + refunds.size() + "\n";
+        for(Refund x : refunds) ret += x.printRefund() + "\n";
+
+        return ret;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //TESTING PURPOSE
+    public void testDatabase(){
+
+        System.out.println("Testing database");
+
+        int[] ids = new int[5];
+        ArrayList cmds = new ArrayList<String[]>();
+
+        if(pendingRefundRepository.findAll().size() > 0){
+            ids[0] = pendingRefundRepository.findAll().get(0).getId();
+            cmds.add(new String[]{ "approveRefund", "hahahaha", "hahahaha", "ami" });
+        }
+        else {
+            ids[0] = -1;
+            cmds.add(new String[]{"nai", "haha"});
+        }
+
+        if(pendingTransactionRepository.findAll().size() > 0){
+            ids[1] = pendingTransactionRepository.findAll().get(0).getId();
+            cmds.add(new String[]{ "reject", "hahahaha", "amar iccha", "ami" });
+        }
+        else {
+            ids[1] = -1;
+            cmds.add(new String[]{"nai", "haha"});
+        }
+
+        if(pendingTransactionRepository.findAll().size() > 1){
+            ids[2] = pendingTransactionRepository.findAll().get(1).getId();
+            cmds.add(new String[]{ "refund", "hahahaha", "amar iccha", "10.0" });
+        }
+        else {
+            ids[2] = -1;
+            cmds.add(new String[]{"nai", "haha"});
+        }
+
+        if(pendingTransactionRepository.findAll().size() > 2){
+            ids[3] = pendingTransactionRepository.findAll().get(2).getId();
+            cmds.add(new String[]{ "approve", "buy", "hahahaha", "ami" });
+        }
+        else {
+            ids[3] = -1;
+            cmds.add(new String[]{"nai", "haha"});
+        }
+
+        if(pendingTransactionRepository.findAll().size() > 3){
+            ids[4] = pendingTransactionRepository.findAll().get(3).getId();
+            cmds.add(new String[]{ "approve", "withdraw", "hahahaha", "ami" });
+        }
+        else {
+            ids[4] = -1;
+            cmds.add(new String[]{"nai", "haha"});
+        }
+
+        for(int i=0; i<5; i++){
+            String baal = "id: " + ids[i] + " cmd: ";
+            for(String x : (String[]) cmds.get(i)) baal += x + " ";
+            System.out.println(baal);
+        }
+
+        TransactionMethods.multipleRequest(cmds, ids);
+    }
+
 
 }

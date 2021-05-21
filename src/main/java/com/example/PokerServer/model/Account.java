@@ -101,6 +101,14 @@ public class Account implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private List<PendingTransaction> pendingTransactions;
 
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<PendingRefund> pendingRefunds;
+
+    @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
+    @Fetch(value = FetchMode.SUBSELECT)
+    private List<Refund> refunds;
+
     public List<PendingTransaction> getPendingTransactions() {
         return pendingTransactions;
     }
@@ -309,6 +317,14 @@ public class Account implements Serializable {
         this.bestHand = bestHand;
     }
 
+    public List<PendingRefund> getPendingRefunds() {
+        return pendingRefunds;
+    }
+
+    public List<Refund> getRefunds() {
+        return refunds;
+    }
+
     public String printAccount(){
 
         String ret = "";
@@ -339,15 +355,29 @@ public class Account implements Serializable {
         ret += "Last login time: " + lastLoggedInTime + "\n";
         ret += "\n";
 
-        ret += "Transaction count: " + transactions.size() + "\n";
-        for(Transaction x : transactions){
-            ret += x.printTransaction() + "\n";
-        }
-
-        ret += "Pending transaction count: " + pendingTransactions.size() + "\n";
+        ret += "Pending transaction count: " + pendingTransactions.size() + "\n\n";
         for(PendingTransaction x : pendingTransactions){
-            ret += x.printPendingTransaction() + "\n";
+            ret += x.printPendingTransaction() + "\n\n";
         }
+        ret += "\n";
+
+        ret += "Transaction count: " + transactions.size() + "\n\n";
+        for(Transaction x : transactions){
+            ret += x.printTransaction() + "\n\n";
+        }
+        ret += "\n";
+
+        ret += "Pending refund count: " + pendingRefunds.size() + "\n\n";
+        for(PendingRefund x : pendingRefunds){
+            ret += x.printPendingRefund() + "\n\n";
+        }
+        ret += "\n";
+
+        ret += "Refund count: " + refunds.size() + "\n\n";
+        for(Refund x : refunds){
+            ret += x.printRefund() + "\n\n";
+        }
+        ret += "\n";
 
         return ret;
     }

@@ -239,20 +239,6 @@ public class PokerServerApplication {
         return ret;
     }
 
-    @RequestMapping(value = "/data/printDatabase", produces = "text/plain")
-    public @ResponseBody String printDatabase(@RequestParam String username, @RequestParam String password){
-
-        String ret = "";
-
-        if(authorizeAdmin(username, password)){
-
-            ret += DB.printDatabase(Server.pokerServer.getDb()) + "\n";
-        }
-        else ret = "Unauthorized access request: failed";
-
-        return ret;
-    }
-
     @RequestMapping(value = "/data/printLoggedUsers", produces = "text/plain")
     public @ResponseBody String printLoggedUsers(@RequestParam String username, @RequestParam String password){
 
@@ -390,5 +376,86 @@ public class PokerServerApplication {
     }
 
 
+
+
+    @RequestMapping(value = "/data/printDatabase", produces = "text/plain")
+    public @ResponseBody String printDatabase(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += DB.printDatabase(Server.pokerServer.getDb()) + "\n";
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printAccounts", produces = "text/plain")
+    public @ResponseBody String printAccounts(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+            ret += DB.printAccounts(Server.pokerServer.getDb());
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printPendingTransactions", produces = "text/plain")
+    public @ResponseBody String printPendingTransactions(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+            ret += DB.printPendingTransactions(Server.pokerServer.getDb());
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printTransactions", produces = "text/plain")
+    public @ResponseBody String printTransactions(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+            ret += DB.printTransactions(Server.pokerServer.getDb());
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printPendingRefunds", produces = "text/plain")
+    public @ResponseBody String printPendingRefunds(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+            ret += DB.printPendingRefunds(Server.pokerServer.getDb());
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printRefunds", produces = "text/plain")
+    public @ResponseBody String printRefunds(@RequestParam String username, @RequestParam String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += DB.printRefunds(Server.pokerServer.getDb());
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
 
 }

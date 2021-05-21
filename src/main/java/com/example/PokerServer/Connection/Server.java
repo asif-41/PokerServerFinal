@@ -2,6 +2,7 @@ package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
+import com.example.PokerServer.Objects.Notification;
 import com.example.PokerServer.Objects.Randomizer;
 import com.example.PokerServer.Objects.TransactionNumber;
 import com.example.PokerServer.Objects.User;
@@ -62,6 +63,7 @@ public class Server {
 
     public int maxPendingReq;
     public ArrayList<TransactionNumber> transactionNumbers;
+    private ArrayList unsentNotifications;
 
     //====================================================
 
@@ -107,6 +109,7 @@ public class Server {
         this.initialCoin = initialCoin;
         this.maxGuestLimit = maxGuestLimit;
         guests = new ArrayList<Integer>();
+        unsentNotifications = new ArrayList<Notification>();
 
         casualConnections = new ArrayList<ServerToClient>();
         loggedInUsers = new ArrayList<ServerToClient>();
@@ -137,6 +140,13 @@ public class Server {
                 queueIterator();
             }
         }, 0, 1000);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                db.testDatabase();
+            }
+        }, 15000);
     }
 
     //========================================================================================
@@ -204,14 +214,6 @@ public class Server {
         else if(account_type.equals("google")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
 
         return user;
-    }
-
-
-    public void addTransaction(User user, String type, String method, String transactionId, long coinAmount, double amount){
-
-        if(user.getLoginMethod().equals("guest")) return ;
-
-        db.addTransaction(user.getId(), type, method, transactionId, coinAmount, amount);
     }
 
     public JSONObject getAllTransactionsOfUser(User user){
@@ -699,6 +701,43 @@ public class Server {
     //
     //================================================================================
 
+    public ArrayList<Notification> userUnsentNotifications(User user){
+
+        ArrayList ret = new ArrayList<Notification>();
+
+
+        if ( user != null & !(user.getId() < 0) ){
+
+            for(Object x : unsentNotifications){
+
+                Notification xx = (Notification) x;
+                if(xx.getUserId() == user.getId()) ret.add(xx);
+            }
+        }
+        return ret;
+    }
+
+    private ServerToClient findLoggedUserWithId(int id){
+
+        ServerToClient s = null;
+
+        for(Object x : loggedInUsers){
+
+            ServerToClient xx = (ServerToClient) x;
+
+            if(xx == null) continue;
+            else if(xx.getUser() == null) continue;
+            else if(xx.getUser().getId() < 0) continue;
+
+            if(xx.getUser().getId() == id){
+                s = xx;
+                break;
+            }
+        }
+
+        return s;
+    }
+
     private void forceLogoutAll(){
 
         while(loggedInUsers.size() != 0){
@@ -706,6 +745,20 @@ public class Server {
             ServerToClient x = (ServerToClient) loggedInUsers.get(0);
             x.forceLogout("Updates are coming from server! please relogin");
 
+        }
+    }
+
+    public void makeNotification(String type, String objectType, JSONObject data){
+
+        Notification notification = new Notification(type, objectType, data);
+        ServerToClient s = findLoggedUserWithId(notification.getUserId());
+
+        if(s == null || s.getGameThread() != null || s.getWaitingRoom() != null || s.getUser().getBoardCoin() != 0) unsentNotifications.add(notification);
+        else {
+            ArrayList temp = new ArrayList<Notification>();
+            temp.add(notification);
+
+            s.sendNotifications(temp);
         }
     }
 
