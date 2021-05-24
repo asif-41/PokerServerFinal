@@ -7,7 +7,7 @@ import org.hibernate.annotations.FetchMode;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "account")
@@ -95,34 +95,50 @@ public class Account implements Serializable {
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<Transaction> transactions;
+    private Set<Transaction> transactions;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<PendingTransaction> pendingTransactions;
+    private Set<PendingTransaction> pendingTransactions;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<PendingRefund> pendingRefunds;
+    private Set<PendingRefund> pendingRefunds;
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
-    private List<Refund> refunds;
+    private Set<Refund> refunds;
 
-    public List<PendingTransaction> getPendingTransactions() {
-        return pendingTransactions;
-    }
-
-    public void setPendingTransactions(List<PendingTransaction> pendingTransactions) {
-        this.pendingTransactions = pendingTransactions;
-    }
-
-    public List<Transaction> getTransactions() {
+    public Set<Transaction> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(List<Transaction> transactions) {
+    public void setTransactions(Set<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    public Set<PendingTransaction> getPendingTransactions() {
+        return pendingTransactions;
+    }
+
+    public void setPendingTransactions(Set<PendingTransaction> pendingTransactions) {
+        this.pendingTransactions = pendingTransactions;
+    }
+
+    public void setPendingRefunds(Set<PendingRefund> pendingRefunds) {
+        this.pendingRefunds = pendingRefunds;
+    }
+
+    public void setRefunds(Set<Refund> refunds) {
+        this.refunds = refunds;
+    }
+
+    public Set<PendingRefund> getPendingRefunds() {
+        return pendingRefunds;
+    }
+
+    public Set<Refund> getRefunds() {
+        return refunds;
     }
 
     public Integer getTotalCallCount() {
@@ -315,14 +331,6 @@ public class Account implements Serializable {
 
     public void setBestHand(String bestHand) {
         this.bestHand = bestHand;
-    }
-
-    public List<PendingRefund> getPendingRefunds() {
-        return pendingRefunds;
-    }
-
-    public List<Refund> getRefunds() {
-        return refunds;
     }
 
     public String printAccount(){

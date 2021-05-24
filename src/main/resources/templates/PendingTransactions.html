@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pending Transactions</title>
+
+    <link rel="stylesheet" type="text/css" href="/CSS/PendingTransactions.css" />
+    <script type="text/javascript" src="/JS/PendingTransactions.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+</head>
+<body>
+
+    <form action="#" method="POST" th:action="@{editPendingTransactions}">
+
+        <input type="hidden" name="pageNo" th:value="${pageNo}">
+
+        <div align="center" class="container-fluid my-2">
+
+            <h1>Pending Transactions List</h1>
+
+            <table border="5" class = "table table-dark table-striped table-responsive-md">
+
+                <thead style="text-align:center">
+                <tr>
+                    <th>Id</th>
+                    <th>Account id</th>
+                    <th>Account username</th>
+                    <th>Type</th>
+                    <th>Method</th>
+                    <th>Coin amount</th>
+                    <th>Price</th>
+                    <th>Transaction id</th>
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    <th>Request time</th>
+                    <th class="col-md-6">New data</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="pendingTransaction : ${pendingTransactionsList}" th:id="'row' + ${pendingTransaction.id}">
+                    <td th:text="${pendingTransaction.id}"></td>
+                    <td th:text="${pendingTransaction.account.id}"></td>
+                    <td th:text="${pendingTransaction.account.username}"></td>
+                    <td th:text="${pendingTransaction.type}"></td>
+                    <td th:text="${pendingTransaction.method}"></td>
+                    <td th:text="${pendingTransaction.coinAmount}"></td>
+                    <td th:text="${pendingTransaction.price}"></td>
+                    <td th:text="${pendingTransaction.transactionId}"></td>
+                    <td th:text="${pendingTransaction.sender}"></td>
+                    <td th:text="${pendingTransaction.receiver}"></td>
+                    <td th:text="${pendingTransaction.requestTime}"></td>
+                    <td>
+
+
+                        <ul class="list-group">
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                        </ul>
+
+                        <input type="hidden" name="id" disabled />
+                        <input type="hidden" th:name="'type' + ${pendingTransaction.id}" disabled />
+                        <input type="hidden" th:name="'transactionId' + ${pendingTransaction.id}" disabled />
+                        <input type="hidden" th:name="'senderNumber' + ${pendingTransaction.id}" disabled />
+                        <input type="hidden" th:name="'refundAmount' + ${pendingTransaction.id}" disabled />
+                        <input type="hidden" th:name="'reason' + ${pendingTransaction.id}" disabled />
+                        <input type="hidden" th:name="'action' + ${pendingTransaction.id}" disabled />
+
+                    </td>
+                    <td class="btn-group" role="group" aria-label="Basic example">
+
+                        <button th:if="${pendingTransaction.type.equals('withdraw')}" type="button" class="ApproveWithdraw btn btn-success btn-sm mb-3" data-toggle="modal"
+                                data-target="#approveDataModal" style="margin:5px">Approve</button>
+                        <button th:if="${pendingTransaction.type.equals('buy')}" type="button" class="ApproveBuy btn btn-success btn-sm mb-3"
+                                style="margin:5px">Approve</button>
+
+                        <button th:if="${pendingTransaction.type.equals('buy')}" type="button" class="Refund btn btn-primary btn-sm mb-3"
+                                data-toggle="modal" data-target="#refundDataModal" style="margin:5px">Refund</button>
+                        <button type="button" class="Reject btn btn-warning btn-sm mb-3" data-toggle="modal" data-target="#rejectDataModal" style="margin:5px">Reject</button>
+                        <button type="button" class="Cancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="col-md-12 text-right" style="margin-right:50px;margin-bottom:50px">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">Save Database</button>
+        </div>
+
+        <!-- MODAL AUTHORIZATION -->
+        <div class="modal fade" id="authorizeModal" tabindex="-1" role="dialog" aria-labelledby="authorizeModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="authorizeModalTitle">Authentication</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="username" name="username">
+
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control" placeholder="password" name="password">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+
+
+    <!-- Reject modal -->
+    <div class="modal fade" id="rejectDataModal" tabindex="-1" role="dialog" aria-labelledby="rejectDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectDataModalTitle"></h5>                                                  <!-- -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="rejectDataModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input type="text" name="id" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Account id</label>
+                            <input type="text" name="accountId" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" name="username" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction type</label>
+                            <input type="text" name="type" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction method</label>
+                            <input type="text" name="method" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Reject reason</label>
+                            <input type="text" name="reason" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Coin amount</label>
+                            <input type="text" name="coinAmount" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="text" name="price" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction id</label>
+                            <input type="text" name="transactionId" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction sender</label>
+                            <input type="text" name="transactionSender" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction receiver</label>
+                            <input type="text" name="transactionReceiver" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Request time</label>
+                            <input type="text" name="requestTime" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="rejectSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Approve modal -->
+    <div class="modal fade" id="approveDataModal" tabindex="-1" role="dialog" aria-labelledby="approveDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveDataModalTitle"></h5>                                                  <!-- -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="approveDataModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input type="text" name="id" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Account id</label>
+                            <input type="text" name="accountId" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" name="username" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction type</label>
+                            <input type="text" name="type" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction method</label>
+                            <input type="text" name="method" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Coin amount</label>
+                            <input type="text" name="coinAmount" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="text" name="price" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction id</label>
+                            <input type="text" name="transactionId" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction sender</label>
+                            <input type="text" name="transactionSender" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction receiver</label>
+                            <input type="text" name="transactionReceiver" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Request time</label>
+                            <input type="text" name="requestTime" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="approveSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund modal -->
+    <div class="modal fade" id="refundDataModal" tabindex="-1" role="dialog" aria-labelledby="refundDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="refundDataModalTitle"></h5>                                                  <!-- -->
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="refundDataModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input type="text" name="id" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Account id</label>
+                            <input type="text" name="accountId" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" name="username" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Refund amount</label>
+                            <input type="text" name="refundAmount" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Reason</label>
+                            <input type="text" name="reason" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction type</label>
+                            <input type="text" name="type" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction method</label>
+                            <input type="text" name="method" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Coin amount</label>
+                            <input type="text" name="coinAmount" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Price</label>
+                            <input type="text" name="price" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction id</label>
+                            <input type="text" name="transactionId" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction sender</label>
+                            <input type="text" name="transactionSender" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction receiver</label>
+                            <input type="text" name="transactionReceiver" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Request time</label>
+                            <input type="text" name="requestTime" class="form-control" disabled />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="refundSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

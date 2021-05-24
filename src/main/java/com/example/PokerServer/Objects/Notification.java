@@ -82,4 +82,15 @@ public class Notification {
     public void setCoinAdded(long coinAdded) {
         this.coinAdded = coinAdded;
     }
+
+    @Override
+    public String toString() {
+        return "Notification{" +
+                "type='" + type + '\'' +
+                ", objectType='" + objectType + '\'' +
+                ", data=" + data +
+                ", userId=" + userId +
+                ", coinAdded=" + coinAdded +
+                '}';
+    }
 }

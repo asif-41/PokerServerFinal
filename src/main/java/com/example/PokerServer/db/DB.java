@@ -9,11 +9,9 @@ import com.example.PokerServer.repository.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
 
 
@@ -245,13 +243,46 @@ public class DB {
 
     public Account findById(int id){
 
-        Account ret = accountRepository.findById(id).get();
+        Account ret = null;
+        if( ! accountRepository.findById(id).isEmpty() ) ret = accountRepository.findById(id).get();
         return ret;
+    }
+
+    public void removeAccount(int id){
+
+        Account acc = findById(id);
+        accountRepository.delete(acc);
+    }
+
+    public void editAccount(Hashtable map){
+
+        int id = Integer.valueOf((String) map.get("id"));
+        String username = (String) map.get("username");
+        long exp = Long.valueOf((String) map.get("exp"));
+        int coinVideoCount = Integer.valueOf((String) map.get("coinVideoCount"));
+        long currentCoin = Long.valueOf((String) map.get("currentCoin"));
+
+        Account acc = findById(id);
+        if(acc == null) return ;
+
+        acc.setCurrent_coins(currentCoin);
+        acc.setCoinVideoCount(coinVideoCount);
+        acc.setExp(exp);
+        acc.setUsername(username);
+
+        accountRepository.saveAndFlush(acc);
     }
 
     //==========================================================================
     //
     //==========================================================================
+
+
+
+
+
+
+
 
 
 
@@ -263,22 +294,23 @@ public class DB {
 
     private PendingTransaction findPendingTransactionById(int ptrId){
 
-        PendingTransaction ptr = pendingTransactionRepository.findById(ptrId).get();
+        PendingTransaction ptr = null;
+        if( ! pendingTransactionRepository.findById(ptrId).isEmpty()) ptr = pendingTransactionRepository.findById(ptrId).get();
         return ptr;
     }
 
     private PendingRefund findPendingRefundById(int rrId){
 
-        PendingRefund rr = pendingRefundRepository.findById(rrId).get();
+        PendingRefund rr = null;
+        if( ! pendingRefundRepository.findById(rrId).isEmpty() ) rr = pendingRefundRepository.findById(rrId).get();
         return rr;
     }
 
     public int getPendingTransactionCount(int id){
 
         int ret = 0;
-
-        Account acc = accountRepository.findById(id).get();
-        if(acc != null) ret = acc.getPendingTransactions().size();
+        Account acc = findById(id);
+        if( acc != null ) ret = acc.getPendingTransactions().size();
 
         return ret;
     }
@@ -307,7 +339,11 @@ public class DB {
     public void removePendingTransaction(int id, boolean notify, String reason){
 
         PendingTransaction ptr = findPendingTransactionById(id);
+        Account acc = ptr.getAccount();
+
+        acc.getPendingTransactions().remove(ptr);
         pendingTransactionRepository.delete(ptr);
+
         if(notify) TransactionMethods.notifyUser(ptr, "rejected", reason);
     }
 
@@ -338,6 +374,9 @@ public class DB {
     public void removePendingRefund(int id){
 
         PendingRefund pr = findPendingRefundById(id);
+        Account acc = pr.getAccount();
+
+        acc.getPendingRefunds().remove(pr);
         pendingRefundRepository.delete(pr);
     }
 
@@ -362,6 +401,7 @@ public class DB {
         r.setRefundRequestTime(pr.getRefundRequestTime());
         r.setRefundTime(Calendar.getInstance().getTime());
         r.setReason(pr.getReason());
+        r.setPrev_receiver(pr.getReceiver());
 
         refundRepository.saveAndFlush(r);
         TransactionMethods.notifyUser(r, "approved");
@@ -417,7 +457,8 @@ public class DB {
         JSONObject ret = new JSONObject();
         JSONArray array = new JSONArray();
 
-        Account acc = accountRepository.findById(accountId).get();
+        Account acc = findById(accountId);
+        if(acc == null) return ret;
 
         for(Transaction x : acc.getTransactions()) array.put(x.getJson());
         ret.put("transactions", array);
@@ -437,9 +478,88 @@ public class DB {
         return ret;
     }
 
+
+
+
+    public void editPendingTransactions(Hashtable map){
+
+        int count = Integer.valueOf((String) map.get("count"));
+        int[] ids = new int[count];
+        ArrayList cmds = new ArrayList<String[]>();
+
+        for(int i=0; i<count; i++){
+
+            int id = Integer.valueOf((String) map.get("id" + i));
+            String action = (String) map.get("action" + id);
+
+            ids[i] = id;
+
+            if(action.equals("approve")){
+
+                String type = (String) map.get("type" + id);
+                if(type.equals("buy")){
+                    cmds.add(new String[]{action, type});
+                }
+                else if(type.equals("withdraw")){
+
+                    String transactionId = (String) map.get("transactionId" + id);
+                    String sender = (String) map.get("senderNumber" + id) ;
+
+                    cmds.add(new String[]{action, type, transactionId, sender});
+                }
+            }
+            else if(action.equals("reject")){
+                String reason = (String) map.get("reason" + id);
+                cmds.add(new String[]{action, "", reason});
+            }
+            else if(action.equals("refund")){
+
+                String reason = (String) map.get("reason" + id);
+                double amount = 0.0;
+                try{
+                    amount = Double.valueOf((String) map.get("refundAmount" + id));
+                }catch (Exception e){
+                    cmds.add(new String[]{});
+                    continue;
+                }
+                cmds.add(new String[]{action, "", reason, String.valueOf(amount)});
+
+            }
+        }
+        TransactionMethods.multipleRequest(cmds, ids);
+    }
+
+    public void editPendingRefunds(Hashtable map){
+
+        int count = Integer.valueOf((String) map.get("count"));
+        int[] ids = new int[count];
+        ArrayList cmds = new ArrayList<String[]>();
+
+        for(int i=0; i<count; i++){
+
+            int id = Integer.valueOf((String) map.get("id" + i));
+            String transactionId = (String) map.get("transactionId" + id);
+            String sender = (String) map.get("senderNumber" + id);
+
+            ids[i] = id;
+            cmds.add(new String[]{"approveRefund", "", transactionId, sender});
+        }
+        TransactionMethods.multipleRequest(cmds, ids);
+    }
+
     //=======================================================================
     //
     //=======================================================================
+
+
+
+
+
+
+
+
+
+
 
 
     public AccountRepository getAccountRepository() {
@@ -461,6 +581,74 @@ public class DB {
     public PendingRefundRepository getPendingRefundRepository() {
         return pendingRefundRepository;
     }
+
+    public List<Account> getAccounts(int page){
+
+        ArrayList ret = new ArrayList();
+        List accounts = accountRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+
+        int st = (page-1)*30;
+        int en = Math.min( st + 30, accounts.size() );
+
+        for(int i=st; i<en; i++) ret.add(accounts.get(i));
+        return ret;
+    }
+
+    public List<Transaction> getTransactions(int page){
+
+        ArrayList ret = new ArrayList();
+        List transactions = transactionRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+
+        int st = (page-1)*30;
+        int en = Math.min( st + 30, transactions.size() );
+
+        for(int i=st; i<en; i++) ret.add(transactions.get(i));
+        return ret;
+    }
+
+    public List<Transaction> getRefunds(int page){
+
+        ArrayList ret = new ArrayList();
+        List refunds = refundRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+
+        int st = (page-1)*30;
+        int en = Math.min( st + 30, refunds.size() );
+
+        for(int i=st; i<en; i++) ret.add(refunds.get(i));
+        return ret;
+    }
+
+    public List<Transaction> getPendingRefunds(int page){
+
+        ArrayList ret = new ArrayList();
+        List pendingRefunds = pendingRefundRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+
+        int st = (page-1)*30;
+        int en = Math.min( st + 30, pendingRefunds.size() );
+
+        for(int i=st; i<en; i++) ret.add(pendingRefunds.get(i));
+        return ret;
+    }
+
+    public List<PendingTransaction> getPendingTransactions(int page){
+
+        ArrayList ret = new ArrayList();
+        List pendingTransactions = pendingTransactionRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+
+        int st = (page-1)*30;
+        int en = Math.min( st + 30, pendingTransactions.size() );
+
+        for(int i=st; i<en; i++) ret.add(pendingTransactions.get(i));
+        return ret;
+    }
+
+
+
+
+
+
+
+
 
 
 
@@ -533,18 +721,34 @@ public class DB {
 
 
 
+    public void baal2(int id){
+
+        PendingTransaction p = findPendingTransactionById(id);
+        Account acc = p.getAccount();
+        System.out.println("Pending transaction count: " + acc.getPendingTransactions().size());
+    }
+
+    public void baal(int id){
 
 
+        Account acc = findById(id);
+        System.out.println("Pending transaction count: " + acc.getPendingTransactions().size());
 
+        //duita
+        //update user e
 
-
-
-
-
-
-
+    }
+    /*
     //TESTING PURPOSE
     public void testDatabase(){
+
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                db.testDatabase();
+            }
+        }, 15000);
 
         System.out.println("Testing database");
 
@@ -604,6 +808,6 @@ public class DB {
 
         TransactionMethods.multipleRequest(cmds, ids);
     }
-
+    */
 
 }

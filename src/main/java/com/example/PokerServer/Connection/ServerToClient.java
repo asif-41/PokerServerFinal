@@ -119,7 +119,7 @@ public class ServerToClient implements Runnable {
     public void sendMessage(String temp) {
 
         try {
-            String[] splitted = FluentIterable.from(Splitter.fixedLength(8000).split(temp)).toArray(String.class);
+            String[] splitted = FluentIterable.from(Splitter.fixedLength(4000).split(temp)).toArray(String.class);
 
             for(int i=0; i<splitted.length-1; i++){
                 JSONObject jsonObject = new JSONObject();
@@ -152,7 +152,6 @@ public class ServerToClient implements Runnable {
             jsonIncoming = null;
             return;
         }
-
 
         if (jsonIncoming.get("requestType").equals("LoginRequest")) {
 
@@ -566,6 +565,9 @@ public class ServerToClient implements Runnable {
     }
 
     public void sendNotifications(ArrayList<Notification> notifications){
+
+        System.out.println("Pathanor age: ");
+        Server.pokerServer.getDb().baal(user.getId());
 
         JSONObject send = initiateJson();
         JSONArray array = new JSONArray();

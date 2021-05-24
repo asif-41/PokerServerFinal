@@ -2,10 +2,7 @@ package com.example.PokerServer.Connection;
 
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
-import com.example.PokerServer.Objects.Notification;
-import com.example.PokerServer.Objects.Randomizer;
-import com.example.PokerServer.Objects.TransactionNumber;
-import com.example.PokerServer.Objects.User;
+import com.example.PokerServer.Objects.*;
 import com.example.PokerServer.db.DB;
 import com.example.PokerServer.db.DBFactory;
 import org.json.JSONObject;
@@ -81,7 +78,12 @@ public class Server {
                   int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
-                  int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq, ArrayList<TransactionNumber> transactionNumbers) {
+                  int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
+                  double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers) {
+
+        TransactionMethods.setCoinPricePerCrore(coinPricePerCrore);
+        TransactionMethods.setCoinAmountOnBuy(coinAmountOnBuy);
+        TransactionMethods.setCoinPriceOnBuy(coinPriceOnBuy);
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
@@ -140,13 +142,6 @@ public class Server {
                 queueIterator();
             }
         }, 0, 1000);
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                db.testDatabase();
-            }
-        }, 15000);
     }
 
     //========================================================================================
@@ -752,6 +747,8 @@ public class Server {
 
         Notification notification = new Notification(type, objectType, data);
         ServerToClient s = findLoggedUserWithId(notification.getUserId());
+
+        System.out.println("new notification\n" + notification);
 
         if(s == null || s.getGameThread() != null || s.getWaitingRoom() != null || s.getUser().getBoardCoin() != 0) unsentNotifications.add(notification);
         else {

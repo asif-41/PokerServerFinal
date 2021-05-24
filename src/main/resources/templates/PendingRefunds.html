@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Pending Refunds</title>
+
+    <link rel="stylesheet" type="text/css" href="/CSS/PendingRefunds.css" />
+    <script type="text/javascript" src="/JS/PendingRefunds.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+</head>
+<body>
+
+    <form action="#" method="POST" th:action="@{editPendingRefunds}">
+
+        <input type="hidden" name="pageNo" th:value="${pageNo}">
+
+        <div align="center" class="container-fluid my-2">
+
+            <h1>Pending Refunds List</h1>
+
+            <table border="5" class = "table table-dark table-striped table-responsive-md">
+
+                <thead style="text-align:center">
+                <tr>
+                    <th>Id</th>
+                    <th>Account id</th>
+                    <th>Account username</th>
+                    <th>Type</th>
+                    <th>Method</th>
+                    <th>Refund amount</th>
+                    <th>Original transaction sender</th>
+                    <th>Original transaction receiver</th>
+                    <th>original transaction id</th>
+                    <th>Request time</th>
+                    <th>Refund request time</th>
+                    <th>Reason</th>
+                    <th class="col-md-6">New data</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr th:each="pendingRefund : ${pendingRefundsList}" th:id="'row' + ${pendingRefund.id}">
+                    <td th:text="${pendingRefund.id}"></td>
+                    <td th:text="${pendingRefund.account.id}"></td>
+                    <td th:text="${pendingRefund.account.username}"></td>
+                    <td th:text="${pendingRefund.type}"></td>
+                    <td th:text="${pendingRefund.method}"></td>
+                    <td th:text="${pendingRefund.refundAmount}"></td>
+                    <td th:text="${pendingRefund.sender}"></td>
+                    <td th:text="${pendingRefund.receiver}"></td>
+                    <td th:text="${pendingRefund.transactionId}"></td>
+                    <td th:text="${pendingRefund.requestTime}"></td>
+                    <td th:text="${pendingRefund.refundRequestTime}"></td>
+                    <td th:text="${pendingRefund.reason}"></td>
+                    <td>
+
+                        <ul class="list-group" style="display:none">
+                            <li class="list-group-item bg-dark"></li>
+                            <li class="list-group-item bg-dark"></li>
+                        </ul>
+
+                        <input type="hidden" name="id" disabled />
+                        <input type="hidden" th:name="'senderNumber' + ${pendingRefund.id}" disabled />
+                        <input type="hidden" th:name="'transactionId' + ${pendingRefund.id}" disabled />
+
+                    </td>
+                    <td class="btn-group" role="group" aria-label="Basic example">
+                        <button type="button" class="AddRefund btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#refundDataModal" style="margin:5px">Refund</button>
+                        <button type="button" class="Cancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+                    </td>
+                </tr>
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="col-md-12 text-right" style="margin-right:50px;margin-bottom:50px">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">Save Database</button>
+        </div>
+
+        <!-- MODAL AUTHORIZATION -->
+        <div class="modal fade" id="authorizeModal" tabindex="-1" role="dialog" aria-labelledby="authorizeModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="authorizeModalTitle">Authentication</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                        <div class="modal-body">
+
+                            <div class="input-group form-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                </div>
+                                <input type="text" class="form-control" placeholder="username" name="username">
+
+                            </div>
+                            <div class="input-group form-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
+                                </div>
+                                <input type="password" class="form-control" placeholder="password" name="password">
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger">Save changes</button>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+
+
+
+    <!-- Modal edit -->
+    <div class="modal fade" id="refundDataModal" tabindex="-1" role="dialog" aria-labelledby="refundDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="refundDataModalTitle"></h5>                                                  <!-- -->
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="col-md-2"></div>
+
+                        <div id="refundDataModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                            <div class="form-group">
+                                <label>Id</label>
+                                <input type="text" name="id" class="form-control" id="id" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Refund sender</label>
+                                <input type="text" name="refundSender" class="form-control" id="refundSender" required />
+                            </div>
+                            <div class="form-group">
+                                <label>New transaction id</label>
+                                <input type="text" name="newTransactionId" class="form-control" id="newTransactionId" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Account id</label>
+                                <input type="text" name="accountId" class="form-control" id="accountId" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" name="username" class="form-control" id="username" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction type</label>
+                                <input type="text" name="type" class="form-control" id="type" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction method</label>
+                                <input type="text" name="method" class="form-control" id="method" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Refund amount</label>
+                                <input type="text" name="refundAmount" class="form-control" id="refundAmount" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Original transaction sender</label>
+                                <input type="text" name="originalTransactionSender" class="form-control" id="originalTransactionSender" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Original transaction receiver</label>
+                                <input type="text" name="originalTransactionReceiver" class="form-control" id="originalTransactionReceiver" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Original transaction id</label>
+                                <input type="text" name="originalTransactionId" class="form-control" id="originalTransactionId" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Request time</label>
+                                <input type="text" name="requestTime" class="form-control" id="requestTime" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Refund request time</label>
+                                <input type="text" name="refundRequestTime" class="form-control" id="refundRequestTime" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Reason</label>
+                                <input type="text" name="reason" class="form-control" id="reason" disabled />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="clickedSave()">Save changes</button>
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

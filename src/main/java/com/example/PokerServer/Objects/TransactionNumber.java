@@ -45,6 +45,10 @@ public class TransactionNumber {
         this.number = number;
     }
 
+    public String toString2() {
+        return "TransactionNumber type: " + type + ", number= " + number ;
+    }
+
     @Override
     public String toString() {
         return "TransactionNumber{" +

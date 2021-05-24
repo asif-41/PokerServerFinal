@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Accounts</title>
+
+    <link rel="stylesheet" type="text/css" href="/CSS/Accounts.css" />
+    <script type="text/javascript" src="/JS/Accounts.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+</head>
+<body>
+
+    <div align="center" class="container-fluid my-2">
+
+        <h1>Accounts List</h1>
+
+        <table border="5" class = "table table-dark table-striped table-responsive-md">
+
+            <thead style="text-align:center">
+                <tr>
+                    <th>Id</th>
+                    <th>Username</th>
+                    <th>Login_method</th>
+                    <th>Facebook</th>
+                    <th>Google</th>
+                    <th>EXP</th>
+                    <th>Current_coin</th>
+                    <th>Coins_won</th>
+                    <th>Coins_lost</th>
+                    <th>Rounds_won</th>
+                    <th>Rounds_played</th>
+                    <th>Win_streak</th>
+                    <th>Biggest_win</th>
+                    <th>Best_hand</th>
+                    <th>Coin_video_count</th>
+                    <th>Last_coin_available_time</th>
+                    <th>Last_login_time</th>
+                    <th>Last_free_coin_time</th>
+                    <th>Pending_transaction_count</th>
+                    <th>Pending_refund_count</th>
+                    <th>Transaction_count</th>
+                    <th>Refund_count</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr th:each="account : ${accountList}">
+                    <td th:text="${account.id}"></td>
+                    <td th:text="${account.username}"></td>
+                    <td th:text="${account.login_method}"></td>
+                    <td th:text="${account.fb_id}"></td>
+                    <td th:text="${account.google_id}"></td>
+                    <td th:text="${account.exp}"></td>
+                    <td th:text="${account.current_coins}"></td>
+                    <td th:text="${account.coins_won}"></td>
+                    <td th:text="${account.coins_lost}"></td>
+                    <td th:text="${account.rounds_played}"></td>
+                    <td th:text="${account.rounds_won}"></td>
+                    <td th:text="${account.winStreak}"></td>
+                    <td th:text="${account.biggestWin}"></td>
+                    <td th:text="${account.bestHand}"></td>
+                    <td th:text="${account.coinVideoCount}"></td>
+                    <td th:text="${account.lastCoinVideoAvailableTime}"></td>
+                    <td th:text="${account.lastLoggedInTime}"></td>
+                    <td th:text="${account.lastFreeCoinTime}"></td>
+                    <td th:text="${account.pendingTransactions.size()}"></td>
+                    <td th:text="${account.pendingRefunds.size()}"></td>
+                    <td th:text="${account.transactions.size()}"></td>
+                    <td th:text="${account.refunds.size()}"></td>
+                    <td class="btn-group" role="group" aria-label="Basic example">
+                        <button type="button" class="Update btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#updateDataModal" style="margin:5px">Update</button>
+                        <button type="button" class="Delete btn btn-danger btn-sm mb-3" data-toggle="modal" data-target="#deleteDataModal" style="margin:5px">Delete</button>
+
+                        <input type="hidden" class="id" th:value="${account.id}" />
+                        <input type="hidden" class="username" th:value="${account.username}" />
+                    </td>
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- Modal edit -->
+    <div class="modal fade" id="updateDataModal" tabindex="-1" role="dialog" aria-labelledby="updateDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <form action="#" method="POST" th:action="@{editAccount}">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="updateDataTitle"></h5>                                                  <!-- -->
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="col-md-2"></div>
+
+                        <div id="updateDataModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                            <div class="form-group">
+                                <label>Id</label>
+                                <input type="text" name="id" class="form-control" id="id" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" name="username" class="form-control" id="username" />
+                            </div>
+                            <div class="form-group">
+                                <label>Login method</label>
+                                <input type="text" name="loginMethod" class="form-control" id="loginMethod" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Facebook id</label>
+                                <input type="text" name="facebookId" class="form-control" id="facebookId" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Gmail id</label>
+                                <input type="text" name="gmailId" class="form-control" id="gmailId" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Exp</label>
+                                <input type="text" name="exp" class="form-control" id="exp" />
+                            </div>
+                            <div class="form-group">
+                                <label>Current coin</label>
+                                <input type="text" name="currentCoin" class="form-control" id="currentCoin" />
+                            </div>
+                            <div class="form-group">
+                                <label>Coin won</label>
+                                <input type="text" name="coinWon" class="form-control" id="coinWon" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Coin lost</label>
+                                <input type="text" name="coinLost" class="form-control" id="coinLost" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Rounds played</label>
+                                <input type="text" name="roundsPlayed" class="form-control" id="roundsPlayed" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Rounds won</label>
+                                <input type="text" name="roundsWon" class="form-control" id="roundsWon" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Win streak</label>
+                                <input type="text" name="winStreak" class="form-control" id="winStreak" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Biggest win</label>
+                                <input type="text" name="biggestWin" class="form-control" id="biggestWin" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Best hand</label>
+                                <input type="text" name="bestHand" class="form-control" id="bestHand" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Coin video count</label>
+                                <input type="text" name="coinVideoCount" class="form-control" id="coinVideoCount" />
+                            </div>
+                            <div class="form-group">
+                                <label>Last coin video available time</label>
+                                <input type="text" name="lastCoinVideoAvailableTime" class="form-control" id="lastCoinVideoAvailableTime" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Last login time</label>
+                                <input type="text" name="lastLoginTime" class="form-control" id="lastLoginTime" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Last free coin time</label>
+                                <input type="text" name="lastFreeCoinTime" class="form-control" id="lastFreeCoinTime" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Pending transaction count</label>
+                                <input type="text" name="pendingTransactionCount" class="form-control" id="pendingTransactionCount" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Pending refund count</label>
+                                <input type="text" name="pendingRefundCount" class="form-control" id="pendingRefundCount" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Transaction count</label>
+                                <input type="text" name="transactionCount" class="form-control" id="transactionCount" disabled />
+                            </div>
+                            <div class="form-group">
+                                <label>Refund count</label>
+                                <input type="text" name="refundCount" class="form-control" id="refundCount" disabled />
+                            </div>
+                        </div>
+
+                        <input type="hidden" id="pageUpdate" name="page" th:value="${pageNo}" />
+                        <input type="hidden" id="update-modal-id" name="id" />
+
+                        <div class="input-group form-group" style="margin-top:15px">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="username" name="usernameAdmin">
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control" placeholder="password" name="passwordAdmin">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal delete -->
+    <div class="modal fade" id="deleteDataModal" tabindex="-1" role="dialog" aria-labelledby="deleteDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteDataTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form action="#" method="POST" th:action="@{removeAccount}">
+
+                    <div class="modal-body">
+
+                        <input type="hidden" id="delete-modal-id" name="id" />
+                        <input type="hidden" id="page" name="page" th:value="${pageNo}" />
+
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="username" name="username">
+
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control" placeholder="password" name="password">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Save changes</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

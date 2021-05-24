@@ -11,9 +11,10 @@ import java.util.ArrayList;
 
 public class TransactionMethods {
 
-    private static double coinPricePerCrore = 26.0;
-    private static long[] coinAmountOnBuy = { 30000000, 50000000, 100000000, 200000000, 500000000, 1000000000 };
-    private static double[] coinPriceOnBuy = { 100, 150, 300, 600, 1480, 2950 };
+    private static double coinPricePerCrore;
+    private static long[] coinAmountOnBuy;
+    private static double[] coinPriceOnBuy;
+
 
     //returns coin price
     public static double getCurrencyAmount(long coinAmount, String req){
@@ -90,6 +91,10 @@ public class TransactionMethods {
             String type = cmd[1];
 
             if(command.equals("approve")){
+
+                System.out.println("Remove er age: ");
+                Server.pokerServer.getDb().baal2(id);
+
                 if(type.equals("buy")) Server.pokerServer.getDb().addTransaction(id);
                 else if(type.equals("withdraw")){
 
@@ -115,7 +120,6 @@ public class TransactionMethods {
 
                 String transactionId = cmd[2];
                 String sender = cmd[3];
-
                 Server.pokerServer.getDb().addRefund(id, transactionId, sender);
             }
         }

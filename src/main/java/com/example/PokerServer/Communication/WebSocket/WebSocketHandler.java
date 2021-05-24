@@ -80,8 +80,7 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                     s.setIncoming("");
                 }
             }catch (Exception e){
-                if(message == null) System.out.println("message null");
-                System.out.println("Error in converting incoming message to json " + e);
+                System.out.println("Error in converting incoming message to json: " + e + " msg -> " + message);
                 s.setIncoming("");
             }
         }

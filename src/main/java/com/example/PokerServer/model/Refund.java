@@ -34,6 +34,9 @@ public class Refund implements Serializable {
     @Column(name = "prev_transaction_id")
     private String transactionId;
 
+    @Column(name = "prev_receiver")
+    private String prev_receiver;
+
     @Column(name = "refund_transaction_id")
     private String refundTransactionId;
 
@@ -125,6 +128,14 @@ public class Refund implements Serializable {
         this.reason = reason;
     }
 
+    public String getPrev_receiver() {
+        return prev_receiver;
+    }
+
+    public void setPrev_receiver(String prev_receiver) {
+        this.prev_receiver = prev_receiver;
+    }
+
     public long getCoinAmount() {
         return coinAmount;
     }
@@ -181,6 +192,7 @@ public class Refund implements Serializable {
         ret += "Type: " + type + "\n";
         ret += "Method: " + method + "\n";
         ret += "Previous transaction id: " + transactionId + "\n";
+        ret += "Previous receiver number: " + prev_receiver + "\n";
         ret += "Refund transaction id: " + refundTransactionId + "\n";
         ret += "Coin amount: " + coinAmount + "\n";
         ret += "refundAmount: " + refundAmount + "\n";
@@ -212,6 +224,7 @@ public class Refund implements Serializable {
         jsonObject.put("refundRequestTime", refundRequestTime);
         jsonObject.put("refundTime", refundTime);
         jsonObject.put("reason", reason);
+        jsonObject.put("prevReceiver", prev_receiver);
 
         return jsonObject;
     }

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Terminal</title>
+
+    <script type="text/javascript" src="/JS/Terminal.js"></script>
+    <link rel="stylesheet" type="text/css" href="/CSS/Terminal.css"/>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
+</head>
+<body>
+
+    <div class="terminal">
+
+        <pre>
+            <output th:each="str : ${data}" th:text="${str}"></output>
+        </pre>
+
+    </div>
+
+
+
+</body>
+</html>
