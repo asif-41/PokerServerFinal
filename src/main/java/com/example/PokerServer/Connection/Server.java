@@ -782,31 +782,31 @@ public class Server {
 
                 try{
                     int mpr = Integer.parseInt(map.get("maxPendingReq"));
-                    if(mpr != -1 && mpr > 0) maxPendingReq = mpr;
+                    if(mpr > 0) maxPendingReq = mpr;
                 }catch (Exception e){
                 }
 
                 try{
                     int dcvc = Integer.parseInt(map.get("dailyCoinVideoCount"));
-                    if(dcvc != -1 && dcvc > 0) dailyCoinVideoCount = dcvc;
+                    if(dcvc > 0) dailyCoinVideoCount = dcvc;
                 }catch (Exception e){
                 }
 
                 try{
                     long flc = Long.parseLong(map.get("FreeLoginCoin"));
-                    if(flc != -1 && flc >= 0) freeLoginCoin = flc;
+                    if(flc >= 0) freeLoginCoin = flc;
                 }catch (Exception e){
                 }
 
                 try{
                     long evc = Long.parseLong(map.get("eachVideoCoin"));
-                    if(evc != -1 & evc >= 0) eachVideoCoin = evc;
+                    if(evc >= 0) eachVideoCoin = evc;
                 }catch (Exception e){
                 }
 
                 try{
                     long ic = Long.parseLong(map.get("initialCoin"));
-                    if(ic != -1 && ic >= 0) initialCoin = ic;
+                    if(ic >= 0) initialCoin = ic;
                 }catch (Exception e){
                 }
             }
