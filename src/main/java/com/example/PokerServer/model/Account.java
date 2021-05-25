@@ -92,6 +92,9 @@ public class Account implements Serializable {
     @Column(name = "winStreak")
     private Integer winStreak;              //      CURRENT WIN STREAK
 
+    @Column(name = "Is_logged_in")
+    private boolean isLoggedIn;
+
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
@@ -108,6 +111,15 @@ public class Account implements Serializable {
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<Refund> refunds;
+
+
+    public boolean isLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public void setLoggedIn(boolean loggedIn) {
+        isLoggedIn = loggedIn;
+    }
 
     public Set<Transaction> getTransactions() {
         return transactions;
@@ -342,6 +354,7 @@ public class Account implements Serializable {
         ret += "Login method: " + login_method + "\n";
         if(login_method.equals("facebook")) ret += "Facebook: " + fb_id + "\n";
         if(login_method.equals("google")) ret += "Google: " + google_id + "\n";
+        ret += "Is currently logged in: " + isLoggedIn + "\n";
         ret += "Current coin: " + current_coins + "\n";
         ret += "Coin won: " + coins_won + "\n";
         ret += "Coin lost: " + coins_lost + "\n";

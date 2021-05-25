@@ -68,6 +68,7 @@ public class DB {
                                     account.getWinStreak(), account.getTotalCallCount(), account.getCall_count(), account.getRaise_count(), account.getFold_count(), account.getAllInCount(),
                                     account.getCheck_count(), account.getBiggestWin(), account.getBestHand(), account.getCoinVideoCount(), account.getLastCoinVideoAvailableTime(),
                                     account.getLastLoggedInTime(), account.getLastFreeCoinTime(), Calendar.getInstance().getTime());
+                    updateUser(user, "toggleLogin");
                 }
                 catch (Exception  e){
                     e.printStackTrace();
@@ -90,6 +91,7 @@ public class DB {
                         Server.pokerServer.dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
                         User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
                 saveUser(user, true);
+                updateUser(user, "toggleLogin");
 
                 int thisId = -1;
                 if(account_type.equals("facebook")) thisId = findByFbId(fbId);
@@ -115,6 +117,7 @@ public class DB {
             acc.setFb_id(user.getFb_id());
             acc.setGoogle_id(user.getGmail_id());
             acc.setLogin_method(user.getLoginMethod());
+            acc.setLoggedIn(false);
             acc.setExp(user.getExp());
             acc.setCurrent_coins(user.getCurrentCoin());
             acc.setCoins_won(user.getCoinWon());
@@ -140,7 +143,9 @@ public class DB {
         else{
 
             Account acc = findById(user.getId());
+            if(acc == null) return ;
 
+            acc.setLoggedIn(false);
             acc.setExp(user.getExp());
             acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
             acc.setCoins_won(user.getCoinWon());
@@ -168,6 +173,8 @@ public class DB {
     public void updateUser(User user, String columns){
 
         Account acc = findById(user.getId());
+
+        if(acc == null) return;
 
             if(columns.equals("gameEnd")){
                 acc.setExp(user.getExp());
@@ -200,6 +207,11 @@ public class DB {
             }
             else if(columns.equals("addCoin")){
                 acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
+            }
+            else if(columns.equals("toggleLogin")){
+
+                boolean cur = acc.isLoggedIn();
+                acc.setLoggedIn(! cur);
             }
         accountRepository.saveAndFlush(acc);
     }
@@ -251,6 +263,14 @@ public class DB {
     public void removeAccount(int id){
 
         Account acc = findById(id);
+
+        if(acc == null || acc.isLoggedIn()) return ;
+
+        for(PendingTransaction x : acc.getPendingTransactions()) pendingTransactionRepository.delete(x);
+        for(Transaction x : acc.getTransactions()) transactionRepository.delete(x);
+        for(PendingRefund x : acc.getPendingRefunds()) pendingRefundRepository.delete(x);
+        for(Refund x : acc.getRefunds()) refundRepository.delete(x);
+
         accountRepository.delete(acc);
     }
 
@@ -263,7 +283,7 @@ public class DB {
         long currentCoin = Long.valueOf((String) map.get("currentCoin"));
 
         Account acc = findById(id);
-        if(acc == null) return ;
+        if(acc == null || acc.isLoggedIn()) return ;
 
         acc.setCurrent_coins(currentCoin);
         acc.setCoinVideoCount(coinVideoCount);
@@ -321,8 +341,11 @@ public class DB {
     public void addPendingTransaction(int accountId, String trType, String trMethod, String trId, long coinAmount, double price, Date requestTime, String sender, String receiver){
 
         PendingTransaction ptr = new PendingTransaction();
+        Account acc = findById(accountId);
 
-        ptr.setAccount(findById(accountId));
+        if(acc == null) return;
+
+        ptr.setAccount(acc);
         ptr.setType(trType);
         ptr.setMethod(trMethod);
         ptr.setTransactionId(trId);
@@ -339,9 +362,11 @@ public class DB {
     public void removePendingTransaction(int id, boolean notify, String reason){
 
         PendingTransaction ptr = findPendingTransactionById(id);
+        if(ptr == null) return;
+
         Account acc = ptr.getAccount();
 
-        acc.getPendingTransactions().remove(ptr);
+        if(acc != null) acc.getPendingTransactions().remove(ptr);
         pendingTransactionRepository.delete(ptr);
 
         if(notify) TransactionMethods.notifyUser(ptr, "rejected", reason);
@@ -355,7 +380,10 @@ public class DB {
         PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
         removePendingTransaction(pendingTransactionId, false, "");
 
-        pr.setAccount( findById( ptr.getAccount().getId() ) );
+        Account acc = findById(ptr.getAccount().getId());
+        if(acc == null) return;
+
+        pr.setAccount( acc );
         pr.setType(ptr.getType());
         pr.setMethod(ptr.getMethod());
         pr.setTransactionId(ptr.getTransactionId());
@@ -374,9 +402,11 @@ public class DB {
     public void removePendingRefund(int id){
 
         PendingRefund pr = findPendingRefundById(id);
+        if(pr == null) return ;
+
         Account acc = pr.getAccount();
 
-        acc.getPendingRefunds().remove(pr);
+        if(acc != null) acc.getPendingRefunds().remove(pr);
         pendingRefundRepository.delete(pr);
     }
 
@@ -388,7 +418,10 @@ public class DB {
         PendingRefund pr = findPendingRefundById(refundRequestId);
         removePendingRefund(refundRequestId);
 
-        r.setAccount( findById( pr.getAccount().getId() ) );
+        Account acc = findById( pr.getAccount().getId() );
+        if(acc == null) return ;
+
+        r.setAccount( acc );
         r.setType(pr.getType());
         r.setMethod(pr.getMethod());
         r.setTransactionId(pr.getTransactionId());
@@ -415,7 +448,10 @@ public class DB {
         PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
         removePendingTransaction(pendingTransactionId, false, "");
 
-        tr.setAccount( findById( ptr.getAccount().getId() ) );
+        Account acc = findById( ptr.getAccount().getId() );
+        if(acc == null) return ;
+
+        tr.setAccount( acc );
         tr.setType(ptr.getType());
         tr.setMethod(ptr.getMethod());
         tr.setTransactionId(ptr.getTransactionId());
@@ -436,7 +472,10 @@ public class DB {
         PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
         removePendingTransaction(pendingTransactionId, false, "");
 
-        tr.setAccount( findById( ptr.getAccount().getId() ) );
+        Account acc = findById( ptr.getAccount().getId() );
+        if(acc == null) return ;
+
+        tr.setAccount( acc );
         tr.setType(ptr.getType());
         tr.setMethod(ptr.getMethod());
         tr.setTransactionId(transactionId);
@@ -721,23 +760,7 @@ public class DB {
 
 
 
-    public void baal2(int id){
 
-        PendingTransaction p = findPendingTransactionById(id);
-        Account acc = p.getAccount();
-        System.out.println("Pending transaction count: " + acc.getPendingTransactions().size());
-    }
-
-    public void baal(int id){
-
-
-        Account acc = findById(id);
-        System.out.println("Pending transaction count: " + acc.getPendingTransactions().size());
-
-        //duita
-        //update user e
-
-    }
     /*
     //TESTING PURPOSE
     public void testDatabase(){

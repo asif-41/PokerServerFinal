@@ -91,10 +91,6 @@ public class TransactionMethods {
             String type = cmd[1];
 
             if(command.equals("approve")){
-
-                System.out.println("Remove er age: ");
-                Server.pokerServer.getDb().baal2(id);
-
                 if(type.equals("buy")) Server.pokerServer.getDb().addTransaction(id);
                 else if(type.equals("withdraw")){
 

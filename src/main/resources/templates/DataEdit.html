@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Data Edit</title>
+
+    <link rel="stylesheet" type="text/css" href="/CSS/DataEdit.css" />
+    <script type="text/javascript" src="/JS/DataEdit.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+</head>
+<body>
+
+    <form action="#" method="POST" th:action="@{editDataLink}">
+
+        <div align="center" class="container-fluid my-2" aria-label="Basic example">
+
+            <h1>Data of Tables</h1>
+
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+
+                <thead style="text-align:center">
+                <tr>
+                    <th>Data Type</th>
+
+                    <th:block th:each="i: ${#numbers.sequence(1, boardTypeCount)}">
+                        <th th:text="'Table ' + ${i}" ></th>
+                    </th:block>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>Minimum Call Value</th>
+                    <th:block th:each="value: ${minCallValue}">
+                        <td th:text="${value}" ></td>
+                    </th:block>
+                </tr>
+                <tr>
+                    <th>Minimum Entry Value</th>
+                    <th:block th:each="value: ${minEntryValue}">
+                        <td th:text="${value}" ></td>
+                    </th:block>
+                </tr>
+                <tr>
+                    <th>Maximum Entry Value</th>
+                    <th:block th:each="value: ${maxEntryValue}">
+                        <td th:text="${value}" ></td>
+                    </th:block>
+                </tr>
+                <tr>
+                    <th>MCR</th>
+                    <th:block th:each="value: ${mcr}">
+                        <td th:text="${value}" ></td>
+                    </th:block>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div align="center" class="container-fluid my-2" aria-label="Basic example">
+
+            <h1>Transaction Packages</h1>
+
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+
+                <thead style="text-align:center">
+                <tr>
+                    <th>Data Type</th>
+
+                    <th:block th:each="i: ${#numbers.sequence(1, coinPriceOnBuy.length)}">
+                        <th th:text="'Package ' + ${i}" ></th>
+                    </th:block>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th>Coin Price On Withdraw(Per crore)</th>
+                    <td th:text="${pricePerCrore}" ></td>
+                </tr>
+                <tr>
+                    <th>Buy Coin Amount</th>
+                    <th:block th:each="value: ${coinAmountOnBuy}">
+                        <td th:text="${value}" ></td>
+                    </th:block>
+                </tr>
+                <tr>
+                    <th>Coin Price</th>
+                    <th:block th:each="value: ${coinPriceOnBuy}">
+                        <td th:text="${value}" ></td>
+                    </th:block>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div align="center" class="container-fluid my-2" aria-label="Basic example">
+
+            <h1>Transaction Numbers</h1>
+
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+
+                <thead style="text-align:center">
+                <tr>
+                    <th>Id</th>
+                    <th>Number Type</th>
+                    <th>Number</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="transactionNumber: ${transactionNumbers}">
+                    <td th:text="${transactionNumber.id}"></td>
+                    <td th:text="${transactionNumber.type}"></td>
+                    <td th:text="${transactionNumber.number}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div align="center" class="container-fluid my-2" aria-label="Basic example">
+
+            <h1>Other Data</h1>
+
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+
+                <thead style="text-align:center">
+                    <tr>
+                        <th>Maximum Pending Request For A User</th>
+                        <th>Initial Coin On Register</th>
+                        <th>Daily Coin Video Count</th>
+                        <th>Coin on Each Video</th>
+                        <th>Free Login Coin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td th:text="${maxPendingReq}"></td>
+                        <td th:text="${initialCoin}"></td>
+                        <td th:text="${dailyCoinVideoCount}"></td>
+                        <td th:text="${eachVideoCoin}"></td>
+                        <td th:text="${FreeLoginCoin}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="col-md-12 text-right" style="right:10px;bottom:10px;position:fixed">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#authorizeModal">Save Data</button>
+        </div>
+
+        <!-- MODAL AUTHORIZATION -->
+        <div class="modal fade" id="authorizeModal" tabindex="-1" role="dialog" aria-labelledby="authorizeModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="authorizeModalTitle">Authentication</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="username" name="username">
+
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control" placeholder="password" name="password">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

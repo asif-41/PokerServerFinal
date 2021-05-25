@@ -188,7 +188,7 @@ public class Refund implements Serializable {
 
         String ret = "";
         ret += "Id: " + id + "\n";
-        ret += "Account id: " + account.getId() + "\n";
+        ret += "Account id: " + (account == null ? -2 : account.getId()) + "\n";
         ret += "Type: " + type + "\n";
         ret += "Method: " + method + "\n";
         ret += "Previous transaction id: " + transactionId + "\n";
@@ -211,7 +211,7 @@ public class Refund implements Serializable {
         JSONObject jsonObject = new JSONObject();
 
         jsonObject.put("id", id);
-        jsonObject.put("account_id", account.getId());
+        jsonObject.put("account_id", (account == null ? -2 : account.getId()));
         jsonObject.put("type", type);
         jsonObject.put("method", method);
         jsonObject.put("prevTransactionId", transactionId);

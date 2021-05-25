@@ -15,7 +15,7 @@ public class Notification {
         type = "";
         objectType = "";
         data = null;
-        userId = -1;
+        userId = -2;
         coinAdded = 0;
     }
 

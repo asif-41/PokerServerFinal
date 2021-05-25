@@ -49,9 +49,9 @@ public class PokerServerApplication {
 
         ArrayList<TransactionNumber> transactionNumbers = new ArrayList<>();
 
-        transactionNumbers.add(new TransactionNumber("Bkash", "0111"));
-        transactionNumbers.add(new TransactionNumber("Bkash", "0112"));
-        transactionNumbers.add(new TransactionNumber("Nagad", "0111"));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Bkash", "0111"));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Bkash", "0112"));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Nagad", "0111"));
 
         return transactionNumbers;
     }

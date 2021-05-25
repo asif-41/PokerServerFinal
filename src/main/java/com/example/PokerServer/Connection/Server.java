@@ -748,8 +748,6 @@ public class Server {
         Notification notification = new Notification(type, objectType, data);
         ServerToClient s = findLoggedUserWithId(notification.getUserId());
 
-        System.out.println("new notification\n" + notification);
-
         if(s == null || s.getGameThread() != null || s.getWaitingRoom() != null || s.getUser().getBoardCoin() != 0) unsentNotifications.add(notification);
         else {
             ArrayList temp = new ArrayList<Notification>();
@@ -923,6 +921,54 @@ public class Server {
 
     public void setDb(DB db) {
         this.db = db;
+    }
+
+    public int getMaxPendingReq() {
+        return maxPendingReq;
+    }
+
+    public void setMaxPendingReq(int maxPendingReq) {
+        this.maxPendingReq = maxPendingReq;
+    }
+
+    public ArrayList<TransactionNumber> getTransactionNumbers() {
+        return transactionNumbers;
+    }
+
+    public void setTransactionNumbers(ArrayList<TransactionNumber> transactionNumbers) {
+        this.transactionNumbers = transactionNumbers;
+    }
+
+    public int getDailyCoinVideoCount() {
+        return dailyCoinVideoCount;
+    }
+
+    public void setDailyCoinVideoCount(int dailyCoinVideoCount) {
+        this.dailyCoinVideoCount = dailyCoinVideoCount;
+    }
+
+    public long getEachVideoCoin() {
+        return eachVideoCoin;
+    }
+
+    public void setEachVideoCoin(long eachVideoCoin) {
+        this.eachVideoCoin = eachVideoCoin;
+    }
+
+    public long getFreeLoginCoin() {
+        return freeLoginCoin;
+    }
+
+    public void setFreeLoginCoin(long freeLoginCoin) {
+        this.freeLoginCoin = freeLoginCoin;
+    }
+
+    public long getInitialCoin() {
+        return initialCoin;
+    }
+
+    public void setInitialCoin(long initialCoin) {
+        this.initialCoin = initialCoin;
     }
 
     //================================================================================================================================================

@@ -1,6 +1,8 @@
 package com.example.PokerServer.controller;
 
 import com.example.PokerServer.Connection.Server;
+import com.example.PokerServer.Objects.TransactionMethods;
+import com.example.PokerServer.Objects.TransactionNumber;
 import com.example.PokerServer.PokerServerApplication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,12 +22,6 @@ import java.util.Scanner;
 @Controller
 @RequestMapping("/database")
 public class WebpagesController {
-
-    @RequestMapping("/dummy")
-    public String dummy(){
-        return "dummy";
-    }
-
 
     private boolean authorizeAdmin(String username, String password){
 
@@ -440,5 +436,86 @@ public class WebpagesController {
         else ret = "Forbidden";
         return ret;
     }
+
+
+
+
+    @RequestMapping(value = "/dataEdit")
+    public String dataEdit(@RequestParam(required = false) String username, @RequestParam(required = false) String password, Model model){
+
+        String ret;
+
+        if(authorizeAdmin(username, password)){
+
+            int boardTypeCount = Server.pokerServer.getBoardTypeCount();
+            long[] minCallValue = Server.pokerServer.getMinCallValue();
+            long[] minEntryValue = Server.pokerServer.getMinEntryValue();
+            long[] maxEntryValue = Server.pokerServer.getMaxEntryValue();
+            long[] mcr = Server.pokerServer.getMcr();
+
+            double pricePerCrore = TransactionMethods.getCoinPricePerCrore();
+            double[] coinPriceOnBuy = TransactionMethods.getCoinPriceOnBuy();
+            long[] coinAmountOnBuy = TransactionMethods.getCoinAmountOnBuy();
+
+            ArrayList<TransactionNumber> transactionNumbers = Server.pokerServer.getTransactionNumbers();
+
+            int maxPendingReq = Server.pokerServer.getMaxPendingReq();
+            long initialCoin = Server.pokerServer.getInitialCoin();
+            int dailyCoinVideoCount = Server.pokerServer.getDailyCoinVideoCount();
+            long eachVideoCoin = Server.pokerServer.getEachVideoCoin();
+            long FreeLoginCoin = Server.pokerServer.getFreeLoginCoin();
+
+            model.addAttribute("boardTypeCount", boardTypeCount);
+            model.addAttribute("minCallValue", minCallValue);
+            model.addAttribute("minEntryValue", minEntryValue);
+            model.addAttribute("maxEntryValue", maxEntryValue);
+            model.addAttribute("mcr", mcr);
+            model.addAttribute("pricePerCrore", pricePerCrore);
+            model.addAttribute("coinPriceOnBuy", coinPriceOnBuy);
+            model.addAttribute("coinAmountOnBuy", coinAmountOnBuy);
+            model.addAttribute("transactionNumbers", transactionNumbers);
+            model.addAttribute("maxPendingReq", maxPendingReq);
+            model.addAttribute("initialCoin", initialCoin);
+            model.addAttribute("dailyCoinVideoCount", dailyCoinVideoCount);
+            model.addAttribute("eachVideoCoin", eachVideoCoin);
+            model.addAttribute("FreeLoginCoin", FreeLoginCoin);
+
+            ret = "DataEdit";
+        }
+        else ret = "Forbidden";
+        return ret;
+    }
+
+    @RequestMapping(value = "/editDataLink", method = RequestMethod.POST)
+    public RedirectView editDataResponse(@RequestBody String D){
+
+        String data = D;
+
+        try {
+            data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+
+        }
+
+        System.out.println(data);
+
+        RedirectView redirectView = new RedirectView();
+        /*
+        if(authorizeAdmin2(username, password)){
+
+            Server.pokerServer.getDb().editPendingRefunds(map);
+            redirectView.setUrl("showPendingRefunds?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + map.get("pageNo"));
+        }
+        else {
+            redirectView.setUrl("forbidden");
+        }*/
+
+        redirectView.setUrl("forbidden");
+        return redirectView;
+    }
+
+
+
+
 
 }

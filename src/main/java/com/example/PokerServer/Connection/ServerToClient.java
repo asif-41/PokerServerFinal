@@ -566,9 +566,6 @@ public class ServerToClient implements Runnable {
 
     public void sendNotifications(ArrayList<Notification> notifications){
 
-        System.out.println("Pathanor age: ");
-        Server.pokerServer.getDb().baal(user.getId());
-
         JSONObject send = initiateJson();
         JSONArray array = new JSONArray();
 

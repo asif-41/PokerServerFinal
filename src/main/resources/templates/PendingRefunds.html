@@ -17,7 +17,7 @@
 
         <input type="hidden" name="pageNo" th:value="${pageNo}">
 
-        <div align="center" class="container-fluid my-2">
+        <div align="center" class="container-fluid my-2" style="margin-bottom: 60px !important">
 
             <h1>Pending Refunds List</h1>
 
@@ -79,8 +79,18 @@
 
         </div>
 
-        <div class="col-md-12 text-right" style="margin-right:50px;margin-bottom:50px">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">Save Database</button>
+        <div class="col-md-12 text-right" style="right:10px;bottom:10px;position:fixed">
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">
+                <a th:href="'http://localhost:1112/database/showPendingRefunds?username=admin&password=PokerServerPa$$w0RD&page=' + ${pageNo - 1}" style="text-decoration:none; color:white">
+                    Prev
+                </a>
+            </button>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">
+                <a th:href="'http://localhost:1112/database/showPendingRefunds?username=admin&password=PokerServerPa$$w0RD&page=' + ${pageNo + 1}" style="text-decoration:none; color:white">
+                    Next
+                </a>
+            </button>
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#authorizeModal">Save Database</button>
         </div>
 
         <!-- MODAL AUTHORIZATION -->

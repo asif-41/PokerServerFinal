@@ -36,9 +36,9 @@ public class RawDataController {
 
 
     @RequestMapping(value = "/", produces = "text/plain")
-    public String readIp(HttpServletRequest request, HttpServletResponse response){
+    public @ResponseBody String readIp(HttpServletRequest request, HttpServletResponse response){
 
-        String show = "Welcom to server\n";
+        String show = "Welcome to server\n";
 
         show += "Server ip " + request.getLocalAddr() + "\n";
         show += "Client ip " + request.getRemoteAddr();
@@ -49,7 +49,7 @@ public class RawDataController {
     }
 
     @GetMapping(value = "/image", produces = MediaType.IMAGE_PNG_VALUE)
-    public ResponseEntity<Resource> image() throws IOException {
+    public @ResponseBody ResponseEntity<Resource> image() throws IOException {
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
                 "./././././Files/guest.png"
         )));
@@ -65,6 +65,16 @@ public class RawDataController {
 
 
 
+    @RequestMapping(value = "/pages")
+    public String pageLinks(@RequestParam(required = false) String username, @RequestParam(required = false) String password){
+
+        String ret;
+
+        if(authorizeAdmin(username, password)) ret = "pageLinks";
+        else ret = "Forbidden";
+
+        return ret;
+    }
 
 
 
@@ -77,7 +87,7 @@ public class RawDataController {
     }
 
     @RequestMapping(value = "/memory", produces = "text/plain")
-    public String readMemory(@RequestParam(required = false) String username, @RequestParam(required = false) String password){
+    public @ResponseBody String readMemory(@RequestParam(required = false) String username, @RequestParam(required = false) String password){
 
         String ret = "";
 

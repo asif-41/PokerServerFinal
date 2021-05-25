@@ -13,7 +13,7 @@
 </head>
 <body>
 
-    <div align="center" class="container-fluid my-2">
+    <div align="center" class="container-fluid my-2" style="margin-bottom: 60px !important">
 
         <h1>Accounts List</h1>
 
@@ -26,6 +26,7 @@
                     <th>Login_method</th>
                     <th>Facebook</th>
                     <th>Google</th>
+                    <th>Is_logged_in</th>
                     <th>EXP</th>
                     <th>Current_coin</th>
                     <th>Coins_won</th>
@@ -54,6 +55,7 @@
                     <td th:text="${account.login_method}"></td>
                     <td th:text="${account.fb_id}"></td>
                     <td th:text="${account.google_id}"></td>
+                    <td th:text="${account.isLoggedIn}"></td>
                     <td th:text="${account.exp}"></td>
                     <td th:text="${account.current_coins}"></td>
                     <td th:text="${account.coins_won}"></td>
@@ -72,8 +74,10 @@
                     <td th:text="${account.transactions.size()}"></td>
                     <td th:text="${account.refunds.size()}"></td>
                     <td class="btn-group" role="group" aria-label="Basic example">
-                        <button type="button" class="Update btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#updateDataModal" style="margin:5px">Update</button>
-                        <button type="button" class="Delete btn btn-danger btn-sm mb-3" data-toggle="modal" data-target="#deleteDataModal" style="margin:5px">Delete</button>
+                        <button type="button" th:disabled="${account.isLoggedIn}"
+                                class="Update btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#updateDataModal" style="margin:5px">Update</button>
+                        <button type="button" th:disabled="${account.isLoggedIn}"
+                                class="Delete btn btn-danger btn-sm mb-3" data-toggle="modal" data-target="#deleteDataModal" style="margin:5px">Delete</button>
 
                         <input type="hidden" class="id" th:value="${account.id}" />
                         <input type="hidden" class="username" th:value="${account.username}" />
@@ -86,6 +90,18 @@
 
     </div>
 
+    <div class="col-md-12 text-right" style="right:10px;bottom:10px;position:fixed">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">
+            <a th:href="'http://localhost:1112/database/showAccounts?username=admin&password=PokerServerPa$$w0RD&page=' + ${pageNo - 1}" style="text-decoration:none; color:white">
+                Prev
+            </a>
+        </button>
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">
+            <a th:href="'http://localhost:1112/database/showAccounts?username=admin&password=PokerServerPa$$w0RD&page=' + ${pageNo + 1}" style="text-decoration:none; color:white">
+                Next
+            </a>
+        </button>
+    </div>
 
     <!-- Modal edit -->
     <div class="modal fade" id="updateDataModal" tabindex="-1" role="dialog" aria-labelledby="updateDataModal" aria-hidden="true">
