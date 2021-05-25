@@ -9,10 +9,7 @@ import org.json.JSONObject;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 public class Server {
 
@@ -739,7 +736,6 @@ public class Server {
 
             ServerToClient x = (ServerToClient) loggedInUsers.get(0);
             x.forceLogout("Updates are coming from server! please relogin");
-
         }
     }
 
@@ -757,11 +753,168 @@ public class Server {
         }
     }
 
+    public void addTransaction(String type, String number){
+
+        if(type.equals("") || number.equals("")) return ;
+
+        TransactionNumber tr = new TransactionNumber(transactionNumbers.size(), type, number);
+        transactionNumbers.add(tr);
+    }
+
     //================================================================================
     //
     //================================================================================
 
 
+    public void editBasicData(Hashtable<String, String> map){
+
+        try{
+            int fl = Integer.parseInt(map.get("forceLogout"));
+            if(fl == 1) forceLogoutAll();
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(force logout)");
+            System.out.println("Error -> " + e);
+        }
+
+        try{
+            int ot = Integer.parseInt(map.get("otherTable"));
+            if(ot != -1){
+
+                try{
+                    int mpr = Integer.parseInt(map.get("maxPendingReq"));
+                    if(mpr != -1 && mpr > 0) maxPendingReq = mpr;
+                }catch (Exception e){
+                }
+
+                try{
+                    int dcvc = Integer.parseInt(map.get("dailyCoinVideoCount"));
+                    if(dcvc != -1 && dcvc > 0) dailyCoinVideoCount = dcvc;
+                }catch (Exception e){
+                }
+
+                try{
+                    long flc = Long.parseLong(map.get("FreeLoginCoin"));
+                    if(flc != -1 && flc >= 0) freeLoginCoin = flc;
+                }catch (Exception e){
+                }
+
+                try{
+                    long evc = Long.parseLong(map.get("eachVideoCoin"));
+                    if(evc != -1 & evc >= 0) eachVideoCoin = evc;
+                }catch (Exception e){
+                }
+
+                try{
+                    long ic = Long.parseLong(map.get("initialCoin"));
+                    if(ic != -1 && ic >= 0) initialCoin = ic;
+                }catch (Exception e){
+                }
+            }
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(other table)");
+            System.out.println("Error -> " + e);
+        }
+
+        try{
+            int wc = Integer.parseInt(map.get("withdrawCount"));
+            if(wc != 0) {
+                try{
+                    double d = Double.parseDouble(map.get("coinPriceOnWithdraw"));
+                    TransactionMethods.setCoinPricePerCrore(d);
+                }catch (Exception e){
+                }
+            }
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(withdraw)");
+            System.out.println("Error -> " + e);
+        }
+
+        try{
+            int bpc = Integer.parseInt(map.get("buyPackageCount"));
+            for(int i=0; i<bpc; i++){
+                try{
+
+                    int loc = Integer.parseInt(map.get("buyPackageId" + i));
+                    long amount = Long.parseLong(map.get("coinAmountOnBuy" + loc));
+                    double price = Double.parseDouble(map.get("coinPriceOnBuy" + loc));
+
+                    if(amount < 0) continue;;
+                    if(price < 0) continue;;
+
+                    TransactionMethods.getCoinPriceOnBuy()[loc] = price;
+                    TransactionMethods.getCoinAmountOnBuy()[loc] = amount;
+                }catch (Exception e){
+                }
+
+            }
+
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(buy package)");
+            System.out.println("Error -> " + e);
+        }
+
+
+        try{
+            int ttc = Integer.parseInt(map.get("transactionTable"));
+            for(int i=0; i<ttc; i++){
+                try{
+
+                    int id = Integer.parseInt(map.get("transactionId" + i));
+                    String type = map.get("transactionType" + id);
+                    String number = map.get("transactionNumber" + id);
+
+                    if(type.equals("") || number.equals("")) continue;
+
+                    for(TransactionNumber x : transactionNumbers){
+                        if(x.getId() != id) continue;
+                        x.setType(type);
+                        x.setNumber(number);
+                        break;
+                    }
+                }catch (Exception e){
+                }
+
+            }
+
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(Transaction number)");
+            System.out.println("Error -> " + e);
+        }
+
+
+
+        try{
+            int bdec = Integer.parseInt(map.get("boardDataEditCount"));
+            for(int i=0; i<bdec; i++){
+                try{
+
+                    int loc = Integer.parseInt(map.get("boardLoc" + i));
+                    long minCallValue = Long.parseLong(map.get("minCallValue" + loc));
+                    long minEntryValue = Long.parseLong(map.get("minEntryValue" + loc));
+                    long maxEntryValue = Long.parseLong(map.get("maxEntryValue" + loc));
+                    long mcr = Long.parseLong(map.get("mcr" + loc));
+
+                    if(minCallValue < 0) continue;
+                    if(minEntryValue < 0) continue;
+                    if(maxEntryValue < minEntryValue) continue;
+                    if(mcr < 0) continue;
+
+                    this.minCallValue[loc] = minCallValue;
+                    this.minEntryValue[loc] = minEntryValue;
+                    this.maxEntryValue[loc] = maxEntryValue;
+                    this.mcr[loc] = mcr;
+
+                }catch (Exception e){
+                }
+
+            }
+
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(Board data)");
+            System.out.println("Error -> " + e);
+        }
+
+    }
 
 
 

@@ -15,14 +15,18 @@
 
     <form action="#" method="POST" th:action="@{editDataLink}">
 
+        <input type="hidden" value="0" name="forceLogout" id="forceLogoutInput" />
+
         <div align="center" class="container-fluid my-2" aria-label="Basic example">
 
             <h1>Data of Tables</h1>
 
-            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center;margin-bottom: 60px !important">
+
+                <input type="hidden" value="0" name="boardDataEditCount" id="boardDataEditCount" />
 
                 <thead style="text-align:center">
-                <tr>
+                    <tr>
                     <th>Data Type</th>
 
                     <th:block th:each="i: ${#numbers.sequence(1, boardTypeCount)}">
@@ -31,30 +35,68 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th>Minimum Call Value</th>
-                    <th:block th:each="value: ${minCallValue}">
-                        <td th:text="${value}" ></td>
-                    </th:block>
-                </tr>
-                <tr>
-                    <th>Minimum Entry Value</th>
-                    <th:block th:each="value: ${minEntryValue}">
-                        <td th:text="${value}" ></td>
-                    </th:block>
-                </tr>
-                <tr>
-                    <th>Maximum Entry Value</th>
-                    <th:block th:each="value: ${maxEntryValue}">
-                        <td th:text="${value}" ></td>
-                    </th:block>
-                </tr>
-                <tr>
-                    <th>MCR</th>
-                    <th:block th:each="value: ${mcr}">
-                        <td th:text="${value}" ></td>
-                    </th:block>
-                </tr>
+                    <tr id="minCallValueRow">
+                        <th>Minimum Call Value</th>
+                        <th:block th:each="value: ${minCallValue}">
+                            <td>
+                                [( ${value} )]
+                                <input type="hidden" value="-1" disabled />
+                            </td>
+                        </th:block>
+                    </tr>
+                    <tr id="minEntryValueRow">
+                        <th>Minimum Entry Value</th>
+                        <th:block th:each="value: ${minEntryValue}">
+                            <td>
+                                [( ${value} )]
+                                <input type="hidden" value="-1" disabled />
+                            </td>
+                        </th:block>
+                    </tr>
+                    <tr id="maxEntryValueRow">
+                        <th>Maximum Entry Value</th>
+                        <th:block th:each="value: ${maxEntryValue}">
+                            <td>
+                                [( ${value} )]
+                                <input type="hidden" value="-1" disabled />
+                            </td>
+                        </th:block>
+                    </tr>
+                    <tr id="mcrValueRow">
+                        <th>MCR</th>
+                        <th:block th:each="value: ${mcr}">
+                            <td>
+                                [( ${value} )]
+                                <input type="hidden" value="-1" disabled />
+                            </td>
+                        </th:block>
+                    </tr>
+                    <tr id="boardDataNewDataRow">
+                        <th>New Data</th>
+                        <td th:each="i : ${#numbers.sequence(1, boardTypeCount)}">
+
+                            <ul class="list-group">
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                            </ul>
+
+                            <input type="hidden" name="boardLoc" th:value="${i-1}" disabled/>
+                            <input type="hidden" th:name="'minCallValue' + ${i-1}" th:value="${minCallValue[i-1]}" disabled />
+                            <input type="hidden" th:name="'minEntryValue' + ${i-1}" th:value="${minEntryValue[i-1]}"  disabled />
+                            <input type="hidden" th:name="'maxEntryValue' + ${i-1}" th:value="${maxEntryValue[i-1]}"  disabled />
+                            <input type="hidden" th:name="'mcr' + ${i-1}" th:value="${mcr[i-1]}"  disabled />
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td th:each="i : ${#numbers.sequence(1, boardTypeCount)}">
+                            <button type="button" class="BoardDataEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#boardDataEditModal" style="margin:5px">Edit</button>
+                            <button type="button" class="BoardDataEditCancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -63,34 +105,85 @@
 
             <h1>Transaction Packages</h1>
 
-            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center;margin-bottom: 60px !important">
+
+                <input type="hidden" value="0" name="buyPackageCount" id="buyPackageCount" />
+                <input type="hidden" value="0" name="withdrawCount" id="withdrawCount" />
 
                 <thead style="text-align:center">
-                <tr>
-                    <th>Data Type</th>
+                    <tr>
+                        <th>Data Type</th>
 
-                    <th:block th:each="i: ${#numbers.sequence(1, coinPriceOnBuy.length)}">
-                        <th th:text="'Package ' + ${i}" ></th>
-                    </th:block>
-                </tr>
+                        <th:block th:each="i: ${#numbers.sequence(1, coinPriceOnBuy.length)}">
+                            <th th:text="'Package ' + ${i}" ></th>
+                        </th:block>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <th>Coin Price On Withdraw(Per crore)</th>
-                    <td th:text="${pricePerCrore}" ></td>
-                </tr>
-                <tr>
-                    <th>Buy Coin Amount</th>
-                    <th:block th:each="value: ${coinAmountOnBuy}">
-                        <td th:text="${value}" ></td>
-                    </th:block>
-                </tr>
-                <tr>
-                    <th>Coin Price</th>
-                    <th:block th:each="value: ${coinPriceOnBuy}">
-                        <td th:text="${value}" ></td>
-                    </th:block>
-                </tr>
+                    <tr id="coinPriceWithdraw">
+                        <th>Coin Price On Withdraw(Per crore)</th>
+                        <td>
+                            [( ${pricePerCrore} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+
+                            <ul class="list-group">
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                            </ul>
+
+                            <input type="hidden" name="coinPriceOnWithdraw" value="-1" disabled />
+
+                        </td>
+                        <td>
+                            <button type="button" class="WithdrawEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#withdrawEditModal" style="margin:5px">Edit</button>
+                            <button type="button" class="WithdrawEditCancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+                        </td>
+                    </tr>
+                    <tr id="coinAmountRow">
+
+                        <th>Buy Coin Amount</th>
+                        <th:block th:each="value: ${coinAmountOnBuy}">
+                            <td>
+                                [( ${value} )]
+                                <input type="hidden" value="-1" disabled />
+                            </td>
+                        </th:block>
+
+                    </tr>
+                    <tr id="coinPriceRow">
+
+                        <th>Coin Price</th>
+                        <th:block th:each="value: ${coinPriceOnBuy}">
+                            <td>
+                                [( ${value} )]
+                                <input type="hidden" value="-1" disabled />
+                            </td>
+                        </th:block>
+
+                    </tr>
+                    <tr id="coinPriceNewDataRow">
+                        <th>New Data</th>
+                        <td th:each="i : ${#numbers.sequence(1, coinPriceOnBuy.length)}">
+
+                            <ul class="list-group">
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                            </ul>
+
+                            <input type="hidden" name="buyPackageId" th:value="${i-1}" disabled/>
+                            <input type="hidden" th:name="'coinAmountOnBuy' + ${i-1}" th:value="${coinAmountOnBuy[i-1]}" disabled />
+                            <input type="hidden" th:name="'coinPriceOnBuy' + ${i-1}" th:value="${coinPriceOnBuy[i-1]}"  disabled />
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td th:each="i : ${#numbers.sequence(1, coinPriceOnBuy.length)}">
+                            <button type="button" class="BuyPackageEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#buyPackageEditModal" style="margin:5px">Edit</button>
+                            <button type="button" class="BuyPackageEditCancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -99,30 +192,57 @@
 
             <h1>Transaction Numbers</h1>
 
-            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center;margin-bottom: 60px !important">
+
+                <input type="hidden" value="0" name="transactionTable" id="transactionTableCount" />
 
                 <thead style="text-align:center">
                 <tr>
                     <th>Id</th>
                     <th>Number Type</th>
                     <th>Number</th>
+                    <th>New Data</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="transactionNumber: ${transactionNumbers}">
+                <tr th:each="transactionNumber: ${transactionNumbers}" th:id="'transactionRow' + ${transactionNumber.id}">
+
                     <td th:text="${transactionNumber.id}"></td>
                     <td th:text="${transactionNumber.type}"></td>
                     <td th:text="${transactionNumber.number}"></td>
+                    <td>
+                        <ul class="list-group">
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                            <li class="list-group-item bg-dark" style="display:none"></li>
+                        </ul>
+
+                        <input type="hidden" name="transactionId" th:value="${transactionNumber.id}" disabled/>
+                        <input type="hidden" th:name="'transactionType' + ${transactionNumber.id}" th:value="${transactionNumber.type}" disabled />
+                        <input type="hidden" th:name="'transactionNumber' + ${transactionNumber.id}" th:value="${transactionNumber.number}"  disabled />
+                    </td>
+                    <td>
+                        <button type="button" class="TransactionTableEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#transactionTableModal" style="margin:5px">Edit</button>
+                        <button type="button" class="TransactionTableCancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+                     </td>
                 </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div class="col-md-12 text-right" style="margin-right:50px; margin-top:-50px" align="right">
+            <button type="button" class="btn btn-primary">
+                <a href="addTransaction?username=admin&password=PokerServerPa$$w0RD" target="_blank" style="text-decoration:none; color:white">
+                    Add Transaction
+                </a>
+            </button>
         </div>
 
         <div align="center" class="container-fluid my-2" aria-label="Basic example">
 
             <h1>Other Data</h1>
 
-            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center">
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center;margin-bottom: 60px !important">
 
                 <thead style="text-align:center">
                     <tr>
@@ -131,15 +251,52 @@
                         <th>Daily Coin Video Count</th>
                         <th>Coin on Each Video</th>
                         <th>Free Login Coin</th>
+                        <th>New Data</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td th:text="${maxPendingReq}"></td>
-                        <td th:text="${initialCoin}"></td>
-                        <td th:text="${dailyCoinVideoCount}"></td>
-                        <td th:text="${eachVideoCoin}"></td>
-                        <td th:text="${FreeLoginCoin}"></td>
+                    <tr id="OtherTableDataRow">
+                        <td>
+                            [( ${maxPendingReq} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            [( ${initialCoin} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            [( ${dailyCoinVideoCount} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            [( ${eachVideoCoin} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            [( ${FreeLoginCoin} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            <ul class="list-group">
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                            </ul>
+
+                            <input type="hidden" name="otherTable" value="-1" />
+                            <input type="hidden" name="maxPendingReq" value="-1" disabled />
+                            <input type="hidden" name="initialCoin" value="-1" disabled />
+                            <input type="hidden" name="dailyCoinVideoCount" value="-1" disabled />
+                            <input type="hidden" name="eachVideoCoin" value="-1" disabled />
+                            <input type="hidden" name="FreeLoginCoin" value="-1" disabled />
+                        </td>
+                        <td>
+                            <button type="button" class="OtherTableEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#otherTableModal" style="margin:5px">Edit</button>
+                            <button type="button" class="OtherTableCancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -147,6 +304,7 @@
 
 
         <div class="col-md-12 text-right" style="right:10px;bottom:10px;position:fixed">
+            <button type="button" class="ForceLogout btn btn-danger" data-toggle="modal" data-target="#authorizeModal">Force Logout</button>
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#authorizeModal">Save Data</button>
         </div>
 
@@ -187,6 +345,211 @@
         </div>
 
     </form>
+
+
+
+    <!-- Board Data modal -->
+    <div class="modal fade" id="boardDataEditModal" tabindex="-1" role="dialog" aria-labelledby="boardDataEditModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="boardDataEditModalTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="boardDataEditModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input type="text" name="id" class="form-control" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Call Value</label>
+                            <input type="text" name="minCallValue" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Entry Value</label>
+                            <input type="text" name="minEntryValue" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Maximum Entry Value</label>
+                            <input type="text" name="maxEntryValue" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>MCR</label>
+                            <input type="text" name="mcr" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="boardDataSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Package modal -->
+    <div class="modal fade" id="withdrawEditModal" tabindex="-1" role="dialog" aria-labelledby="withdrawEditModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="withdrawEditModalTitle">Edit Price</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="withdrawEditModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Coin Price Per Crore(taka)</label>
+                            <input type="text" name="data" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="withdrawEditSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy Package modal -->
+    <div class="modal fade" id="buyPackageEditModal" tabindex="-1" role="dialog" aria-labelledby="buyPackageEditModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="buyPackageEditModalTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="buyPackageEditModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input type="text" name="id" class="form-control" disabled/>
+                        </div>
+                        <div class="form-group">
+                            <label>Coin Amount</label>
+                            <input type="text" name="coinAmount" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Coin Price</label>
+                            <input type="text" name="coinPrice" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="buyPackageSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction table modal -->
+    <div class="modal fade" id="transactionTableModal" tabindex="-1" role="dialog" aria-labelledby="transactionTableModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionTableModalTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="transactionTableModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Id</label>
+                            <input type="text" name="id" class="form-control" disabled/>
+                        </div>
+                        <div class="form-group">
+                            <label>Type</label>
+                            <input type="text" name="type" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Number</label>
+                            <input type="text" name="number" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="transactionDataSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Other table modal -->
+    <div class="modal fade" id="otherTableModal" tabindex="-1" role="dialog" aria-labelledby="otherTableModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otherTableModalTitle">Edit Data</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="col-md-2"></div>
+                    <div id="otherTableModalBody" style="max-height:500px;overflow:auto;padding-right:15px">
+                        <div class="form-group">
+                            <label>Maximum Pending Request For A User</label>
+                            <input type="text" name="maxPendingReq" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Initial Coin On Register</label>
+                            <input type="text" name="initialCoin" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Daily Coin Video Count</label>
+                            <input type="text" name="dailyCoinVideoCount" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Coin on Each Video</label>
+                            <input type="text" name="eachVideoCoin" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Free Login Coin</label>
+                            <input type="text" name="FreeLoginCoin" class="form-control" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="otherDataSaveClick()">Save changes</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

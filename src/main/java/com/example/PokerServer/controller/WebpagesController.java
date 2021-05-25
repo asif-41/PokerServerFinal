@@ -497,22 +497,106 @@ public class WebpagesController {
 
         }
 
-        System.out.println(data);
+        String[] Data = data.split("&");
+        Hashtable map = new Hashtable<String, String>();
+
+        int buyPackageCount = 0;
+        int boardDataEditCount = 0;
+        int transactionEditCount = 0;
+
+        for(String d : Data){
+            String[] temp = d.split("=");
+
+            String key, value;
+            key = temp[0];
+            if(temp.length < 2) value = "";
+            else value = temp[1];
+
+            if(key.equals("buyPackageId")){
+                key += buyPackageCount;
+                buyPackageCount++;
+            }
+            else if(key.equals("transactionId")){
+                key += transactionEditCount;
+                transactionEditCount++;
+            }
+            else if(key.equals("boardLoc")){
+                key += boardDataEditCount;
+                boardDataEditCount++;
+            }
+
+
+            map.put(key, value);
+        }
+        String username = (String) map.get("username");
+        String password = (String) map.get("password");
 
         RedirectView redirectView = new RedirectView();
-        /*
+
         if(authorizeAdmin2(username, password)){
 
-            Server.pokerServer.getDb().editPendingRefunds(map);
-            redirectView.setUrl("showPendingRefunds?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + map.get("pageNo"));
+            Server.pokerServer.editBasicData(map);
+            redirectView.setUrl("dataEdit?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword());
         }
-        else {
-            redirectView.setUrl("forbidden");
-        }*/
+        else redirectView.setUrl("forbidden");
 
-        redirectView.setUrl("forbidden");
         return redirectView;
     }
+
+
+
+    @RequestMapping(value = "/addTransaction")
+    public String addTransaction(@RequestParam(required = false) String username, @RequestParam(required = false) String password, Model model){
+
+        if(authorizeAdmin(username, password)){
+            model.addAttribute("id", Server.pokerServer.getTransactionNumbers().size());
+            return "AddTransaction";
+        }
+        else return "Forbidden";
+    }
+
+    @RequestMapping(value = "/addTransactionPost", method = RequestMethod.POST)
+    public RedirectView addTransactionResponse(@RequestBody String D){
+
+        String data = D;
+
+        try {
+            data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+
+        }
+
+        String[] Data = data.split("&");
+        Hashtable map = new Hashtable<String, String>();
+
+        for(String d : Data){
+            String[] temp = d.split("=");
+
+            String key, value;
+            key = temp[0];
+            if(temp.length < 2) value = "";
+            else value = temp[1];
+            map.put(key, value);
+        }
+
+        String username = (String) map.get("username");
+        String password = (String) map.get("password");
+
+        RedirectView redirectView = new RedirectView();
+
+        if(authorizeAdmin2(username, password)){
+
+            String type = (String) map.get("type");
+            String number = (String) map.get("number");
+
+            Server.pokerServer.addTransaction(type, number);
+            redirectView.setUrl("dataEdit?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword());
+        }
+        else redirectView.setUrl("forbidden");
+
+        return redirectView;
+    }
+
 
 
 

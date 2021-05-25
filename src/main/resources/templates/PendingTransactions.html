@@ -17,11 +17,11 @@
 
         <input type="hidden" name="pageNo" th:value="${pageNo}">
 
-        <div align="center" class="container-fluid my-2" style="margin-bottom: 60px !important">
+        <div align="center" class="container-fluid my-2">
 
             <h1>Pending Transactions List</h1>
 
-            <table border="5" class = "table table-dark table-striped table-responsive-md">
+            <table border="5" class = "table table-dark table-striped table-responsive-md" style="margin-bottom: 60px !important">
 
                 <thead style="text-align:center">
                 <tr>
@@ -95,12 +95,12 @@
         </div>
 
         <div class="col-md-12 text-right" style="right:10px;bottom:10px;position:fixed">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">
+            <button type="button" class="btn btn-primary">
                 <a th:href="'http://localhost:1112/database/showPendingTransactions?username=admin&password=PokerServerPa$$w0RD&page=' + ${pageNo - 1}" style="text-decoration:none; color:white">
                     Prev
                 </a>
             </button>
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#authorizeModal">
+            <button type="button" class="btn btn-primary">
                 <a th:href="'http://localhost:1112/database/showPendingTransactions?username=admin&password=PokerServerPa$$w0RD&page=' + ${pageNo + 1}" style="text-decoration:none; color:white">
                     Next
                 </a>
