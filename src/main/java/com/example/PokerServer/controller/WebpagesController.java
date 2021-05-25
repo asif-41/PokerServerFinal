@@ -599,6 +599,50 @@ public class WebpagesController {
 
 
 
+    @RequestMapping(value = "/forceLogout", method = RequestMethod.POST)
+    public RedirectView forceLogout(@RequestBody String D){
+
+        String data = D;
+
+        try {
+            data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+
+        }
+
+        String[] Data = data.split("&");
+        Hashtable map = new Hashtable<String, String>();
+
+        for(String d : Data){
+            String[] temp = d.split("=");
+
+            String key, value;
+            key = temp[0];
+            if(temp.length < 2) value = "";
+            else value = temp[1];
+
+            map.put(key, value);
+        }
+        String username = (String) map.get("username");
+        String password = (String) map.get("password");
+
+        RedirectView redirectView = new RedirectView();
+
+        if(authorizeAdmin2(username, password)){
+
+            Server.pokerServer.forceLogoutAll();
+
+            redirectView.setUrl("showAccounts?username=" + PokerServerApplication.getUsername() +
+                    "&password=" + PokerServerApplication.getPassword() + "&page=" +
+                    Integer.parseInt((String) map.get("page")));
+        }
+        else redirectView.setUrl("forbidden");
+
+        return redirectView;
+    }
+
+
+
 
 
 

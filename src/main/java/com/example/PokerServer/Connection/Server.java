@@ -730,7 +730,7 @@ public class Server {
         return s;
     }
 
-    private void forceLogoutAll(){
+    public void forceLogoutAll(){
 
         while(loggedInUsers.size() != 0){
 
