@@ -703,7 +703,10 @@ public class Server {
             for(Object x : unsentNotifications){
 
                 Notification xx = (Notification) x;
-                if(xx.getUserId() == user.getId()) ret.add(xx);
+                if(xx.getUserId() == user.getId()) {
+                    ret.add(xx);
+                    unsentNotifications.remove(xx);
+                }
             }
         }
         return ret;
