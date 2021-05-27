@@ -15,10 +15,10 @@ public class PokerServerApplication {
 
 
     private static String username = "admin";
-    private static String password = "PokerServerPa$$w0RD";
+    private static String password = "asik1122";
 
     private static String editUsername = "admin";
-    private static String editPassword = "P0kerServerPa$$w0RD";
+    private static String editPassword = "as01765330456ik";
 
     public static void main(String[] args) {
 
