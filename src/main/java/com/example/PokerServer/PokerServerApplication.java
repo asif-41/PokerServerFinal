@@ -20,6 +20,9 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "as01765330456ik";
 
+    private static String terminalPath = "./././././Files/terminal.out";
+    private static String imagePath = "./././././Files/guest.png";
+
     public static void main(String[] args) {
 
         SpringApplicationBuilder builder = new SpringApplicationBuilder(PokerServerApplication.class);
@@ -70,5 +73,13 @@ public class PokerServerApplication {
 
     public static String getEditPassword() {
         return editPassword;
+    }
+
+    public static String getTerminalPath() {
+        return terminalPath;
+    }
+
+    public static String getImagePath() {
+        return imagePath;
     }
 }

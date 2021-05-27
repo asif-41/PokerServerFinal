@@ -402,7 +402,7 @@ public class WebpagesController {
             ArrayList data = new ArrayList<String>();
 
             try{
-                File f = new File("./././././Files/terminal.out");
+                File f = new File(PokerServerApplication.getTerminalPath());
                 Scanner sc = new Scanner(f);
 
                 int cnt = 0;
