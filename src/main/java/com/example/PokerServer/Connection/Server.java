@@ -700,13 +700,14 @@ public class Server {
 
         if ( user != null & !(user.getId() < 0) ){
 
-            for(Object x : unsentNotifications){
+            for(int i=0; i<unsentNotifications.size(); i++){
 
-                Notification xx = (Notification) x;
-                if(xx.getUserId() == user.getId()) {
-                    ret.add(xx);
-                    unsentNotifications.remove(xx);
-                }
+                Notification x = (Notification) unsentNotifications.get(i);
+                if(x.getUserId() != user.getId()) continue;
+
+                ret.add(x);
+                unsentNotifications.remove(x);
+                i--;
             }
         }
         return ret;
