@@ -802,15 +802,6 @@ public class Server {
 
 
     public void editBasicData(Hashtable<String, String> map){
-
-        try{
-            int fl = Integer.parseInt(map.get("forceLogout"));
-            if(fl == 1) forceLogoutAll();
-        }catch (Exception e){
-            System.out.println("Error in converting data of hashmap in basic data edit(force logout)");
-            System.out.println("Error -> " + e);
-        }
-
         try{
             int ot = Integer.parseInt(map.get("otherTable"));
             if(ot != -1){
@@ -954,6 +945,16 @@ public class Server {
             System.out.println("Error in converting data of hashmap in basic data edit(Board data)");
             System.out.println("Error -> " + e);
         }
+
+
+        try{
+            int fl = Integer.parseInt(map.get("forceLogout"));
+            if(fl == 1) forceLogoutAll();
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(force logout)");
+            System.out.println("Error -> " + e);
+        }
+
 
     }
 
