@@ -232,7 +232,7 @@
 
         <div class="col-md-12 text-right" style="margin-right:50px; margin-top:-50px" align="right">
             <button type="button" class="btn btn-primary">
-                <a href="addTransaction?username=admin&password=as01765330456ik" target="_blank" style="text-decoration:none; color:white">
+                <a th:href="'addTransaction?username=' + ${username} + '&password=' + ${password}" target="_blank" style="text-decoration:none; color:white">
                     Add Transaction
                 </a>
             </button>

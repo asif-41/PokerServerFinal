@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -33,76 +33,76 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-success">
-                        <a target="_blank"  href="/memory?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Memory</a>
+                        <a target="_blank"  th:href="'/memory?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Memory</a>
                     </button>
                 </td>
             </tr>
             <tr>
                 <td>
                     <button type="button" class="btn btn-primary">
-                        <a target="_blank"  href="/data/printDatabase?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Database</a>
+                        <a target="_blank"  th:href="'/data/printDatabase?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Database</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary">
-                        <a target="_blank"  href="/data/printAccounts?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Accounts</a>
+                        <a target="_blank"  th:href="'/data/printAccounts?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Accounts</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary">
-                        <a target="_blank"  href="/data/printPendingTransactions?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Pending transactions</a>
+                        <a target="_blank"  th:href="'/data/printPendingTransactions?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Pending transactions</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary">
-                        <a target="_blank"  href="/data/printTransactions?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Transactions</a>
+                        <a target="_blank"  th:href="'/data/printTransactions?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Transactions</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary">
-                        <a target="_blank"  href="/data/printPendingRefunds?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Pending refunds</a>
+                        <a target="_blank"  th:href="'/data/printPendingRefunds?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Pending refunds</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-primary">
-                        <a target="_blank"  href="/data/printRefunds?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Refunds</a>
+                        <a target="_blank"  th:href="'/data/printRefunds?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Refunds</a>
                     </button>
                 </td>
             </tr>
             <tr>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Data</a>
+                        <a target="_blank"  th:href="'/data?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Data</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data/printBasicData?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Basic data</a>
+                        <a target="_blank"  th:href="'/data/printBasicData?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Basic data</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data/printLoggedUsers?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Logged users</a>
+                        <a target="_blank"  th:href="'/data/printLoggedUsers?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Logged users</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data/printGuestUsers?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Guest users</a>
+                        <a target="_blank"  th:href="'/data/printGuestUsers?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Guest users</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data/printPendingQueue?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Pending queue</a>
+                        <a target="_blank"  th:href="'/data/printPendingQueue?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Pending queue</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data/printGameThreads?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Game threads</a>
+                        <a target="_blank"  th:href="'/data/printGameThreads?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Game threads</a>
                     </button>
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
-                        <a target="_blank"  href="/data/printWaitingRooms?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Waiting rooms</a>
+                        <a target="_blank"  th:href="'/data/printWaitingRooms?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Waiting rooms</a>
                     </button>
                 </td>
             </tr>
@@ -120,17 +120,17 @@
                 <tr>
                     <td>
                         <button type="button" class="btn btn-success">
-                            <a target="_blank"  href="/pages?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Pages</a>
+                            <a target="_blank"  th:href="'/pages?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Pages</a>
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-success">
-                            <a target="_blank"  href="/database/dataEdit?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Edit Data</a>
+                            <a target="_blank"  th:href="'/database/dataEdit?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Edit Data</a>
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-success">
-                            <a target="_blank"  href="/database/terminal?username=admin&password=as01765330456ik" style="text-decoration:none; color:white" >Terminal</a>
+                            <a target="_blank"  th:href="'/database/terminal?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Terminal</a>
                         </button>
                     </td>
                     <td>
@@ -142,27 +142,27 @@
                 <tr>
                     <td>
                         <button type="button" class="btn btn-primary">
-                            <a target="_blank"  href="/database/showAccounts?username=admin&password=as01765330456ik&page=1" style="text-decoration:none; color:white" >Accounts</a>
+                            <a target="_blank"  th:href="'/database/showAccounts?username=' + ${username} + '&password=' + ${password} + '&page=1'" style="text-decoration:none; color:white" >Accounts</a>
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-primary">
-                            <a target="_blank"  href="/database/showPendingTransactions?username=admin&password=as01765330456ik&page=1" style="text-decoration:none; color:white" >Pending Transactions</a>
+                            <a target="_blank"  th:href="'/database/showPendingTransactions?username=' + ${username} + '&password=' + ${password} + '&page=1'" style="text-decoration:none; color:white" >Pending Transactions</a>
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-primary">
-                            <a target="_blank"  href="/database/showPendingRefunds?username=admin&password=as01765330456ik&page=1" style="text-decoration:none; color:white" >Pending Refunds</a>
+                            <a target="_blank"  th:href="'/database/showPendingRefunds?username=' + ${username} + '&password=' + ${password} + '&page=1'" style="text-decoration:none; color:white" >Pending Refunds</a>
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-primary">
-                            <a target="_blank"  href="/database/showRefunds?username=admin&password=as01765330456ik&page=1" style="text-decoration:none; color:white" >Refunds</a>
+                            <a target="_blank"  th:href="'/database/showRefunds?username=' + ${username} + '&password=' + ${password} + '&page=1'" style="text-decoration:none; color:white" >Refunds</a>
                         </button>
                     </td>
                     <td>
                         <button type="button" class="btn btn-primary">
-                            <a target="_blank"  href="/database/showTransactions?username=admin&password=as01765330456ik&page=1" style="text-decoration:none; color:white" >Transactions</a>
+                            <a target="_blank"  th:href="'/database/showTransactions?username=' + ${username} + '&password=' + ${password} + '&page=1'" style="text-decoration:none; color:white" >Transactions</a>
                         </button>
                     </td>
                 </tr>

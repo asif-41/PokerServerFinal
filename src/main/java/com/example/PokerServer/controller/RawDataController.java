@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,11 +67,15 @@ public class RawDataController {
 
 
     @RequestMapping(value = "/pages")
-    public String pageLinks(@RequestParam(required = false) String username, @RequestParam(required = false) String password){
+    public String pageLinks(@RequestParam(required = false) String username, @RequestParam(required = false) String password, Model model){
 
         String ret;
 
-        if(authorizeAdmin(username, password)) ret = "pageLinks";
+        if(authorizeAdmin(username, password)) {
+            ret = "pageLinks";
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
+        }
         else ret = "Forbidden";
 
         return ret;

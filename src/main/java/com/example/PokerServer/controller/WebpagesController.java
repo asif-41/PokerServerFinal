@@ -75,6 +75,8 @@ public class WebpagesController {
 
             model.addAttribute("accountList", Server.pokerServer.getDb().getAccounts(Page));
             model.addAttribute("pageNo", Page);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
             ret += "Accounts";
         }
         else ret += "Forbidden";
@@ -170,6 +172,8 @@ public class WebpagesController {
 
             model.addAttribute("pendingTransactionsList", Server.pokerServer.getDb().getPendingTransactions(Page));
             model.addAttribute("pageNo", Page);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
             ret += "PendingTransactions";
         }
         else ret += "Forbidden";
@@ -255,6 +259,8 @@ public class WebpagesController {
 
             model.addAttribute("pendingRefundsList", Server.pokerServer.getDb().getPendingRefunds(Page));
             model.addAttribute("pageNo", Page);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
             ret += "PendingRefunds";
         }
         else ret += "Forbidden";
@@ -339,6 +345,8 @@ public class WebpagesController {
 
             model.addAttribute("transactionList", Server.pokerServer.getDb().getTransactions(Page));
             model.addAttribute("pageNo", Page);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
             ret += "Transactions";
         }
         else ret += "Forbidden";
@@ -368,6 +376,8 @@ public class WebpagesController {
 
             model.addAttribute("refundsList", Server.pokerServer.getDb().getRefunds(Page));
             model.addAttribute("pageNo", Page);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
             ret += "Refunds";
         }
         else ret += "Forbidden";
@@ -479,6 +489,8 @@ public class WebpagesController {
             model.addAttribute("dailyCoinVideoCount", dailyCoinVideoCount);
             model.addAttribute("eachVideoCoin", eachVideoCoin);
             model.addAttribute("FreeLoginCoin", FreeLoginCoin);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
 
             ret = "DataEdit";
         }
