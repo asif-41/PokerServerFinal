@@ -59,6 +59,10 @@ public class Server {
     public ArrayList<TransactionNumber> transactionNumbers;
     private ArrayList unsentNotifications;
 
+    private long delayLoginOnForce;
+    private boolean allowLogin;
+    private Timer loginDelay;
+
     //====================================================
 
 
@@ -76,7 +80,7 @@ public class Server {
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
-                  double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers) {
+                  double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce) {
 
         TransactionMethods.setCoinPricePerCrore(coinPricePerCrore);
         TransactionMethods.setCoinAmountOnBuy(coinAmountOnBuy);
@@ -139,6 +143,10 @@ public class Server {
                 queueIterator();
             }
         }, 0, 1000);
+
+        allowLogin = true;
+        loginDelay = null;
+        this.delayLoginOnForce = delayLoginOnForce;
     }
 
     //========================================================================================
@@ -199,6 +207,9 @@ public class Server {
     public User makeUser(String account_id, String account_type, String username, String imageLink) {
 
         User user = null;
+
+        if( ! allowLogin) return null;
+
         if( checkIfAlreadyLoggedIn(account_id, account_type, username) ) return null;
 
         if (account_type.equals("guest")) user = makeGuestUser(imageLink);
@@ -741,6 +752,26 @@ public class Server {
             ServerToClient x = (ServerToClient) loggedInUsers.get(0);
             x.forceLogout("Updates are coming from server! please relogin");
         }
+
+        if(loginDelay != null) loginDelay.cancel();
+
+        loginDelay = new Timer();
+        allowLogin = false;
+
+        loginDelay.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                allowUserLogin();
+            }
+        }, delayLoginOnForce);
+    }
+
+    private void allowUserLogin(){
+
+        allowLogin = true;
+        if(loginDelay != null) loginDelay.cancel();
+        loginDelay = null;
+
     }
 
     public void makeNotification(String type, String objectType, JSONObject data){
@@ -811,6 +842,12 @@ public class Server {
                 try{
                     long ic = Long.parseLong(map.get("initialCoin"));
                     if(ic >= 0) initialCoin = ic;
+                }catch (Exception e){
+                }
+
+                try{
+                    long dlof = Long.parseLong(map.get("delayLoginOnForce"));
+                    if(dlof >= 0) delayLoginOnForce = dlof;
                 }catch (Exception e){
                 }
             }
@@ -1122,6 +1159,14 @@ public class Server {
 
     public long getInitialCoin() {
         return initialCoin;
+    }
+
+    public long getDelayLoginOnForce() {
+        return delayLoginOnForce;
+    }
+
+    public void setDelayLoginOnForce(long delayLoginOnForce) {
+        this.delayLoginOnForce = delayLoginOnForce;
     }
 
     public void setInitialCoin(long initialCoin) {

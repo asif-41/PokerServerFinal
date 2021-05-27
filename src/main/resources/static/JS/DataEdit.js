@@ -44,7 +44,6 @@ window.onload = function() {
             targets[i].disabled = true;
         }
         targets[0].value = "-1";
-
         button.disabled = false;
 
         for(var i=0; i<data.length-2; i++){
@@ -584,7 +583,7 @@ function otherDataSaveClick(){
 
     var j = 0;
 
-    for(var i=0; i<5; i++){
+    for(var i=0; i<6; i++){
         if(data[i].innerText === inputs[i].value) continue;
 
         var savePrev = data[i].childNodes[1];
@@ -614,6 +613,10 @@ function otherDataSaveClick(){
             x += "Editing free login coin";
             targets[i+1].value = inputs[i].value;
         }
+        else if(i == 5){
+            x += "Editing delay after force logout";
+            targets[i+1].value = inputs[i].value;
+        }
 
         lists[j].innerHTML = x;
         lists[j].style.display = "block";
@@ -624,6 +627,7 @@ function otherDataSaveClick(){
         button.disabled = true;
         inputs[i].value = "";
     }
+
     if(targets[0].value == 1)
         for(var i=1; i<targets.length; i++) targets[i].disabled = false;
 

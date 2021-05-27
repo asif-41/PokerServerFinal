@@ -489,6 +489,7 @@ public class WebpagesController {
             model.addAttribute("dailyCoinVideoCount", dailyCoinVideoCount);
             model.addAttribute("eachVideoCoin", eachVideoCoin);
             model.addAttribute("FreeLoginCoin", FreeLoginCoin);
+            model.addAttribute("delayLoginOnForce", Server.pokerServer.getDelayLoginOnForce());
             model.addAttribute("username", PokerServerApplication.getUsername());
             model.addAttribute("password", PokerServerApplication.getPassword());
 

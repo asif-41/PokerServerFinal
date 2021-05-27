@@ -45,7 +45,7 @@ public class PokerServerApplication {
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
                 2, 5, 1, 120, 1112, 10000,500000,
                 10, 50000, 100000, 60, 10, 10,
-                coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers());
+                coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000);
     }
 
     public static ArrayList<TransactionNumber> getTransactionNumbers(){
