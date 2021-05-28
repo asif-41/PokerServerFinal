@@ -580,7 +580,10 @@ public class Server {
         if (g == null) return;
 
         int typeLoc = getBoardKey(g.getBoardType());
-        if (typeLoc != -1) gameThreads[typeLoc].add(g);
+        if (typeLoc != -1) {
+            gameThreads[typeLoc].add(g);
+            sortGameThreads(typeLoc);
+        }
     }
 
     private void addWaitingRoom(WaitingRoom w) {
@@ -626,7 +629,6 @@ public class Server {
         int typeLoc = getBoardKey(g.getBoardType());
 
         if (typeLoc == -1) return;
-
         gameThreads[typeLoc].remove(g);
     }
 
@@ -969,6 +971,15 @@ public class Server {
     //          GETTERS AND SETTERS
     //
     //================================================================================================================================================
+
+    public void sortGameThreads(String boardType){
+
+        Collections.sort(gameThreads[getBoardKey(boardType)]);
+    }
+
+    public void sortGameThreads(int boardKey){
+        Collections.sort(gameThreads[boardKey]);
+    }
 
     public String getHost() {
         return host;

@@ -16,7 +16,7 @@ import java.util.TimerTask;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
 
-public class GameThread implements Runnable {
+public class GameThread implements Runnable, Comparable {
 
 
     //=======================================================================================================================
@@ -520,6 +520,8 @@ public class GameThread implements Runnable {
         inGamePlayers[loc] = s;
         s.setGameThread(this);
 
+        Server.pokerServer.sortGameThreads(boardType);
+
         initializePlayer(loc);
 
         sendPlayersDataToAll();
@@ -599,6 +601,8 @@ public class GameThread implements Runnable {
         isActiveInRoom[seatPosition] = false;
         isPlaying[seatPosition] = false;
         isActiveInRound[seatPosition] = false;
+
+        Server.pokerServer.sortGameThreads(boardType);
 
         setOwner();
         sendPlayersDataToAll();
@@ -2088,6 +2092,17 @@ public class GameThread implements Runnable {
     //                  GETTERS, SETTERS, toString FUNCTION
     //
     //==================================================================================================================
+
+
+    @Override
+    public int compareTo(Object o) {
+
+        GameThread g = (GameThread) o;
+
+        if(playerCount > g.playerCount) return 1;
+        else if(playerCount < g.playerCount) return -1;
+        else return 0;
+    }
 
     private void waitGame(long t){
 
