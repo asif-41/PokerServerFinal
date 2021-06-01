@@ -63,6 +63,9 @@ public class Server {
     private boolean allowLogin;
     private Timer loginDelay;
 
+    private long connectionCheckDelay;
+    private long connectionResponseDelay;
+
     //====================================================
 
 
@@ -80,7 +83,11 @@ public class Server {
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
-                  double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce) {
+                  double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
+                  long connectionCheckDelay, long connectionResponseDelay) {
+
+        this.connectionCheckDelay = connectionCheckDelay;
+        this.connectionResponseDelay = connectionResponseDelay;
 
         TransactionMethods.setCoinPricePerCrore(coinPricePerCrore);
         TransactionMethods.setCoinAmountOnBuy(coinAmountOnBuy);
@@ -1201,6 +1208,22 @@ public class Server {
 
     public void setLeastPlayerCount(int leastPlayerCount) {
         this.leastPlayerCount = leastPlayerCount;
+    }
+
+    public long getConnectionCheckDelay() {
+        return connectionCheckDelay;
+    }
+
+    public void setConnectionCheckDelay(long connectionCheckDelay) {
+        this.connectionCheckDelay = connectionCheckDelay;
+    }
+
+    public long getConnectionResponseDelay() {
+        return connectionResponseDelay;
+    }
+
+    public void setConnectionResponseDelay(long connectionResponseDelay) {
+        this.connectionResponseDelay = connectionResponseDelay;
     }
 
     //================================================================================================================================================

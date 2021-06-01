@@ -75,10 +75,11 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
                 String data = jsonObject.getString("data");
 
                 s.setIncoming(s.getIncoming() + data);
-                if(done){
+                if(done) {
                     s.incomingMsg(s.getIncoming());
                     s.setIncoming("");
                 }
+
             }catch (Exception e){
                 System.out.println("Error in converting incoming message to json: " + e + " msg -> " + message);
                 s.setIncoming("");

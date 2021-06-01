@@ -147,6 +147,8 @@ public class GameThread implements Runnable, Comparable {
     private ArrayList[] resultFoundAtLevel;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
     private ArrayList[] winnerLevel;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
     private ArrayList[] winnerLevelAmount;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
+
+    private int maxWinLevelCount;
     //  INDICATES IF WE NEED A KICKER OR NOT
 
     //==================================================================================================================
@@ -227,6 +229,7 @@ public class GameThread implements Runnable, Comparable {
         resultFoundAtLevel = null;
         winnerLevel = null;
         winnerLevelAmount = null;
+        maxWinLevelCount = 0;
     }
 
     @Override
@@ -1575,7 +1578,6 @@ public class GameThread implements Runnable, Comparable {
 
             roundStarterSeat = -1;
             clearWinnerData();
-
             startNewRound();
             return;
         }
@@ -2105,6 +2107,7 @@ public class GameThread implements Runnable, Comparable {
 
     private void clearWinnerData(){
 
+        maxWinLevelCount = 0;
         roundWinnerCount = 0;
 
         roundWinnersSeat = new int[maxPlayerCount];
@@ -2242,6 +2245,8 @@ public class GameThread implements Runnable, Comparable {
                 jsonObject.put("amount", winnerLevelAmount[i].get(j));
                 jsonObject.put("resultFoundAtLevel", resultFoundAtLevel[i].get(j));
 
+                maxWinLevelCount = Math.max(maxWinLevelCount, (int) winnerLevel[i].get(j));
+
                 jsonArray.put(jsonObject);
             }
             tempJson1.put("winLevel", jsonArray);
@@ -2259,7 +2264,9 @@ public class GameThread implements Runnable, Comparable {
         send.put("data", data);
 
         sendMessageToAll(send.toString());
-        waitGame(5);
+
+        double v = 3.5 * (double) maxWinLevelCount;
+        waitGame( v );
     }
 
 
@@ -2429,16 +2436,18 @@ public class GameThread implements Runnable, Comparable {
         else return 0;
     }
 
-    private void waitGame(long t){
+    private void waitGame(double sec){
+
+        Long secMilli = (long) (sec * 1000);
 
         LocalTime start = LocalTime.now();
 
         while(true){
 
             LocalTime cur = LocalTime.now();
-            long diff = SECONDS.between(start, cur);
+            long diff = SECONDS.between(start, cur) * 1000;
 
-            if(diff >= t) break;
+            if(diff >= secMilli) break;
         }
     }
 

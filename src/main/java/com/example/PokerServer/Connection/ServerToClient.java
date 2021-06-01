@@ -151,8 +151,10 @@ public class ServerToClient implements Runnable {
 
         try {
             jsonIncoming = new JSONObject(temp);
+            incoming = "";
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
+            incoming = "";
             jsonIncoming = null;
             return;
         }
@@ -978,7 +980,7 @@ public class ServerToClient implements Runnable {
                 preConnectionCheck();
                 sendConnectionChecker();
             }
-        }, 10000);
+        }, Server.pokerServer.getConnectionCheckDelay());
     }
 
     private void sendConnectionChecker(){
@@ -996,7 +998,7 @@ public class ServerToClient implements Runnable {
             public void run() {
                 postConnectionCheck();
             }
-        }, 5000);
+        }, Server.pokerServer.getConnectionResponseDelay());
     }
 
     private void postConnectionCheck(){
