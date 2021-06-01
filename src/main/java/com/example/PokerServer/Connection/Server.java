@@ -519,22 +519,32 @@ public class Server {
 
             if (pendingQueue[i].size() == 0) continue;
 
-            for (int j = 0; j < gameThreads[i].size(); j++) {
 
-                if (pendingQueue[i].size() == 0) break;
+            for(int j=0; j<pendingQueue[i].size(); j++){
 
-                GameThread g = (GameThread) gameThreads[i].get(j);
+                ServerToClient s = (ServerToClient) pendingQueue[i].get(j);
+                GameThread loc = null;
 
-                if (g.isPrivate()) continue;
-                else if (g.getPlayerCount() == 0 || g.getPlayerCount() == g.getMaxPlayerCount()) continue;
+                for(int k=0; k<gameThreads[i].size(); k++){
 
-                for (int k = g.getPlayerCount(); k < g.getMaxPlayerCount(); k++) {
+                    GameThread gg = (GameThread) gameThreads[i].get(k);
 
-                    if (pendingQueue[i].size() == 0) break;
+                    if(gg.isPrivate()) continue;
+                    else if(gg.getPlayerCount() == 0) continue;
+                    else if(gg.getPlayerCount() == gg.getMaxPlayerCount()) break;
 
-                    g.addInGameThread((ServerToClient) pendingQueue[i].get(0));
-                    pendingQueue[i].remove(0);
-                    queueTimeCount[i].remove(0);
+                    if(gg.getGameCode() == s.getLastGameCode()) loc = gg;
+                    else{
+                        loc = gg;
+                        break;
+                    }
+                }
+
+                if(loc != null){
+                    pendingQueue[i].remove(j);
+                    queueTimeCount[i].remove(j);
+                    j--;
+                    loc.addInGameThread(s);
                 }
             }
         }
@@ -1183,6 +1193,14 @@ public class Server {
 
     public void setInitialCoin(long initialCoin) {
         this.initialCoin = initialCoin;
+    }
+
+    public int getLeastPlayerCount() {
+        return leastPlayerCount;
+    }
+
+    public void setLeastPlayerCount(int leastPlayerCount) {
+        this.leastPlayerCount = leastPlayerCount;
     }
 
     //================================================================================================================================================

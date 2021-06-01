@@ -41,9 +41,10 @@ public class PokerServerApplication {
         long maxEntryValue[] = {1000000, 5000000, 10000000, 25000000, 50000000, 100000000, 250000000, 500000000, 1000000000, 2000000000};
         long mcr[] = {0, 0, 2500000, 7000000, 15000000, 40000000, 100000000, 150000000, 400000000, 1000000000};
 
+        int leastPlayerCount = 2;
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
-                2, 5, 1, 120, 1112, 10000,500000,
+                leastPlayerCount, 5, 1, 120, 1112, 10000,500000,
                 10, 50000, 100000, 60, 10, 10,
                 coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000);
     }
@@ -52,9 +53,9 @@ public class PokerServerApplication {
 
         ArrayList<TransactionNumber> transactionNumbers = new ArrayList<>();
 
-        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Bkash", "0111"));
-        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Bkash", "0112"));
-        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Nagad", "0111"));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Bkash", "make payment to \"01914957284\""));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Nagad", "send money to '01798203178'"));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Rocket", "send money to \"01798203178-2\""));
 
         return transactionNumbers;
     }

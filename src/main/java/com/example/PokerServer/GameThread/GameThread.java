@@ -140,9 +140,13 @@ public class GameThread implements Runnable, Comparable {
     private int previousCycleStarterSeat;               //  Last round e kaar theke start kora hoisilo
 
     private int roundWinnerCount;                       //  WINNER COUNT
-    private ArrayList roundWinnersSeat;                 //  INTEGER ARRAYLIST, LOCATES WINNER LOCATIONS IN inGamePlayers
-    private String roundResultPower;                    //  POWER STRING FOR CARDS OF WINNERS
-    private int resultFoundAtLevel;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
+    private int[] roundWinnersSeat;                 //  INTEGER ARRAYLIST, LOCATES WINNER LOCATIONS IN inGamePlayers
+    private long[] roundWinnersAmount;
+    private long[] roundPlayersCoinBack;
+    private String[] roundResultPower;                    //  POWER STRING FOR CARDS OF WINNERS
+    private ArrayList[] resultFoundAtLevel;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
+    private ArrayList[] winnerLevel;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
+    private ArrayList[] winnerLevelAmount;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
     //  INDICATES IF WE NEED A KICKER OR NOT
 
     //==================================================================================================================
@@ -209,9 +213,20 @@ public class GameThread implements Runnable, Comparable {
         boardCards = new ArrayList<Card>();
         for (int i = 0; i < s.size(); i++) {
             inGamePlayers[i] = s.get(i);
+
             inGamePlayers[i].setGameThread(this);
+            inGamePlayers[i].setLastGameCode(gameCode);
         }
         playerCount = s.size();
+
+        roundWinnerCount = 0;
+        roundWinnersSeat = null;
+        roundWinnersAmount = null;
+        roundPlayersCoinBack = null;
+        roundResultPower = null;
+        resultFoundAtLevel = null;
+        winnerLevel = null;
+        winnerLevelAmount = null;
     }
 
     @Override
@@ -519,6 +534,7 @@ public class GameThread implements Runnable, Comparable {
 
         inGamePlayers[loc] = s;
         s.setGameThread(this);
+        s.setLastGameCode(gameCode);
 
         Server.pokerServer.sortGameThreads(boardType);
 
@@ -886,7 +902,7 @@ public class GameThread implements Runnable, Comparable {
 
         for (int i = 0; i < maxPlayerCount; i++) {
 
-            if (inGamePlayers[i] == null) continue;
+            if (inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
 
             playerCalls[i] = "";
             playerCallValues[i] = 0;
@@ -1174,6 +1190,21 @@ public class GameThread implements Runnable, Comparable {
     //
     //==================================================================================================================
 
+    private long getMaxRaiseCost(){
+
+        long ret = 0;
+
+        for(int i=0; i<maxPlayerCount; i++){
+
+            if(inGamePlayers[i] == null) continue;
+            else if(inGamePlayers[i].getUser() == null) continue;
+
+            if(isPlaying[i]) ret = max(ret, inGamePlayers[i].getUser().getBoardCoin());
+        }
+
+        return ret;
+    }
+
     private void disableButtons(int loc){
 
         if (inGamePlayers[loc] == null) return;
@@ -1245,7 +1276,7 @@ public class GameThread implements Runnable, Comparable {
         else if(cycleCount == 1 && roundIteratorSeat == bigBlindSeat) v = roundCall - minCallValue;
         else v = roundCall;
 
-        if (v <= tempUser.getBoardCoin()) {
+        if (v < tempUser.getBoardCoin()) {
             temp = new JSONObject();
             temp.put("name", "Call");
             temp.put("cost", v);
@@ -1259,8 +1290,14 @@ public class GameThread implements Runnable, Comparable {
 
             temp = new JSONObject();
             temp.put("name", "Raise");
-            if(v + minCallValue/2 <= tempUser.getBoardCoin()) temp.put("cost", roundCall + minCallValue/2);
-            else temp.put("cost", 0);
+            if(v + minCallValue/2 <= tempUser.getBoardCoin()) {
+                temp.put("cost", roundCall + minCallValue/2);
+                temp.put("maxCost", min( getMaxRaiseCost(), tempUser.getBoardCoin() ) );
+            }
+            else {
+                temp.put("cost", 0);
+                temp.put("maxCost", 0);
+            }
 
             array.put(temp);
         }
@@ -1535,9 +1572,9 @@ public class GameThread implements Runnable, Comparable {
         showAllCardsAtEnd = false;
 
         if (activeCountInRound == 0) {
+
             roundStarterSeat = -1;
-            if(roundWinnersSeat != null) roundWinnersSeat.clear();
-            roundWinnerCount = 0;
+            clearWinnerData();
 
             startNewRound();
             return;
@@ -1570,22 +1607,13 @@ public class GameThread implements Runnable, Comparable {
         roundStarterSeat = -1;
 
         //SAYS JE KADER KE CHECK KORA LAGBE
-
         for (int i = 0; i < maxPlayerCount; i++) {
             checker[i] = 1;
 
             if (inGamePlayers[i] == null || isActiveInRoom[i] == false || isPlaying[i] == false) checker[i] = 0;
         }
 
-        //INITIALIZING NECESSARY VALUES
-
-        roundWinnerCount = 0;
-        roundResultPower = "";
-        resultFoundAtLevel = -1;
-        roundWinnersSeat = new ArrayList<Integer>();
-
         //STORES WINNER DATA INITIALIZED VALUES
-
         winnerWhenChecked();
         loadWinnerData();
         winnerResultSend();
@@ -1593,45 +1621,45 @@ public class GameThread implements Runnable, Comparable {
         startNewRound();
     }
 
-    private void winnerWhenOneActivePlayer() {
+    //change here
+
+    private void test(){
+
+        activeCountInRound = Server.pokerServer.getLeastPlayerCount();
+
+        showAllCardsAtEnd = true;
+
+        playerTotalCallValues[0] = 1200000;
+        playerTotalCallValues[1] = 1500000;
+        playerTotalCallValues[2] = 2000000;
+        playerTotalCallValues[3] = 2500000;
+
+        checker[0] = 1;
+        checker[1] = 1;
+        checker[2] = 1;
+        checker[3] = 1;
+
+        boardCards.set(0, new Card(1, 5, 0));
+        boardCards.set(1, new Card(0, 1, 0));
+        boardCards.set(2, new Card(3, 7, 0));
+        boardCards.set(3, new Card(2, 10, 0));
+        boardCards.set(4, new Card(2, 0, 0));
+
+        inGamePlayers[0].getUser().getPlayerCards().set(0, new Card(0, 5, 1));
+        inGamePlayers[0].getUser().getPlayerCards().set(1, new Card(2, 5, 1));
+
+        inGamePlayers[1].getUser().getPlayerCards().set(0, new Card(1, 10, 1));
+        inGamePlayers[1].getUser().getPlayerCards().set(1, new Card(1, 12, 1));
+
+        inGamePlayers[2].getUser().getPlayerCards().set(0, new Card(3, 10, 1));
+        inGamePlayers[2].getUser().getPlayerCards().set(1, new Card(0, 12, 1));
+
+        inGamePlayers[3].getUser().getPlayerCards().set(0, new Card(2, 12, 1));
+        inGamePlayers[3].getUser().getPlayerCards().set(1, new Card(3, 0, 1));
 
 
-        //LOADING WINNER DATA
 
-        int loc = -1;
-        roundWinnerCount = 0;
-        roundWinnersSeat.clear();
-
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-
-            if (checker[i] == 1) {
-                loc = i;
-                break;
-            }
-        }
-
-        User tempUser = inGamePlayers[loc].getUser();
-
-        ArrayList sevenCards = new ArrayList<Card>();
-        for (int i = 0; i < 5; i++) sevenCards.add(boardCards.get(i));
-
-        sevenCards.add(tempUser.getPlayerCards().get(0));
-        sevenCards.add(tempUser.getPlayerCards().get(1));
-
-        roundWinnerCount = 1;
-        roundWinnersSeat.add(loc);
-        roundResultPower = Card.getPower(sevenCards) + " ";
-        resultFoundAtLevel = -1;
-    }
-
-    private void winnerWhenChecked() {
-
-        if (activeCountInRound == 1) {
-            winnerWhenOneActivePlayer();
-            return;
-        }
-
+        /*
         User tempUser;
         String tempS;
         ArrayList powers = new ArrayList<String[]>();
@@ -1667,8 +1695,8 @@ public class GameThread implements Runnable, Comparable {
             powers.add(tempS.split("\\."));
             powersSaver.add(tempS);
         }
-
-
+        */
+        /*
         //DETECTING WINNER DATA
 
 
@@ -1781,6 +1809,8 @@ public class GameThread implements Runnable, Comparable {
 
         roundWinnerCount = 0;
         roundWinnersSeat.clear();
+        roundWinnersAmount.clear();
+        roundPlayersCoinBack.clear();
 
 
         for (int i = 0; i < maxPlayerCount; i++) {
@@ -1792,8 +1822,316 @@ public class GameThread implements Runnable, Comparable {
                 roundResultPower += powersSaver.get(i) + " ";
             }
         }
-        resultFoundAtLevel = maxFinderCheckLevel;
+        resultFoundAtLevel = maxFinderCheckLevel;*/
+
+
+
+        /*//MAKING RESULTANT STRING TO SEND
+
+        long winAmount = (long) ((double) roundCoins / roundWinnerCount);
+        String[] results = roundResultPower.split(" ");
+
+
+        JSONObject winners = new JSONObject();
+        winners.put("winAmount", winAmount);
+
+        JSONArray array = new JSONArray();
+        JSONObject temp;
+
+        for (int i = 0; i < roundWinnersSeat.size(); i++) {
+
+            temp = new JSONObject();
+            int k = (int) roundWinnersSeat.get(i);
+            User tempUser = inGamePlayers[k].getUser();
+
+            temp.put("username", tempUser.getUsername());
+            temp.put("resultString", results[i]);
+            temp.put("seatPosition", tempUser.getSeatPosition());
+
+            array.put(temp);
+        }
+
+        winners.put("winnerData", array);
+        winners.put("showCards", showAllCardsAtEnd);
+
+        if (showAllCardsAtEnd) {
+            sendAllCards();
+            winners.put("showWinLevel", resultFoundAtLevel);
+        }
+        */
+
+
+
+
+        /*
+        long winAmount;
+        if (roundWinnerCount != 0) winAmount = (long) (((double) roundCoins) / roundWinnerCount);
+        else winAmount = 0;
+
+        int kk = 0;
+        int winners[] = new int[maxPlayerCount];
+        String[] results = roundResultPower.split(" ");
+
+        for (int i = 0; i < maxPlayerCount; i++) winners[i] = 0;
+
+        for (int i = 0; i < roundWinnersSeat.size(); i++) {
+            int k = (int) roundWinnersSeat.get(i);
+            winners[k] = 1;
+        }
+
+
+        for (int i = 0; i < maxPlayerCount; i++) {
+
+            if (inGamePlayers[i] == null) continue;
+
+            User temp = inGamePlayers[i].getUser();
+            temp.setRoundsPlayed(temp.getRoundsPlayed() + 1);
+
+            if (winners[i] == 1) {
+                temp.setRoundsWon(temp.getRoundsWon() + 1);
+                temp.setWinStreak(temp.getWinStreak() + 1);
+                temp.setCoinWon(temp.getCoinWon() + winAmount);
+                temp.setBiggestWin(max(temp.getBiggestWin(), winAmount));
+                if (showAllCardsAtEnd) temp.setBestHand(Card.compareHand(temp.getBestHand(), results[kk]));
+                temp.setBoardCoin(temp.getBoardCoin() + winAmount);
+
+                kk++;
+            } else {
+                temp.setWinStreak(0);
+                temp.setCoinLost(temp.getCoinLost() + playerTotalCallValues[i]);
+            }
+        }*/
     }
+
+    private void winnerWhenChecked() {
+
+        clearWinnerData();
+
+        int winLevel = 1;
+        long[] potValues = new long[maxPlayerCount];
+        ArrayList sevenCards = new ArrayList<Card>();
+        ArrayList powers = new ArrayList<String[]>();
+
+
+        for(int i=0; i<maxPlayerCount; i++) potValues[i] = playerTotalCallValues[i];
+
+        for(int i=0; i<5; i++) sevenCards.add(boardCards.get(i));
+        sevenCards.add(boardCards.get(0));
+        sevenCards.add(boardCards.get(0));
+
+
+        for(int i=0; i<maxPlayerCount; i++){
+
+            if(checker[i] == 0) {
+                powers.add(new String[]{"nai"});
+                continue;
+            }
+            if(inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
+
+            User tempUser = inGamePlayers[i].getUser();
+
+            sevenCards.set(5, tempUser.getPlayerCards().get(0));
+            sevenCards.set(6, tempUser.getPlayerCards().get(1));
+
+            roundResultPower[i] = Card.getPower(sevenCards);
+            powers.add(roundResultPower[i].split("\\."));
+        }
+
+        while(true){
+
+            int ase = 0;
+            for(int i=0; i<maxPlayerCount; i++){
+                if(checker[i] == 1) ase++;
+            }
+
+            if( ase < 1 ) break;
+
+            long minPot = Long.MAX_VALUE;                   //done
+            long winAmount = 0;                             //done
+            long eachWinnerAmount = 0;                      //done
+
+            ArrayList winners = new ArrayList<Integer>();
+            int winnerFoundLevel = -1;
+
+            int[] tempChecker = new int[maxPlayerCount];
+            for(int i=0; i<maxPlayerCount; i++) tempChecker[i] = checker[i];
+
+            int maxVal = -1;
+            int maxLoc = -1;
+            int curVal = -1;
+            int curLoc = -1;
+            int maxFinderCheckLevel = -1;
+            int maxCount = activeCountInRound;
+            int totalPossibleLevel = 6;
+
+
+            for(int i=0; i<totalPossibleLevel; i++){
+
+                maxVal = -1;
+                maxLoc = -1;
+
+                for(int j=0; j<maxPlayerCount; j++){
+
+                    if(tempChecker[j] == 0) continue;
+
+                    String[] temp = (String[]) powers.get(j);
+
+                    curVal = -1;
+                    curLoc = -1;
+
+
+                    //================================================================================
+                    //
+                    //  RETRIEVE DATA FROM FORMAT         ( CARD VALUE , SUIT VALUE , LOCATION VALUE )
+                    //
+                    //  OR RETRIEVE POWER VALUE FORMAT        POWER VALUE.CARD1.CARD2............
+                    //
+                    //=================================================================================
+
+                    if (temp[i].charAt(0) == '(') {
+
+                        String[] tt = temp[i].substring(1, temp[i].length() - 1).split(",");
+
+                        curVal = Integer.valueOf(tt[0]);
+                        curLoc = Integer.valueOf(tt[2]);
+
+                    } else curVal = Integer.valueOf(temp[i]);
+
+
+                    //GETTING MAX DATA
+
+                    if (curVal > maxVal) {
+
+                        maxVal = curVal;
+                        maxLoc = curLoc;
+
+                    } else if (curVal == maxVal) {
+
+                        if (curLoc == maxLoc) continue;
+
+                        else if (curLoc > maxLoc) {
+
+                            maxLoc = curLoc;
+
+                        }
+                    } else continue;
+
+
+                }
+
+                int tempMaxCount = 0;
+
+
+                for (int j = 0; j < maxPlayerCount; j++) {
+
+                    if (tempChecker[j] == 0) continue;
+
+                    String[] temp = (String[]) powers.get(j);
+
+
+                    //LOADING DATA
+
+                    curVal = -1;
+                    curLoc = -1;
+
+                    if (temp[i].charAt(0) == '(') {
+
+                        String[] tt = temp[i].substring(1, temp[i].length() - 1).split(",");
+
+                        curVal = Integer.valueOf(tt[0]);
+                        curLoc = Integer.valueOf(tt[2]);
+
+                    } else curVal = Integer.valueOf(temp[i]);
+
+
+                    //THIS PLAYER LOST, DONT CHECK ANYMORE
+                    //ELSE INCREASE
+
+                    if (curVal < maxVal || (curVal == maxVal && curLoc < maxLoc)) tempChecker[j] = 0;
+                    else tempMaxCount++;
+                }
+
+                //CHANGE LEVEL VALUE
+                if (maxCount > tempMaxCount) {
+                    maxFinderCheckLevel = i;
+                    maxCount = tempMaxCount;
+                }
+
+                if(maxCount == 1) break;
+            }
+
+            winnerFoundLevel = maxFinderCheckLevel;
+            for(int i=0; i<maxPlayerCount; i++){
+                if(tempChecker[i] == 1) {
+                    winners.add(i);
+                    minPot = min(potValues[i], minPot);
+                }
+            }
+
+            for(int i=0; i<maxPlayerCount; i++){
+
+                if(inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
+
+                long k = min(potValues[i] , minPot);
+                winAmount += k;
+                potValues[i] -= k;
+            }
+
+            eachWinnerAmount = (long) (((double) winAmount) / winners.size());
+
+            for(int i=0; i<winners.size(); i++){
+                int k = (int) winners.get(i);
+                roundWinnersSeat[k] = 1;
+                roundWinnersAmount[k] += eachWinnerAmount;
+                resultFoundAtLevel[k].add(winnerFoundLevel);
+                winnerLevel[k].add(winLevel);
+                winnerLevelAmount[k].add(eachWinnerAmount);
+            }
+
+
+            for(int i=0; i<maxPlayerCount; i++){
+                if(potValues[i] == 0) checker[i] = 0;
+            }
+            winLevel++;
+        }
+
+        for(int i=0; i<maxPlayerCount; i++) {
+
+            if(inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
+
+            roundPlayersCoinBack[i] += potValues[i];
+        }
+    }
+
+    private void clearWinnerData(){
+
+        roundWinnerCount = 0;
+
+        roundWinnersSeat = new int[maxPlayerCount];
+        roundResultPower = new String[maxPlayerCount];
+        resultFoundAtLevel = new ArrayList[maxPlayerCount];
+        roundWinnersAmount = new long[maxPlayerCount];
+        roundPlayersCoinBack = new long[maxPlayerCount];
+
+        winnerLevel = new ArrayList[maxPlayerCount];
+        for(int i=0; i<maxPlayerCount; i++) winnerLevel[i] = new ArrayList<Integer>();
+
+        winnerLevelAmount = new ArrayList[maxPlayerCount];
+        for(int i=0; i<maxPlayerCount; i++) winnerLevelAmount[i] = new ArrayList<Long>();
+
+        resultFoundAtLevel = new ArrayList[maxPlayerCount];
+        for(int i=0; i<maxPlayerCount; i++) resultFoundAtLevel[i] = new ArrayList<Integer>();
+
+
+        for(int i=0; i<maxPlayerCount; i++){
+            roundWinnersSeat[i] = 0;
+            roundResultPower[i] = "";
+            roundWinnersAmount[i] = 0;
+            roundPlayersCoinBack[i] = 0;
+        }
+    }
+    //change done
+
 
 
     private void oneCycleEndMsg() {
@@ -1879,82 +2217,69 @@ public class GameThread implements Runnable, Comparable {
 
         send.put("gameData", tempJson);
 
-        //MAKING RESULTANT STRING TO SEND
 
-        long winAmount = (long) ((double) roundCoins / roundWinnerCount);
-        String[] results = roundResultPower.split(" ");
+        JSONObject data = new JSONObject();
+        JSONArray temp = new JSONArray();
+        JSONObject tempJson1;
 
+        for(int i=0; i<maxPlayerCount; i++){
 
-        JSONObject winners = new JSONObject();
-        winners.put("winAmount", winAmount);
+            if(inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
 
-        JSONArray array = new JSONArray();
-        JSONObject temp;
+            tempJson1 = new JSONObject();
 
-        for (int i = 0; i < roundWinnersSeat.size(); i++) {
+            tempJson1.put("seat", i);
+            tempJson1.put("hasWon", roundWinnersSeat[i] != 0);
+            tempJson1.put("winAmount", roundWinnersAmount[i]);
+            tempJson1.put("coinBack", roundPlayersCoinBack[i]);
+            tempJson1.put("power", roundResultPower[i]);
 
-            temp = new JSONObject();
-            int k = (int) roundWinnersSeat.get(i);
-            User tempUser = inGamePlayers[k].getUser();
+            JSONArray jsonArray = new JSONArray();
 
-            temp.put("username", tempUser.getUsername());
-            temp.put("resultString", results[i]);
-            temp.put("seatPosition", tempUser.getSeatPosition());
+            for(int j=0; j<winnerLevel[i].size(); j++){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("level", winnerLevel[i].get(j));
+                jsonObject.put("amount", winnerLevelAmount[i].get(j));
+                jsonObject.put("resultFoundAtLevel", resultFoundAtLevel[i].get(j));
 
-            array.put(temp);
+                jsonArray.put(jsonObject);
+            }
+            tempJson1.put("winLevel", jsonArray);
+
+            temp.put(tempJson1);
         }
 
-        winners.put("winnerData", array);
-        winners.put("showCards", showAllCardsAtEnd);
 
-        if (showAllCardsAtEnd) {
-            sendAllCards();
-            winners.put("showWinLevel", resultFoundAtLevel);
-        }
+        data.put("eachPlayerData", temp);
+        data.put("showCards", showAllCardsAtEnd);
+
+        if (showAllCardsAtEnd) sendAllCards();
 
         send.put("dataType", "Result");
-        send.put("data", winners);
+        send.put("data", data);
 
         sendMessageToAll(send.toString());
-
         waitGame(5);
     }
 
 
     private void loadWinnerData() {
 
-        long winAmount;
-        if (roundWinnerCount != 0) winAmount = (long) (((double) roundCoins) / roundWinnerCount);
-        else winAmount = 0;
+        for(int i=0; i<maxPlayerCount; i++){
 
-        int kk = 0;
-        int winners[] = new int[maxPlayerCount];
-        String[] results = roundResultPower.split(" ");
-
-        for (int i = 0; i < maxPlayerCount; i++) winners[i] = 0;
-
-        for (int i = 0; i < roundWinnersSeat.size(); i++) {
-            int k = (int) roundWinnersSeat.get(i);
-            winners[k] = 1;
-        }
-
-
-        for (int i = 0; i < maxPlayerCount; i++) {
-
-            if (inGamePlayers[i] == null) continue;
+            if(inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
 
             User temp = inGamePlayers[i].getUser();
             temp.setRoundsPlayed(temp.getRoundsPlayed() + 1);
+            temp.setBoardCoin(temp.getBoardCoin() + roundPlayersCoinBack[i]);
 
-            if (winners[i] == 1) {
+            if (roundWinnersSeat[i] == 1) {
                 temp.setRoundsWon(temp.getRoundsWon() + 1);
                 temp.setWinStreak(temp.getWinStreak() + 1);
-                temp.setCoinWon(temp.getCoinWon() + winAmount);
-                temp.setBiggestWin(max(temp.getBiggestWin(), winAmount));
-                if (showAllCardsAtEnd) temp.setBestHand(Card.compareHand(temp.getBestHand(), results[kk]));
-                temp.setBoardCoin(temp.getBoardCoin() + winAmount);
-
-                kk++;
+                temp.setCoinWon(temp.getCoinWon() + roundWinnersAmount[i]);
+                temp.setBiggestWin(max(temp.getBiggestWin(), roundWinnersAmount[i]));
+                if (showAllCardsAtEnd) temp.setBestHand( Card.compareHand(temp.getBestHand(), roundResultPower[i] ));
+                temp.setBoardCoin(temp.getBoardCoin() + roundWinnersAmount[i]);
             } else {
                 temp.setWinStreak(0);
                 temp.setCoinLost(temp.getCoinLost() + playerTotalCallValues[i]);
@@ -2120,6 +2445,11 @@ public class GameThread implements Runnable, Comparable {
     private long max(long a, long b) {
         if (a > b) return a;
         else return b;
+    }
+
+    private long min(long a, long b) {
+        if (a > b) return b;
+        else return a;
     }
 
     @Override

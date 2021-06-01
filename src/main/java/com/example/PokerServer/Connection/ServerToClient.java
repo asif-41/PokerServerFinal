@@ -53,6 +53,8 @@ public class ServerToClient implements Runnable {
     private Timer connectionChecketWait;
     private boolean isConnected;
 
+    private int lastGameCode;
+
     //============================================================
     //
     //============================================================
@@ -74,6 +76,8 @@ public class ServerToClient implements Runnable {
         waitingRoom = null;
         connectionChecker = new Timer();
         connectionChecketWait = new Timer();
+
+        lastGameCode = -1;
 
         this.session = session;
         webSocketKey = session.getHandshakeHeaders().get("sec-websocket-key").get(0);
@@ -1021,6 +1025,15 @@ public class ServerToClient implements Runnable {
     //              SETTER AND GETTERS
     //
     //===================================================================================
+
+
+    public int getLastGameCode() {
+        return lastGameCode;
+    }
+
+    public void setLastGameCode(int lastGameCode) {
+        this.lastGameCode = lastGameCode;
+    }
 
     public String getIncoming() {
         return incoming;
