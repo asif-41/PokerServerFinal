@@ -204,6 +204,10 @@ public class ServerToClient implements Runnable {
 
             getNotifications();
         }
+        else if (jsonIncoming.get("requestType").equals("TokenRequest")){
+
+            getTokenResponse();
+        }
         else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
@@ -482,6 +486,21 @@ public class ServerToClient implements Runnable {
     //      BUY COIN, ADD COIN BY WATCHING VIDEO, ADD COIN BY LOGGING IN
     //
     //==============================================================================
+
+    private void getTokenResponse(){
+
+        String token = Server.pokerServer.getToken(user.getId());
+
+        JSONObject send = initiateJson();
+
+        send.put("requestType", "TokenRequestResponse");
+        send.put("token", token);
+
+        sendMessage(send.toString());
+    }
+
+
+
 
     private void buyCoinRequest(JSONObject temp) {
 

@@ -20,7 +20,7 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "as01765330456ik";
 
-    private static String terminalPath = "terminal-3.0.0.out";
+    private static String terminalPath = "terminal.out";
     private static String imagePath = "guest.png";
 
     public static void main(String[] args) {
@@ -46,7 +46,7 @@ public class PokerServerApplication {
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
                 leastPlayerCount, 5, 1, 120, 1112, 10000,500000,
                 10, 50000, 100000, 60, 10, 10,
-                coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 20000, 5000);
+                coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 20000, 5000, 10);
     }
 
     public static ArrayList<TransactionNumber> getTransactionNumbers(){

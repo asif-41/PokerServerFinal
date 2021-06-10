@@ -66,6 +66,9 @@ public class Server {
     private long connectionCheckDelay;
     private long connectionResponseDelay;
 
+    private int tokenValidityDuration;
+    private ArrayList savedTokens;
+
     //====================================================
 
 
@@ -84,7 +87,7 @@ public class Server {
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
-                  long connectionCheckDelay, long connectionResponseDelay) {
+                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration) {
 
         this.connectionCheckDelay = connectionCheckDelay;
         this.connectionResponseDelay = connectionResponseDelay;
@@ -154,6 +157,16 @@ public class Server {
         allowLogin = true;
         loginDelay = null;
         this.delayLoginOnForce = delayLoginOnForce;
+
+        this.tokenValidityDuration = tokenValidityDuration;
+        savedTokens = new ArrayList<Token>();
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                tokenChecker();
+            }
+        }, 0,60000);
     }
 
     //========================================================================================
@@ -977,7 +990,67 @@ public class Server {
 
     }
 
+    //================================================================================
+    //
+    //================================================================================
 
+
+
+
+
+
+    //================================================================================
+    //
+    //              TOKEN RELATED WORKS
+    //
+    //================================================================================
+
+    private void tokenChecker(){
+
+        for(int i=0; i<savedTokens.size(); i++){
+
+            Token x = (Token) savedTokens.get(i);
+            x.setTime(x.getTime() + 1);
+
+            if(x.getTime() == tokenValidityDuration){
+                savedTokens.remove(i);
+                i--;
+            }
+        }
+    }
+
+    public String getToken(int userId){
+
+        String ret = "";
+        boolean paisi = false;
+
+        //if(userId < 0) return ret;
+
+        for(int i=0; i<savedTokens.size(); i++){
+
+            Token x = (Token) savedTokens.get(i);
+
+            if(x.getUserId() == userId){
+                paisi = true;
+                ret = x.getToken();
+                x.setTime(0);
+
+                break;
+            }
+        }
+
+        if(paisi) return ret;
+
+        Token x = new Token(savedTokens.size(), userId);
+        ret = x.getToken();
+        savedTokens.add(x);
+
+        return ret;
+    }
+
+    //================================================================================
+    //
+    //================================================================================
 
 
 
