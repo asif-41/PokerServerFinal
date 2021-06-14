@@ -18,7 +18,7 @@ public class PokerServerApplication {
     private static String password = "asik1122";
 
     private static String editUsername = "admin";
-    private static String editPassword = "as01765330456ik";
+    private static String editPassword = "11223";
 
     private static String terminalPath = "terminal-3.0.0.out";
     private static String imagePath = "guest.png";

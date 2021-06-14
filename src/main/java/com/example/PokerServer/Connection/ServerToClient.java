@@ -313,7 +313,7 @@ public class ServerToClient implements Runnable {
 
         JSONObject send = initiateJson();
         send.put("requestType", "LoginResponse");
-        send.put("transactionButtons", false);
+        send.put("transactionButtons", true);
 
         if (user == null) {
             send.put("response", false);
