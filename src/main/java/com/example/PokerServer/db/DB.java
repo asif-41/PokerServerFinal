@@ -47,8 +47,31 @@ public class DB {
     //
     //=======================================================================
 
+    private String getImageLink(String databaseLink, String incomingLink){
 
-    public User getUserData(String account_id, String account_type, String username) throws ClassCastException {
+        String ret = "";
+
+        if(databaseLink.equals("empty")) ret = incomingLink;
+        else ret = databaseLink;
+
+        return ret;
+    }
+
+    private String setImageLink(String link){
+
+        String ret = "";
+
+        String[] data = link.split("=");
+        if(data[0].equals("http://localhost:1112/image?id")) ret = link;
+        else ret = "empty";
+
+        return ret;
+    }
+
+
+
+
+    public User getUserData(String account_id, String account_type, String username, String imageLink) throws ClassCastException {
 
         User user = null;
         try {
@@ -63,7 +86,7 @@ public class DB {
                 Account account = findById(id);
 
                 try {
-                    user = new User(account.getId(), account.getUsername(), account.getFb_id(), account.getGoogle_id(), account.getLogin_method(), "",
+                    user = new User(account.getId(), account.getUsername(), account.getFb_id(), account.getGoogle_id(), account.getLogin_method(), getImageLink(account.getImageLink(), imageLink),
                                     account.getExp(), account.getCurrent_coins(), account.getCoins_won(), account.getCoins_lost(), account.getRounds_won(), account.getRounds_played(),
                                     account.getWinStreak(), account.getTotalCallCount(), account.getCall_count(), account.getRaise_count(), account.getFold_count(), account.getAllInCount(),
                                     account.getCheck_count(), account.getBiggestWin(), account.getBestHand(), account.getCoinVideoCount(), account.getLastCoinVideoAvailableTime(),
@@ -85,7 +108,7 @@ public class DB {
                 else if(account_type.equals("google")) googleId = account_id;
 
 
-                user = new User(-1, username, fbId, googleId, account_type, "",
+                user = new User(-1, username, fbId, googleId, account_type, imageLink,
                         0, Server.pokerServer.initialCoin, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, "",
                         Server.pokerServer.dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
@@ -115,6 +138,7 @@ public class DB {
 
             acc.setUsername(user.getUsername());
             acc.setFb_id(user.getFb_id());
+            acc.setImageLink(setImageLink(user.getImageLink()));
             acc.setGoogle_id(user.getGmail_id());
             acc.setLogin_method(user.getLoginMethod());
             acc.setLoggedIn(false);
@@ -145,6 +169,7 @@ public class DB {
             Account acc = findById(user.getId());
             if(acc == null) return ;
 
+            acc.setImageLink(setImageLink(user.getImageLink()));
             acc.setLoggedIn(false);
             acc.setExp(user.getExp());
             acc.setCurrent_coins(user.getCurrentCoin() + user.getBoardCoin());
@@ -212,6 +237,10 @@ public class DB {
 
                 boolean cur = acc.isLoggedIn();
                 acc.setLoggedIn(! cur);
+            }
+            else if(columns.equals("image")){
+
+                acc.setImageLink(setImageLink(user.getImageLink()));
             }
         accountRepository.saveAndFlush(acc);
     }

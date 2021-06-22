@@ -16,6 +16,8 @@
     <form action="#" method="POST" th:action="@{editDataLink}">
 
         <input type="hidden" value="0" name="forceLogout" id="forceLogoutInput" />
+        <input type="hidden" value="-1" name="removingNumber" id="removingNumber" />
+        <input type="hidden" value="-1" name="removeNumberInput" id="removeNumberInput" />
 
         <div align="center" class="container-fluid my-2" aria-label="Basic example">
 
@@ -223,6 +225,7 @@
                     </td>
                     <td>
                         <button type="button" class="TransactionTableEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#transactionTableModal" style="margin:5px">Edit</button>
+                        <button type="button" class="TransactionTableRemove btn btn-danger btn-sm mb-3" data-toggle="modal" data-target="#authorizeRemoveModal" style="margin:5px">Remove</button>
                         <button type="button" class="TransactionTableCancel btn btn-danger btn-sm mb-3" style="margin:5px">Cancel</button>
                      </td>
                 </tr>
@@ -313,6 +316,42 @@
         <div class="col-md-12 text-right" style="right:10px;bottom:10px;position:fixed">
             <button type="button" class="ForceLogout btn btn-danger" data-toggle="modal" data-target="#authorizeModal">Force Logout All</button>
             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#authorizeModal">Save Data</button>
+        </div>
+
+        <!-- MODAL AUTHORIZATION REMOVE -->
+        <div class="modal fade" id="authorizeRemoveModal" tabindex="-1" role="dialog" aria-labelledby="authorizeRemoveModal" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="authorizeRemoveModalTitle">Authentication</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="username" name="username1">
+
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control" placeholder="password" name="password1">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger" onclick="removeTransaction()">Save changes</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- MODAL AUTHORIZATION -->

@@ -77,7 +77,7 @@ public class Account implements Serializable {
     @Column(name =  "total_call_count")
     private  Integer totalCallCount;
 
-    @Column(name = "cointVideo_count")
+    @Column(name = "coinVideo_count")
     private  Integer coinVideoCount;            //      COUNT OF COIN VIDEO AVAILABILITY
 
     @Column(name = "lastCoinVideo_Available_time")
@@ -94,6 +94,9 @@ public class Account implements Serializable {
 
     @Column(name = "Is_logged_in")
     private boolean isLoggedIn;
+
+    @Column(name = "Image_link")
+    private String imageLink;
 
 
     @OneToMany(mappedBy = "account", fetch = FetchType.EAGER)
@@ -112,6 +115,14 @@ public class Account implements Serializable {
     @Fetch(value = FetchMode.SUBSELECT)
     private Set<Refund> refunds;
 
+
+    public String getImageLink() {
+        return imageLink;
+    }
+
+    public void setImageLink(String imageLink) {
+        this.imageLink = imageLink;
+    }
 
     public boolean isLoggedIn() {
         return isLoggedIn;
@@ -351,6 +362,7 @@ public class Account implements Serializable {
 
         ret += "Id: " + id + "\n";
         ret += "Username: " + username + "\n";
+        ret += "ImageLink: " + imageLink + "\n";
         ret += "Login method: " + login_method + "\n";
         if(login_method.equals("facebook")) ret += "Facebook: " + fb_id + "\n";
         if(login_method.equals("google")) ret += "Google: " + google_id + "\n";

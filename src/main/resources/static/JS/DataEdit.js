@@ -8,6 +8,37 @@ window.onload = function() {
         input.value = 1;
     }
 
+    var removeTransactionButtons = document.getElementsByClassName('TransactionTableRemove');
+    for(var i=0; i<removeTransactionButtons.length; i++){
+        (
+            function(object){
+
+                object.onclick = function(){
+
+                    var row = object.parentElement.parentElement;
+                    var columns = row.getElementsByTagName('td');
+                    var data = columns[columns.length - 2];
+                    var inputs = data.getElementsByTagName('input');
+
+                    var index = inputs[0].value;
+                    var type = inputs[1].value;
+                    var number =(
+                        function(string){
+                            var temp = string.split('"');
+                            return temp[1];
+                        }
+                    ) (inputs[2].value);
+
+                    var inp = document.getElementById('removeNumberInput');
+                    inp.value = index;
+
+                    var title = document.getElementById('authorizeRemoveModalTitle');
+                    title.innerHTML = "Removing transaction <br /> id: " + index + " type: " + type + " <br />number: " + number ;
+                }
+            }
+        )(removeTransactionButtons[i]);
+    }
+
     var OtherDataEdit = document.getElementsByClassName('OtherTableEdit')[0];
     OtherDataEdit.onclick = function(){
 
@@ -673,4 +704,13 @@ function transactionDataSaveClick(){
         button.disabled = true;
         for(var i=0; i<targets.length; i++) targets[i].disabled = false;
     }
+}
+
+function removeTransaction(){
+
+    var target = document.getElementById('removingNumber');
+    var source = document.getElementById('removeNumberInput');
+
+    target.value = source.value;
+
 }

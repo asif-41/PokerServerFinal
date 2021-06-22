@@ -544,9 +544,12 @@ public class WebpagesController {
         String username = (String) map.get("username");
         String password = (String) map.get("password");
 
+        String username1 = (String) map.get("username1");
+        String password1 = (String) map.get("password1");
+
         RedirectView redirectView = new RedirectView();
 
-        if(authorizeAdmin2(username, password)){
+        if(authorizeAdmin2(username, password) || authorizeAdmin2(username1, password1)){
 
             Server.pokerServer.editBasicData(map);
             redirectView.setUrl("dataEdit?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword());

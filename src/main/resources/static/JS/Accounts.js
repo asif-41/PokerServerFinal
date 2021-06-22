@@ -13,11 +13,6 @@ window.onload = function() {
                     var id = inp.value;
 
                     var inputModal = document.getElementById('update-modal-id');
-                    console.log(inputModal);
-                    inputModal.value = id;
-                    console.log(inputModal);
-                    console.log(id);
-                    console.log(inputModal.value);
 
                     var inp2 = object.parentElement.getElementsByClassName('username')[0];
                     var username = inp2.value;

@@ -275,6 +275,18 @@ public class ServerToClient implements Runnable {
             }
             else waitingRoom.incomingMsg(temp, this);
         }
+        else if (jsonIncoming.get("requestType").equals("Version")){
+
+            sendVersion();
+        }
+        else if (jsonIncoming.get("requestType").equals("ChangeImage")){
+
+            changeImageRequest(jsonIncoming);
+        }
+        else if (jsonIncoming.get("requestType").equals("CurrentImage")){
+
+            sendCurrentImage();
+        }
     }
 
     //==============================================================================
@@ -284,7 +296,34 @@ public class ServerToClient implements Runnable {
 
 
 
-    
+    private void sendVersion() {
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "Version");
+        send.put("version", Server.pokerServer.version);
+
+        sendMessage(send.toString());
+    }
+
+    private void changeImageRequest(JSONObject jsonObject){
+
+        String link = jsonObject.getString("imageLink");
+        user.setImageLink(link);
+
+        Server.pokerServer.updateDatabase(user, "image");
+    }
+
+    private void sendCurrentImage(){
+
+        JSONObject send = initiateJson();
+        send.put("requestType", "CurrentImage");
+        send.put("imageLink", user.getImageLink());
+        sendMessage(send.toString());
+    }
+
+
+
+
     //==============================================================================
     //
     //             LOGIN FUNCTIONS
@@ -313,7 +352,7 @@ public class ServerToClient implements Runnable {
 
         JSONObject send = initiateJson();
         send.put("requestType", "LoginResponse");
-        send.put("transactionButtons", true);
+        send.put("transactionButtons", Server.pokerServer.showButton);
 
         if (user == null) {
             send.put("response", false);

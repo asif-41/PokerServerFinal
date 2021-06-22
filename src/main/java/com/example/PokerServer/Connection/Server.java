@@ -69,6 +69,9 @@ public class Server {
     private int tokenValidityDuration;
     private ArrayList savedTokens;
 
+    public boolean showButton;
+    public int version;
+
     //====================================================
 
 
@@ -87,7 +90,10 @@ public class Server {
                   int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
-                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration) {
+                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version) {
+
+        this.version = version;
+        this.showButton = showButton;
 
         this.connectionCheckDelay = connectionCheckDelay;
         this.connectionResponseDelay = connectionResponseDelay;
@@ -205,8 +211,7 @@ public class Server {
 
         if(account_type.equals("guest")) return null;
 
-        User user = db.getUserData(account_id, account_type, username);
-        user.setImageLink(imageLink);
+        User user = db.getUserData(account_id, account_type, username, imageLink);
 
         return user;
     }
@@ -828,12 +833,33 @@ public class Server {
         transactionNumbers.add(tr);
     }
 
+    private void removeTransaction(int id){
+
+        for(TransactionNumber x : transactionNumbers){
+
+            if(x.getId() == id){
+                transactionNumbers.remove(x);
+                break;
+            }
+        }
+    }
+
     //================================================================================
     //
     //================================================================================
 
 
     public void editBasicData(Hashtable<String, String> map){
+
+
+        try{
+            int id = Integer.parseInt(map.get("removingNumber"));
+            removeTransaction(id);
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(other table)");
+            System.out.println("Error -> " + e);
+        }
+
         try{
             int ot = Integer.parseInt(map.get("otherTable"));
             if(ot != -1){

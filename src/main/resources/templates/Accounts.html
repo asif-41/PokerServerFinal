@@ -23,6 +23,7 @@
                 <tr>
                     <th>Id</th>
                     <th>Username</th>
+                    <th>Image Link</th>
                     <th>Login_method</th>
                     <th>Facebook</th>
                     <th>Google</th>
@@ -52,6 +53,7 @@
                 <tr th:each="account : ${accountList}">
                     <td th:text="${account.id}"></td>
                     <td th:text="${account.username}"></td>
+                    <td th:text="${account.imageLink}"></td>
                     <td th:text="${account.login_method}"></td>
                     <td th:text="${account.fb_id}"></td>
                     <td th:text="${account.google_id}"></td>
@@ -129,6 +131,10 @@
                             <div class="form-group">
                                 <label>Username</label>
                                 <input type="text" name="username" class="form-control" id="username" />
+                            </div>
+                            <div class="form-group">
+                                <label>Image link</label>
+                                <input type="text" name="imageLink" class="form-control" id="imageLink" disabled />
                             </div>
                             <div class="form-group">
                                 <label>Login method</label>

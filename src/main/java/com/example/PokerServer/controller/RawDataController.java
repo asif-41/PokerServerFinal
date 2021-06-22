@@ -50,9 +50,12 @@ public class RawDataController {
     }
 
     @GetMapping(value = "/image", produces = MediaType.IMAGE_PNG_VALUE)
-    public @ResponseBody ResponseEntity<Resource> image() throws IOException {
+    public @ResponseBody ResponseEntity<Resource> image(@RequestParam String id) throws IOException {
+
+        int index = Integer.parseInt(id);
+
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
-                PokerServerApplication.getImagePath()
+                PokerServerApplication.getImagePath() + id + ".jpg"
         )));
         return ResponseEntity
                 .status(HttpStatus.OK)

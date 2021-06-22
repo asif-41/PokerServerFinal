@@ -20,8 +20,11 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-3.0.0.out";
-    private static String imagePath = "guest.png";
+    private static String terminalPath = "terminal-3.0.1.out";
+    private static String imagePath = "images/";
+
+    private static boolean showButton = true;
+    private static int version = 1;
 
     public static void main(String[] args) {
 
@@ -46,7 +49,8 @@ public class PokerServerApplication {
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
                 leastPlayerCount, 5, 1, 120, 1112, 10000,500000,
                 10, 50000, 100000, 60, 10, 10,
-                coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 20000, 5000, 10);
+                coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 20000,
+                5000, 10, showButton, version);
     }
 
     public static ArrayList<TransactionNumber> getTransactionNumbers(){
@@ -54,7 +58,7 @@ public class PokerServerApplication {
         ArrayList<TransactionNumber> transactionNumbers = new ArrayList<>();
 
         transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Bkash", "make payment to \"01914957284\""));
-        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Nagad", "send money to '01798203178'"));
+        transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Nagad", "send money to \"01798203178\""));
         transactionNumbers.add(new TransactionNumber(transactionNumbers.size(), "Rocket", "send money to \"01798203178-2\""));
 
         return transactionNumbers;
