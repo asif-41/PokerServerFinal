@@ -62,7 +62,7 @@ public class DB {
         String ret = "";
 
         String[] data = link.split("=");
-        if(data[0].equals("http://localhost:1112/image?id")) ret = link;
+        if(data[0].equals("http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id")) ret = link;
         else ret = "empty";
 
         return ret;

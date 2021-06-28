@@ -8,7 +8,6 @@ import com.example.PokerServer.db.DBFactory;
 import org.json.JSONObject;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.net.InetAddress;
 import java.util.*;
 
 public class Server {
@@ -72,6 +71,8 @@ public class Server {
     public boolean showButton;
     public int version;
 
+    public int imageCount;
+
     //====================================================
 
 
@@ -87,13 +88,14 @@ public class Server {
     public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] maxEntryValue, long[] minCallValue, long[] mcr,
                   int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
-                  int queueWaitLimit, int port, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
+                  int queueWaitLimit, int port, String host, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
-                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version) {
+                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version, int imageCount) {
 
         this.version = version;
         this.showButton = showButton;
+        this.imageCount = imageCount;
 
         this.connectionCheckDelay = connectionCheckDelay;
         this.connectionResponseDelay = connectionResponseDelay;
@@ -145,12 +147,8 @@ public class Server {
         }
         db = DBFactory.getDB();
 
-        try {
-            this.port = port;
-            host = InetAddress.getLocalHost().getHostAddress();
-        } catch (Exception e) {
-            System.out.println("Exception in fetching ip -> " + e);
-        }
+        this.port = port;
+        this.host = host;
 
         //TIMER TO CHECK QUEUE
         new Timer().scheduleAtFixedRate(new TimerTask() {
@@ -1323,6 +1321,10 @@ public class Server {
 
     public void setConnectionResponseDelay(long connectionResponseDelay) {
         this.connectionResponseDelay = connectionResponseDelay;
+    }
+
+    public int getImageCount() {
+        return imageCount;
     }
 
     //================================================================================================================================================

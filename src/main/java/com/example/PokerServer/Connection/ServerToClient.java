@@ -13,7 +13,6 @@ import org.json.JSONObject;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
@@ -84,7 +83,7 @@ public class ServerToClient implements Runnable {
         try {
 
             port = session.getRemoteAddress().getPort();
-            host = InetAddress.getLocalHost().getHostAddress();
+            host = Server.pokerServer.getHost();
 
         } catch (Exception e) {
             System.out. println("Exception in fetching ip -> " + e);

@@ -44,8 +44,6 @@ public class RawDataController {
         show += "Server ip " + request.getLocalAddr() + "\n";
         show += "Client ip " + request.getRemoteAddr();
 
-        Server.pokerServer.setHost(request.getLocalAddr());
-
         return show;
     }
 
@@ -55,7 +53,7 @@ public class RawDataController {
         int index = Integer.parseInt(id);
 
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
-                PokerServerApplication.getImagePath() + id + ".jpg"
+                PokerServerApplication.getImagePath() + id + ".JPG"
         )));
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -67,15 +65,13 @@ public class RawDataController {
 
 
 
-
-
     @RequestMapping(value = "/pages")
     public String pageLinks(@RequestParam(required = false) String username, @RequestParam(required = false) String password, Model model){
 
         String ret;
 
         if(authorizeAdmin(username, password)) {
-            ret = "pageLinks";
+            ret = "PageLinks";
             model.addAttribute("username", PokerServerApplication.getUsername());
             model.addAttribute("password", PokerServerApplication.getPassword());
         }
@@ -83,6 +79,17 @@ public class RawDataController {
 
         return ret;
     }
+
+
+    @RequestMapping("/images")
+    public String showImages(Model model){
+
+        model.addAttribute("imageCount", Server.pokerServer.getImageCount());
+        model.addAttribute("location", "http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id=");
+
+        return "Images";
+    }
+
 
 
 
