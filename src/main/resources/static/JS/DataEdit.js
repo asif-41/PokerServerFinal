@@ -614,7 +614,7 @@ function otherDataSaveClick(){
 
     var j = 0;
 
-    for(var i=0; i<6; i++){
+    for(var i=0; i<targets.length-1; i++){
         if(data[i].innerText === inputs[i].value) continue;
 
         var savePrev = data[i].childNodes[1];
@@ -646,6 +646,14 @@ function otherDataSaveClick(){
         }
         else if(i == 5){
             x += "Editing delay after force logout";
+            targets[i+1].value = inputs[i].value;
+        }
+        else if(i == 6){
+            x += "Editing version";
+            targets[i+1].value = inputs[i].value;
+        }
+        else if(i == 7){
+            x += "Editing show buttons";
             targets[i+1].value = inputs[i].value;
         }
 

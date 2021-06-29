@@ -78,8 +78,8 @@
                     <td class="btn-group" role="group" aria-label="Basic example">
                         <button type="button" th:disabled="${account.isLoggedIn}"
                                 class="Update btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#updateDataModal" style="margin:5px">Update</button>
-                        <button type="button" th:disabled="${account.isLoggedIn}"
-                                class="Delete btn btn-danger btn-sm mb-3" data-toggle="modal" data-target="#deleteDataModal" style="margin:5px">Delete</button>
+                        <button type="button" class="Ban btn btn-warning btn-sm mb-3" data-toggle="modal" data-target="#banDataModal" style="margin:5px">Ban</button>
+                        <button type="button" class="Delete btn btn-danger btn-sm mb-3" data-toggle="modal" data-target="#deleteDataModal" style="margin:5px">Delete</button>
 
                         <input type="hidden" class="id" th:value="${account.id}" />
                         <input type="hidden" class="username" th:value="${account.username}" />
@@ -267,6 +267,50 @@
 
                         <input type="hidden" id="delete-modal-id" name="id" />
                         <input type="hidden" id="page" name="page" th:value="${pageNo}" />
+
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            </div>
+                            <input type="text" class="form-control" placeholder="username" name="username">
+
+                        </div>
+                        <div class="input-group form-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                            </div>
+                            <input type="password" class="form-control" placeholder="password" name="password">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Save changes</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ban -->
+    <div class="modal fade" id="banDataModal" tabindex="-1" role="dialog" aria-labelledby="banDataModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="banDataTitle"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <form action="#" method="POST" th:action="@{banAccount}">
+
+                    <div class="modal-body">
+
+                        <input type="hidden" id="ban-modal-id" name="id" />
+                        <input type="hidden" id="banPage" name="page" th:value="${pageNo}" />
 
                         <div class="input-group form-group">
                             <div class="input-group-prepend">

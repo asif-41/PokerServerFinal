@@ -27,6 +27,10 @@ public class Randomizer {
         return random.nextInt();
     }
 
+    public static int one(int limit) {
+        return random.nextInt(limit);
+    }
+
     //
     //===========================================================
 

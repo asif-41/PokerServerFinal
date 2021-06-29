@@ -73,6 +73,13 @@ public class Server {
 
     public int imageCount;
 
+
+
+
+    private int maxBotLimit;
+    private ArrayList bots;
+    private ArrayList botUsers;
+
     //====================================================
 
 
@@ -88,7 +95,7 @@ public class Server {
     public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] maxEntryValue, long[] minCallValue, long[] mcr,
                   int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
-                  int queueWaitLimit, int port, String host, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
+                  int queueWaitLimit, int port, String host, int maxGuestLimit, int maxBotLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version, int imageCount) {
@@ -135,6 +142,10 @@ public class Server {
         casualConnections = new ArrayList<ServerToClient>();
         loggedInUsers = new ArrayList<ServerToClient>();
 
+        this.maxBotLimit = maxBotLimit;
+        bots = new ArrayList<Integer>();
+        botUsers = new ArrayList<BotClient>();
+
         waitingRoom = new ArrayList[boardTypeCount];
         gameThreads = new ArrayList[boardTypeCount];
         pendingQueue = new ArrayList[boardTypeCount];
@@ -156,7 +167,7 @@ public class Server {
             public void run() {
                 queueIterator();
             }
-        }, 0, 1000);
+        }, 0, 10000);
 
         allowLogin = true;
         loginDelay = null;
@@ -187,6 +198,38 @@ public class Server {
     //              LOAD USER FROM DATABASE
     //
     //========================================================================================
+
+    private User makeBotUser() {
+
+        int id = Randomizer.randomUnique(bots, maxBotLimit) + 20000;
+        bots.add(id);
+
+        String imageLink = "http://" + host + ":" + port + "/image?id=";
+        int imageId = Randomizer.one(24) + 1;
+
+        imageLink += String.valueOf(imageId);
+
+        User user;
+        user = new User(-1, "Guest_" + id, "", "", "guest", imageLink,
+                0, initialCoin, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, "",
+                dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
+                User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
+
+        botUsers.add(user);
+        return user;
+
+    }
+
+    private BotClient makeBotClient() {
+
+        User botUser = makeBotUser();
+        BotClient botClient = new BotClient(botUser);
+
+        return botClient;
+    }
+
+
 
     private User makeGuestUser(String imageLink) {
 
@@ -234,6 +277,7 @@ public class Server {
         if( ! allowLogin) return null;
 
         if( checkIfAlreadyLoggedIn(account_id, account_type, username) ) return null;
+        if( checkIfBanned(account_type, account_id) ) return null;
 
         if (account_type.equals("guest")) user = makeGuestUser(imageLink);
         else if(account_type.equals("facebook")) user = loadUserFromDatabase(account_id, account_type, username, imageLink);
@@ -250,6 +294,14 @@ public class Server {
 
         jsonObject = db.getAllTransactions(user.getId());
         return jsonObject;
+    }
+
+    private boolean checkIfBanned(String account_type, String account_id){
+
+        int id = db.findBannedId(account_type, account_id);
+
+        if(id == -1) return false;
+        else return true;
     }
 
     private boolean checkIfAlreadyLoggedIn(String account_id, String account_type, String username){
@@ -408,6 +460,24 @@ public class Server {
             if (tempUser.equals(username)) return s;
         }
         return null;
+    }
+
+    public ServerToClient getLoggedUser(int id){
+
+        ServerToClient ret = null;
+
+        if(id < 0) return ret;
+
+        for(Object x : loggedInUsers){
+            ServerToClient s = (ServerToClient) x;
+
+            if(s.getUser() == null) continue;
+            if(s.getUser().getId() == id){
+                ret = s;
+                break;
+            }
+        }
+        return ret;
     }
 
     //================================================================================
@@ -849,7 +919,6 @@ public class Server {
 
     public void editBasicData(Hashtable<String, String> map){
 
-
         try{
             int id = Integer.parseInt(map.get("removingNumber"));
             removeTransaction(id);
@@ -897,7 +966,24 @@ public class Server {
                     if(dlof >= 0) delayLoginOnForce = dlof;
                 }catch (Exception e){
                 }
+
+                try{
+                    int v = Integer.parseInt(map.get("version"));
+                    if(v != -1) version = v;
+                }catch (Exception e){
+                    System.out.println("Error in converting data of hashmap in basic data edit(version)");
+                    System.out.println("Error -> " + e);
+                }
+
+                try{
+                    String inp = map.get("showButton").toLowerCase();
+                    if(inp.equals("true") || inp.equals("false")) showButton = Boolean.parseBoolean(inp);
+                }catch (Exception e){
+                    System.out.println("Error in converting data of hashmap in basic data edit(showButton)");
+                    System.out.println("Error -> " + e);
+                }
             }
+
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(other table)");
             System.out.println("Error -> " + e);
@@ -1010,8 +1096,6 @@ public class Server {
             System.out.println("Error in converting data of hashmap in basic data edit(force logout)");
             System.out.println("Error -> " + e);
         }
-
-
     }
 
     //================================================================================
@@ -1325,6 +1409,22 @@ public class Server {
 
     public int getImageCount() {
         return imageCount;
+    }
+
+    public boolean isShowButton() {
+        return showButton;
+    }
+
+    public void setShowButton(boolean showButton) {
+        this.showButton = showButton;
+    }
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
     }
 
     //================================================================================================================================================

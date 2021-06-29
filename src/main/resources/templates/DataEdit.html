@@ -255,6 +255,8 @@
                         <th>Coin on Each Video</th>
                         <th>Free Login Coin</th>
                         <th>Delay Login On Force</th>
+                        <th>Version</th>
+                        <th>Show Button</th>
                         <th>New Data</th>
                         <th>Action</th>
                     </tr>
@@ -286,6 +288,14 @@
                             <input type="hidden" value="-1" disabled />
                         </td>
                         <td>
+                            [( ${version} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            [( ${showButton} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
                             <ul class="list-group">
                                 <li class="list-group-item bg-dark" style="display:none"></li>
                                 <li class="list-group-item bg-dark" style="display:none"></li>
@@ -302,6 +312,8 @@
                             <input type="hidden" name="eachVideoCoin" value="-1" disabled />
                             <input type="hidden" name="FreeLoginCoin" value="-1" disabled />
                             <input type="hidden" name="delayLoginOnForce" value="-1" disabled />
+                            <input type="hidden" name="version" value="-1" disabled />
+                            <input type="hidden" name="showButton" value="-1" disabled />
                         </td>
                         <td>
                             <button type="button" class="OtherTableEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#otherTableModal" style="margin:5px">Edit</button>
@@ -588,6 +600,14 @@
                         <div class="form-group">
                             <label>Delay Login On Force</label>
                             <input type="text" name="delayLoginOnForce" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Version</label>
+                            <input type="text" name="version" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Show Button</label>
+                            <input type="text" name="showButton" class="form-control" />
                         </div>
                     </div>
 

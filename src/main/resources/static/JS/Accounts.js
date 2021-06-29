@@ -62,6 +62,32 @@ window.onload = function() {
     }
 
 
+    var banButtons = document.getElementsByClassName('Ban');
+
+    for(var i = 0; i<banButtons.length; i++){
+
+        (
+            function(object){
+                object.onclick = function(){
+
+                    var inp = object.parentElement.getElementsByClassName('id')[0];
+                    var id = inp.value;
+
+                    var inp2 = object.parentElement.getElementsByClassName('username')[0];
+                    var username = inp2.value;
+
+                    var title = document.getElementById('banDataTitle');
+                    title.innerHTML = "Ban user, id: " + id + " username: " + username;
+
+                    var inputModal = document.getElementById('ban-modal-id');
+                    inputModal.value = id;
+                }
+            }
+
+        )(banButtons[i]);
+    }
+
+
 }
 
 

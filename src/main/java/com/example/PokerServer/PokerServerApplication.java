@@ -56,7 +56,7 @@ public class PokerServerApplication {
         int leastPlayerCount = 2;
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, 10000000, 100000000,
-                leastPlayerCount, 5, 1, 120, port, host, 10000,500000,
+                leastPlayerCount, 5, 1, 120, port, host, 10000, 10000,500000,
                 10, 50000, 100000, 60, 10, 10,
                 coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 20000,
                 5000, 10, showButton, version, imageCount);

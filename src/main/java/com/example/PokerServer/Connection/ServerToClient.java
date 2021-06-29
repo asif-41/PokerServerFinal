@@ -73,16 +73,20 @@ public class ServerToClient implements Runnable {
         user = null;
         gameThread = null;
         waitingRoom = null;
-        connectionChecker = new Timer();
-        connectionChecketWait = new Timer();
+        if(session != null) connectionChecker = new Timer();
+        if(session != null) connectionChecketWait = new Timer();
 
         lastGameCode = -1;
 
         this.session = session;
-        webSocketKey = session.getHandshakeHeaders().get("sec-websocket-key").get(0);
+        if(session != null) webSocketKey = session.getHandshakeHeaders().get("sec-websocket-key").get(0);
+        else webSocketKey = "Empty";
+
+
         try {
 
-            port = session.getRemoteAddress().getPort();
+            if(session != null) port = session.getRemoteAddress().getPort();
+            else port = Server.pokerServer.getPort();
             host = Server.pokerServer.getHost();
 
         } catch (Exception e) {
@@ -443,7 +447,7 @@ public class ServerToClient implements Runnable {
 
     }
 
-    private void sendResponseLogout() {
+    public void sendResponseLogout() {
 
         JSONObject send = initiateJson();
         send.put("requestType", "LogoutResponse");
@@ -1137,6 +1141,10 @@ public class ServerToClient implements Runnable {
 
     public void setWaitingRoom(WaitingRoom waitingRoom) {
         this.waitingRoom = waitingRoom;
+    }
+
+    public JSONObject getJsonIncoming() {
+        return jsonIncoming;
     }
 
     //==============================================================================

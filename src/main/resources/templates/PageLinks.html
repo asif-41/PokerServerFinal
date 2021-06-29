@@ -68,6 +68,11 @@
                         <a target="_blank"  th:href="'/data/printRefunds?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Refunds</a>
                     </button>
                 </td>
+                <td>
+                    <button type="button" class="btn btn-primary">
+                        <a target="_blank"  th:href="'/data/printBannedAccounts?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Banned Accounts</a>
+                    </button>
+                </td>
             </tr>
             <tr>
                 <td>
@@ -163,6 +168,12 @@
                     <td>
                         <button type="button" class="btn btn-primary">
                             <a target="_blank"  th:href="'/database/showTransactions?username=' + ${username} + '&password=' + ${password} + '&page=1'" style="text-decoration:none; color:white" >Transactions</a>
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary">
+                            <a target="_blank"  th:href="'/database/showBannedAccounts?username=' + ${username} + '&password=' + ${password} + '&page=1'"
+                               style="text-decoration:none; color:white">Banned Accounts</a>
                         </button>
                     </td>
                 </tr>

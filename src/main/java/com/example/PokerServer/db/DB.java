@@ -2,6 +2,7 @@ package com.example.PokerServer.db;
 
 
 import com.example.PokerServer.Connection.Server;
+import com.example.PokerServer.Connection.ServerToClient;
 import com.example.PokerServer.Objects.TransactionMethods;
 import com.example.PokerServer.Objects.User;
 import com.example.PokerServer.model.*;
@@ -31,6 +32,9 @@ public class DB {
 
     @Autowired
     private PendingRefundRepository pendingRefundRepository;
+
+    @Autowired
+    private BannedRepository bannedRepository;
 
 
     public static <U> Function<Object, U> filterAndCast(Class<? extends U> clazz) {
@@ -107,20 +111,19 @@ public class DB {
                 if(account_type.equals("facebook")) fbId = account_id;
                 else if(account_type.equals("google")) googleId = account_id;
 
-
                 user = new User(-1, username, fbId, googleId, account_type, imageLink,
                         0, Server.pokerServer.initialCoin, 0, 0, 0, 0, 0,
                         0, 0, 0, 0, 0, 0, 0, "",
                         Server.pokerServer.dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
                         User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
                 saveUser(user, true);
-                updateUser(user, "toggleLogin");
 
                 int thisId = -1;
                 if(account_type.equals("facebook")) thisId = findByFbId(fbId);
                 else if(account_type.equals("google")) thisId = findByGoogleId(googleId);
 
                 user.setId(thisId);
+                updateUser(user, "toggleLogin");
             }
         }
         catch (Exception e){
@@ -289,11 +292,41 @@ public class DB {
         return ret;
     }
 
+    public Banned findBannedById(int id){
+
+        Banned ret = null;
+        if( ! bannedRepository.findById(id).isEmpty() ) ret = bannedRepository.findById(id).get();
+        return ret;
+    }
+
+    public int findBannedId(String type, String key){
+
+        int ret = -1;
+        List<Banned> bannedList = bannedRepository.findAll();
+
+        for(int i=0; i<bannedList.size(); i++){
+
+            Banned x = bannedList.get(i);
+
+            if(x.getLogin_method().equals(type) && x.getAccount_key().equals(key)) {
+                ret = i;
+                break;
+            }
+        }
+
+        return ret;
+    }
+
+
     public void removeAccount(int id){
 
         Account acc = findById(id);
 
-        if(acc == null || acc.isLoggedIn()) return ;
+        if(acc == null) return ;
+        else if(acc.isLoggedIn()) {
+            ServerToClient s = Server.pokerServer.getLoggedUser(id);
+            if(s.getUser() != null) s.sendResponseLogout();
+        }
 
         for(PendingTransaction x : acc.getPendingTransactions()) pendingTransactionRepository.delete(x);
         for(Transaction x : acc.getTransactions()) transactionRepository.delete(x);
@@ -320,6 +353,43 @@ public class DB {
         acc.setUsername(username);
 
         accountRepository.saveAndFlush(acc);
+    }
+
+    public void banAccount(int id){
+
+        Account acc = findById(id);
+
+        if(acc == null) return ;
+        else if(acc.isLoggedIn()) {
+            ServerToClient s = Server.pokerServer.getLoggedUser(id);
+            if(s.getUser() != null) s.sendResponseLogout();
+        }
+
+        for(PendingTransaction x : acc.getPendingTransactions()) pendingTransactionRepository.delete(x);
+        for(Transaction x : acc.getTransactions()) transactionRepository.delete(x);
+        for(PendingRefund x : acc.getPendingRefunds()) pendingRefundRepository.delete(x);
+        for(Refund x : acc.getRefunds()) refundRepository.delete(x);
+
+        Banned banned = new Banned();
+
+        banned.setLogin_method(acc.getLogin_method());
+        banned.setUsername(acc.getUsername());
+
+        if(acc.getLogin_method().equals("facebook")) banned.setAccount_key(acc.getFb_id());
+        else if(acc.getLogin_method().equals("google")) banned.setAccount_key(acc.getGoogle_id());
+
+        bannedRepository.saveAndFlush(banned);
+        accountRepository.delete(acc);
+    }
+
+    public void removeBannedAccount(int id){
+
+        System.out.println("Permitting " + id);
+
+        Banned banned = findBannedById(id);
+        if(banned == null) return ;
+
+        bannedRepository.delete(banned);
     }
 
     //==========================================================================
@@ -650,6 +720,10 @@ public class DB {
         return pendingRefundRepository;
     }
 
+    public BannedRepository getBannedRepository() {
+        return bannedRepository;
+    }
+
     public List<Account> getAccounts(int page){
 
         ArrayList ret = new ArrayList();
@@ -710,6 +784,18 @@ public class DB {
         return ret;
     }
 
+    public List<Banned> getBannedAccounts(int page){
+
+        ArrayList ret = new ArrayList();
+        List bannedAccounts = bannedRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+
+        int st = (page-1)*30;
+        int en = Math.min( st + 30, bannedAccounts.size() );
+
+        for(int i=st; i<en; i++) ret.add(bannedAccounts.get(i));
+        return ret;
+    }
+
 
 
 
@@ -733,6 +819,8 @@ public class DB {
         ret += "\n\n\n\n";
         ret += printRefunds(database);
         ret += "\n\n\n\n";
+        ret += printBannedAccounts(database);
+        ret += "\n\n\n\n";
 
         return ret;
     }
@@ -741,7 +829,7 @@ public class DB {
 
         List<Account> accounts = database.getAccountRepository().findAll();
 
-        String ret = "Account count: " + accounts.size() + "\n";
+        String ret = "Account count: " + accounts.size() + "\n\n";
         for(Account x : accounts) ret += x.printAccount() + "\n\n\n\n";
 
         return ret;
@@ -761,7 +849,7 @@ public class DB {
 
         List<Transaction> transactions = database.getTransactionRepository().findAll();
 
-        String ret = "Transaction count: " + transactions.size() + "\n";
+        String ret = "Transaction count: " + transactions.size() + "\n\n";
         for(Transaction x : transactions) ret += x.printTransaction() + "\n";
 
         return ret;
@@ -771,7 +859,7 @@ public class DB {
 
         List<PendingRefund> pendingRefunds = database.getPendingRefundRepository().findAll();
 
-        String ret = "Pending refund count: " + pendingRefunds.size() + "\n";
+        String ret = "Pending refund count: " + pendingRefunds.size() + "\n\n";
         for(PendingRefund x : pendingRefunds) ret += x.printPendingRefund() + "\n";
 
         return ret;
@@ -781,8 +869,18 @@ public class DB {
 
         List<Refund> refunds = database.getRefundRepository().findAll();
 
-        String ret = "Refunds count: " + refunds.size() + "\n";
+        String ret = "Refunds count: " + refunds.size() + "\n\n";
         for(Refund x : refunds) ret += x.printRefund() + "\n";
+
+        return ret;
+    }
+
+    public static String printBannedAccounts(DB database){
+
+        List<Banned> banned = database.getBannedRepository().findAll();
+
+        String ret = "Banned count: " + banned.size() + "\n\n";
+        for(Banned x : banned) ret += x.printBannedAccount() + "\n";
 
         return ret;
     }

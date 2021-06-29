@@ -127,18 +127,62 @@ public class WebpagesController {
 
     @RequestMapping(value = "/removeAccount", method = RequestMethod.POST)
     public RedirectView removeAccount(@RequestParam int id, @RequestParam(required = false) String username,
-                                      @RequestParam(required = false) String password, @RequestParam(required = false) String Page){
+                                      @RequestParam(required = false) String password, @RequestParam(required = false) String page){
 
-        int page;
+        int Page;
 
-        if(Page == null) page = 1;
-        else page = Integer.parseInt(Page);
+        if(page == null) Page = 1;
+        else Page = Integer.parseInt(page);
 
         RedirectView redirectView = new RedirectView();
 
         if(authorizeAdmin2(username, password)){
             Server.pokerServer.getDb().removeAccount(id);
-            redirectView.setUrl("showAccounts?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + page);
+            redirectView.setUrl("showAccounts?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + Page);
+        }
+        else {
+            redirectView.setUrl("forbidden");
+        }
+
+        return redirectView;
+    }
+
+    @RequestMapping(value = "/banAccount", method = RequestMethod.POST)
+    public RedirectView banAccount(@RequestParam int id, @RequestParam(required = false) String username,
+                                      @RequestParam(required = false) String password, @RequestParam(required = false) String page){
+
+        int Page;
+
+        if(page == null) Page = 1;
+        else Page = Integer.parseInt(page);
+
+        RedirectView redirectView = new RedirectView();
+
+        if(authorizeAdmin2(username, password)){
+            Server.pokerServer.getDb().banAccount(id);
+            redirectView.setUrl("showAccounts?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + Page);
+        }
+        else {
+            redirectView.setUrl("forbidden");
+        }
+
+        return redirectView;
+    }
+
+    @RequestMapping(value = "/permitBannedAccount", method = RequestMethod.POST)
+    public RedirectView permitBannedAccount(@RequestParam int id, @RequestParam(required = false) String username,
+                                      @RequestParam(required = false) String password, @RequestParam(required = false) String page){
+
+        int Page;
+
+        if(page == null) Page = 1;
+        else Page = Integer.parseInt(page);
+
+        RedirectView redirectView = new RedirectView();
+
+        if(authorizeAdmin2(username, password)){
+            Server.pokerServer.getDb().removeBannedAccount(id);
+            redirectView.setUrl("showBannedAccounts?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + Page);
         }
         else {
             redirectView.setUrl("forbidden");
@@ -388,6 +432,40 @@ public class WebpagesController {
 
 
 
+    @RequestMapping("/showBannedAccounts")
+    public String showBannedAccounts(@RequestParam(required = false) String username, @RequestParam(required = false) String password, @RequestParam(required = false) String page, Model model){
+
+        int Page;
+
+        if(page == null) Page = 1;
+        else {
+            try{
+                Page = Integer.parseInt(page);
+            }catch (Exception e){
+                return "Forbidden";
+            }
+        }
+
+        if(Page < 1) Page = 1;
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            model.addAttribute("bannedList", Server.pokerServer.getDb().getBannedAccounts(Page));
+            model.addAttribute("pageNo", Page);
+            model.addAttribute("username", PokerServerApplication.getUsername());
+            model.addAttribute("password", PokerServerApplication.getPassword());
+            ret += "Banned";
+        }
+        else ret += "Forbidden";
+
+        return ret;
+    }
+
+
+
+
 
 
     private int digitCount(int x){
@@ -490,6 +568,8 @@ public class WebpagesController {
             model.addAttribute("eachVideoCoin", eachVideoCoin);
             model.addAttribute("FreeLoginCoin", FreeLoginCoin);
             model.addAttribute("delayLoginOnForce", Server.pokerServer.getDelayLoginOnForce());
+            model.addAttribute("version", Server.pokerServer.getVersion());
+            model.addAttribute("showButton", Server.pokerServer.isShowButton());
             model.addAttribute("username", PokerServerApplication.getUsername());
             model.addAttribute("password", PokerServerApplication.getPassword());
 

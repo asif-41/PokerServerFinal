@@ -428,4 +428,18 @@ public class RawDataController {
 
         return ret;
     }
+
+    @RequestMapping(value = "/data/printBannedAccounts", produces = "text/plain")
+    public @ResponseBody String printBannedAccounts(@RequestParam(required = false) String username, @RequestParam(required = false) String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += DB.printBannedAccounts(Server.pokerServer.getDb());
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
 }

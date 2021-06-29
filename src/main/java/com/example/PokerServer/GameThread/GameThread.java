@@ -1293,20 +1293,18 @@ public class GameThread implements Runnable, Comparable {
 
             temp = new JSONObject();
             temp.put("name", "Raise");
-            if(v + minCallValue/2 <= tempUser.getBoardCoin()) {
-                temp.put("cost", roundCall + minCallValue/2);
+            if(v + minCallValue <= tempUser.getBoardCoin()) {
+                temp.put("cost", roundCall + minCallValue);
                 temp.put("maxCost", min( getMaxRaiseCost(), tempUser.getBoardCoin() ) );
             }
             else {
-                temp.put("cost", 0);
-                temp.put("maxCost", 0);
+                temp.put("cost", tempUser.getBoardCoin());
+                temp.put("maxCost", tempUser.getBoardCoin());
             }
 
             array.put(temp);
         }
-        else{
-            //All In button
-
+        else {
             temp = new JSONObject();
             temp.put("name", "AllIn");
             temp.put("cost", tempUser.getBoardCoin());
@@ -1585,7 +1583,7 @@ public class GameThread implements Runnable, Comparable {
 
             turnCount = 0;
             cycleCount++;
-            roundCall = minCallValue;
+            roundCall = 0;
             roundIteratorSeat = -1;
 
             for (int i = 0; i < maxPlayerCount; i++) {
@@ -1622,8 +1620,6 @@ public class GameThread implements Runnable, Comparable {
 
         startNewRound();
     }
-
-    //change here
 
     private void test(){
 
@@ -2133,7 +2129,6 @@ public class GameThread implements Runnable, Comparable {
             roundPlayersCoinBack[i] = 0;
         }
     }
-    //change done
 
 
 
