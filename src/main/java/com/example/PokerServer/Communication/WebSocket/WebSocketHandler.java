@@ -36,7 +36,12 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
 
-        receiveMessage(session, message.getPayload());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                receiveMessage(session, message.getPayload());
+            }
+        }).start();
     }
 
     @Override

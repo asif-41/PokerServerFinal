@@ -28,6 +28,7 @@ public class Randomizer {
     }
 
     public static int one(int limit) {
+        if(limit == 0) return 0;
         return random.nextInt(limit);
     }
 

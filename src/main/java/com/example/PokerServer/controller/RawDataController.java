@@ -1,5 +1,6 @@
 package com.example.PokerServer.controller;
 
+import com.example.PokerServer.Connection.BotClient;
 import com.example.PokerServer.Connection.Server;
 import com.example.PokerServer.Connection.ServerToClient;
 import com.example.PokerServer.GameThread.GameThread;
@@ -163,6 +164,10 @@ public class RawDataController {
             ret += "Welcome admin\n\n";
             ret += "Server info:\n\n";
 
+            ret += "Thread count: " + Thread.activeCount() + "\n\n";
+
+
+
             ret += "New user registration coin: " + ( (double) Server.pokerServer.initialCoin / 100000 ) + "lac\n";
             ret += "Max guest limit: " + Server.pokerServer.getMaxGuestLimit() + "\n";
             ret += "Wait in queue: " + Server.pokerServer.getQueueWaitLimit() + "seconds\n";
@@ -249,6 +254,32 @@ public class RawDataController {
             for(Object x : Server.pokerServer.getGuests()){
 
                 ret += (int) x + "\n";
+            }
+        }
+        else ret = "Unauthorized access request: failed";
+
+        return ret;
+    }
+
+    @RequestMapping(value = "/data/printBotUsers", produces = "text/plain")
+    public @ResponseBody String printBotUsers(@RequestParam(required = false) String username, @RequestParam(required = false) String password){
+
+        String ret = "";
+
+        if(authorizeAdmin(username, password)){
+
+            ret += "Bots limit: " + Server.pokerServer.getMaxBotLimit() + "\n";
+            ret += "Bots user count: " + Server.pokerServer.getBots().size() + "\n";
+            ret += "Bots users id: " + "\n\n";
+
+            for(Object x : Server.pokerServer.getBots()) ret += (int) x + "\n";
+            ret += "\n\n";
+
+            ret += "Bots:\n\n";
+            for(Object x : Server.pokerServer.getBotClients()){
+
+                User temp = ((BotClient) x).getUser();
+                ret += temp.printUser() + "\n";
             }
         }
         else ret = "Unauthorized access request: failed";

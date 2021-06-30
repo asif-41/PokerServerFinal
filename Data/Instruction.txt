@@ -7,4 +7,4 @@ FOR DEPLOYMENT, EDIT THESE::
 4.  Port: 1112
 5.  Button show: true (in webpage)
 6.  Version: 4 (in webpage)
-7.  Link of page: 66.42.55.46
+7.  Host of page: 66.42.55.46

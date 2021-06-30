@@ -78,7 +78,11 @@ public class Server {
 
     private int maxBotLimit;
     private ArrayList bots;
-    private ArrayList botUsers;
+    private ArrayList botClients;
+    public long botTurnDelayMin;
+    public long botTurnDelayMax;
+    public long addBotDelay;
+    public int deleteBotBeforeRound;
 
     //====================================================
 
@@ -98,7 +102,8 @@ public class Server {
                   int queueWaitLimit, int port, String host, int maxGuestLimit, int maxBotLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
-                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version, int imageCount) {
+                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version, int imageCount,
+                  long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound) {
 
         this.version = version;
         this.showButton = showButton;
@@ -144,7 +149,11 @@ public class Server {
 
         this.maxBotLimit = maxBotLimit;
         bots = new ArrayList<Integer>();
-        botUsers = new ArrayList<BotClient>();
+        botClients = new ArrayList<BotClient>();
+        this.botTurnDelayMin = botTurnDelayMin;
+        this.botTurnDelayMax = botTurnDelayMax;
+        this.addBotDelay = addBotDelay;
+        this.deleteBotBeforeRound = deleteBotBeforeRound;
 
         waitingRoom = new ArrayList[boardTypeCount];
         gameThreads = new ArrayList[boardTypeCount];
@@ -167,7 +176,7 @@ public class Server {
             public void run() {
                 queueIterator();
             }
-        }, 0, 10000);
+        }, 0, 5000);
 
         allowLogin = true;
         loginDelay = null;
@@ -199,32 +208,66 @@ public class Server {
     //
     //========================================================================================
 
-    private User makeBotUser() {
+    long roundValue(long amount, long rounder){
+
+        double x = ((double) amount) / rounder;
+        long ret = ((long) x) * rounder;
+
+        return ret;
+    }
+
+    private long getBotBoardCoin(long startCoin, int boardKey){
+
+        long ret = 0;
+
+        double perc = ( ( (double) maxEntryValue[boardKey] ) / startCoin) * 100;
+        int p = (int) perc;
+
+        while(true){
+
+            double m = Randomizer.one( p-10 ) + 10;
+            ret = roundValue((long) (startCoin * (m / 100)) , minCallValue[boardKey] );
+
+            if(ret >= minEntryValue[boardKey]*2 && ret <= maxEntryValue[boardKey]) break;
+        }
+        return ret;
+    }
+
+    private long getBotStartCoin(int boardKey){
+
+        long max = maxEntryValue[boardKey];
+
+        int m = Randomizer.one(5) + 1;
+        double mm = m + ((double) Randomizer.one(100)) / 100;
+
+        long ret = (long) ( max * mm );
+        ret = roundValue(ret, minCallValue[boardKey]);
+
+        return ret;
+    }
+
+    private User makeBotUser(int boardKey) {
+
+        long startCoin = getBotStartCoin(boardKey);
+        long boardCoin = getBotBoardCoin(startCoin, boardKey);
 
         int id = Randomizer.randomUnique(bots, maxBotLimit) + 20000;
         bots.add(id);
 
-        String imageLink = "http://" + host + ":" + port + "/image?id=";
-        int imageId = Randomizer.one(24) + 1;
+        User user = User.makeBotUser("Guest_" + id, startCoin);
+        user.initializeGameData(-1, -1, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey], -1, -1, boardCoin);
 
-        imageLink += String.valueOf(imageId);
-
-        User user;
-        user = new User(-1, "Guest_" + id, "", "", "guest", imageLink,
-                0, initialCoin, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, "",
-                dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
-                User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
-
-        botUsers.add(user);
+        user.setBot(true);
         return user;
-
     }
 
-    private BotClient makeBotClient() {
+    public BotClient makeBotClient(int boardKey) {
 
-        User botUser = makeBotUser();
+        User botUser = makeBotUser(boardKey);
         BotClient botClient = new BotClient(botUser);
+
+        botClients.add(botClient);
+        new Thread(botClient).start();
 
         return botClient;
     }
@@ -397,7 +440,7 @@ public class Server {
         return code;
     }
 
-    private int getBoardKey(String name) {
+    public int getBoardKey(String name) {
 
         int ret = -1;
 
@@ -589,6 +632,24 @@ public class Server {
         for (int i = 0; i < boardTypeCount; ) {
 
             if (pendingQueue[i].size() < leastPlayerCount) {
+
+                if(pendingQueue[i].size() > 0){
+
+                    ArrayList temp = new ArrayList<ServerToClient>();
+
+                    for(int j=0; j<pendingQueue[i].size(); j++){
+
+                        temp.add(pendingQueue[i].get(0));
+                        pendingQueue[i].remove(0);
+                        queueTimeCount[i].remove(0);
+                    }
+
+                    BotClient botClient = makeBotClient(i);
+                    temp.add(botClient);
+
+                    makeGameThread(temp, i);
+                    temp.clear();
+                }
                 i++;
                 continue;
             }
@@ -784,6 +845,18 @@ public class Server {
         loggedInUsers.remove(s);
     }
 
+    public void removeFromBotClients(BotClient b) {
+
+        if (b != null && b.getUser() != null){
+
+            removeFromGameThread(b);
+
+            int nameCode = Integer.valueOf(b.getUser().getUsername().split("_")[1]);
+            bots.remove((Integer) nameCode);
+        }
+        botClients.remove(b);
+    }
+
     public void removeFromCasualConnections(ServerToClient s) {
 
         removeFromLoggedUsers(s);
@@ -856,6 +929,12 @@ public class Server {
 
             ServerToClient x = (ServerToClient) loggedInUsers.get(0);
             x.forceLogout("Updates are coming from server! please relogin");
+        }
+
+        while(botClients.size() != 0){
+
+            BotClient b = (BotClient) botClients.get(0);
+            b.forceLogout("hehe");
         }
 
         if(loginDelay != null) loginDelay.cancel();
@@ -1425,6 +1504,18 @@ public class Server {
 
     public void setVersion(int version) {
         this.version = version;
+    }
+
+    public ArrayList getBotClients() {
+        return botClients;
+    }
+
+    public ArrayList getBots() {
+        return bots;
+    }
+
+    public int getMaxBotLimit() {
+        return maxBotLimit;
     }
 
     //================================================================================================================================================

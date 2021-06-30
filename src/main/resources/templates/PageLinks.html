@@ -97,6 +97,11 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-danger">
+                        <a target="_blank"  th:href="'/data/printBotUsers?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Bot users</a>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger">
                         <a target="_blank"  th:href="'/data/printPendingQueue?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Pending queue</a>
                     </button>
                 </td>

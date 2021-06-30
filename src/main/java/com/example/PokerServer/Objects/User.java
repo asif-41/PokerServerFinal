@@ -1,5 +1,6 @@
 package com.example.PokerServer.Objects;
 
+import com.example.PokerServer.Connection.Server;
 import org.json.JSONObject;
 
 import java.text.ParseException;
@@ -112,6 +113,8 @@ public class User {
     private long tempMinEntryValue;      //      INVITATION ENTRY VALUE
     private long tempMinCallValue;       //      INTVITATION CALL VALUE
 
+    private boolean isBot;
+
 
     //============================================================================
     //              INITIALIZING DONE
@@ -164,6 +167,7 @@ public class User {
         this.biggestWin = biggestWin;
         this.bestHand = bestHand;
 
+        isBot = false;
         inGame = false;
         gameRunning = false;
         boardCoin = 0;
@@ -171,7 +175,84 @@ public class User {
         deInitializeGameData();
     }
 
+    private static int getRoundsPlayed(long startCoin){
 
+        long cur = Server.pokerServer.initialCoin;
+        int ret = 0;
+
+        long[] minCallValue = Server.pokerServer.getMinCallValue();
+        long[] minEntryValue = Server.pokerServer.getMinEntryValue();
+
+        for(int i=0; i<minCallValue.length; i++){
+
+            if(cur >= startCoin) break;
+
+            int m = Randomizer.one(13) + 8;
+            long am = minCallValue[i];                              //proti match e jite
+
+            long target;                                            //jite eto hobe
+            if(i + 1 == minCallValue.length) target = startCoin;
+            else {
+                target = minEntryValue[i+1] + minCallValue[i+1];
+                target = (target / minCallValue[i+1]);
+                target = target * minCallValue[i+1];
+
+                if(target > startCoin) target = startCoin;
+            }
+
+            long win = target - cur;
+            long turn = (win + am - 1) / am;
+            long cnt = (turn + m - 1) / m;
+
+            ret += cnt;
+            cur = target;
+        }
+        return ret;
+    }
+
+    public static User makeBotUser(String username, long startCoin){
+
+        int imageId = Randomizer.one(24) + 1;
+        String imageLink = "http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id=" + imageId;
+
+        int roundsPlayed = getRoundsPlayed(startCoin);
+        int roundsWon = Randomizer.one(roundsPlayed/2) + roundsPlayed/2;
+        int winStreak = Randomizer.one(roundsWon);
+
+        long exp = ( Randomizer.one(roundsPlayed/5) + 1 ) * expIncrease;
+
+        int totalCallCount = Randomizer.one(50) + 50;
+        int callCount = Randomizer.one(totalCallCount/4);
+        int raiseCount = Randomizer.one((totalCallCount - callCount) / 3);
+        int foldCount = Randomizer.one( (totalCallCount - callCount - raiseCount) / 2 );
+        int checkCount = Randomizer.one((totalCallCount - callCount - raiseCount - foldCount ) / 4) + ((totalCallCount - callCount - raiseCount - foldCount ) * 3)/4;
+        int allInCount = totalCallCount - callCount - raiseCount - foldCount - checkCount;
+        String bestHand = Card.intToHand( Randomizer.one(4) + 5);
+
+
+        startCoin += Server.pokerServer.initialCoin + Server.pokerServer.freeLoginCoin;
+        long videoCoin = ((Randomizer.one(20) + 1) * Server.pokerServer.eachVideoCoin);
+
+        startCoin += videoCoin;
+
+        long coinWon = startCoin - Server.pokerServer.initialCoin - Server.pokerServer.freeLoginCoin - videoCoin;
+        coinWon = ((coinWon/10000) * 10000);
+
+        long coinLost = coinWon / (Randomizer.one(10) + 2);
+        coinLost = ((coinLost/10000) * 10000);
+
+        coinWon += coinLost;
+
+        long biggestWin = coinWon / (Randomizer.one(25) + 10);
+
+        User user = new User(-1, username, "", "", "guest", imageLink,
+                exp, startCoin, coinWon, coinLost, roundsWon, roundsPlayed, winStreak,
+                totalCallCount, callCount, raiseCount, foldCount, allInCount, checkCount, biggestWin, bestHand,
+                Server.pokerServer.dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
+                User.firstLastFreeCoinTime(), Calendar.getInstance().getTime());
+
+        return user;
+    }
 
 
 
@@ -1216,6 +1297,14 @@ public class User {
         this.tempMinCallValue = tempMinCallValue;
     }
 
+    public boolean isBot() {
+        return isBot;
+    }
+
+    public void setBot(boolean bot) {
+        isBot = bot;
+    }
+
     public String getImageLink() {
         return imageLink;
     }
@@ -1245,6 +1334,7 @@ public class User {
                 ", fb_id='" + fb_id + '\'' +
                 ", gmail_id='" + gmail_id + '\'' +
                 ", loginMethod='" + loginMethod + '\'' +
+                ", isBot='" + isBot + '\'' +
                 ", isLoggedIn=" + isLoggedIn +
                 ", exp=" + exp +
                 ", currentCoin=" + currentCoin +
@@ -1310,6 +1400,7 @@ public class User {
 
         ret += "Id: " + id + "\n";
         ret += "Username: " + username + "\n";
+        ret += "IsBot: " + isBot + "\n";
         ret += "Facebook: " + fb_id + "\n";
         ret += "Gmail: " + gmail_id + "\n";
         ret += "Login Method: " + loginMethod + "\n";
