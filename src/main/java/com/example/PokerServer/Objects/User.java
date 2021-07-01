@@ -1401,6 +1401,7 @@ public class User {
         ret += "Id: " + id + "\n";
         ret += "Username: " + username + "\n";
         ret += "IsBot: " + isBot + "\n";
+        ret += "Image link: " + imageLink + "\n";
         ret += "Facebook: " + fb_id + "\n";
         ret += "Gmail: " + gmail_id + "\n";
         ret += "Login Method: " + loginMethod + "\n";

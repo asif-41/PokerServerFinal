@@ -527,7 +527,9 @@ public class GameThread implements Runnable, Comparable {
 
     private synchronized void tryAddBot(){
 
-        if(hasBot || playerCount > Server.pokerServer.getLeastPlayerCount()) return;
+        if(isPrivate) return ;
+        if(hasBot || gameRunning || activeCountInRound >= Server.pokerServer.getLeastPlayerCount()) return;
+        if(playerCount == maxPlayerCount) return ;
 
         int key = Server.pokerServer.getBoardKey(boardType);
         BotClient b = Server.pokerServer.makeBotClient(key);
@@ -536,13 +538,16 @@ public class GameThread implements Runnable, Comparable {
 
     private void tryRemoveBot(){
 
-        if(hasBot && playerCount>Server.pokerServer.getLeastPlayerCount()){
+        if(hasBot){
 
-            if(deletingBot == -1) deletingBot = Randomizer.one(Server.pokerServer.deleteBotBeforeRound) + 1;
-            else deletingBot--;
+            if(activeCountInRound>Server.pokerServer.getLeastPlayerCount()
+                || (activeCountInRound == Server.pokerServer.getLeastPlayerCount() && !isActiveInRoom[botLoc])){
 
-            if(deletingBot == 0)
-                exitGameResponse(inGamePlayers[botLoc]);
+                if(deletingBot == -1) deletingBot = Randomizer.one(Server.pokerServer.deleteBotBeforeRound) + 1;
+                else deletingBot--;
+
+                if(deletingBot == 0) exitGameResponse(inGamePlayers[botLoc]);
+            }
         }
         else deletingBot = -1;
     }
@@ -558,6 +563,8 @@ public class GameThread implements Runnable, Comparable {
                 break;
             }
         }
+
+        if(loc == -1) return ;
 
         if(s.getUser().isBot()){
             hasBot = true;
@@ -636,12 +643,6 @@ public class GameThread implements Runnable, Comparable {
 
     public synchronized void exitGameResponse(ServerToClient s) {
 
-        if(s.getUser() != null && !s.getUser().isBot()){
-
-            tryAddBot();
-            waitGame(Server.pokerServer.addBotDelay);
-        }
-
         if(s.getUser().isBot()){
             hasBot = false;
             botLoc = -1;
@@ -684,7 +685,11 @@ public class GameThread implements Runnable, Comparable {
                 setOwner();
                 sendPlayersDataToAll();
 
-                if (!gameRunning) return;
+                if (!gameRunning) {
+                    waitGame(Server.pokerServer.addBotDelay);
+                    tryAddBot();
+                    return;
+                }
 
                 if (seatPosition == roundIteratorSeat) {
                     playRound();
@@ -907,6 +912,10 @@ public class GameThread implements Runnable, Comparable {
         } else setNextPlayer();
 
         if (roundIteratorSeat != -1) {
+
+            if( ! (roundIteratorSeat >= 0 && roundIteratorSeat < maxPlayerCount) ) return;
+            else if (inGamePlayers[roundIteratorSeat] == null) return ;
+
             String username = inGamePlayers[roundIteratorSeat].getUser().getUsername();
             roundIteratorName = username;
         }
@@ -962,7 +971,6 @@ public class GameThread implements Runnable, Comparable {
     private void startNewRound() {
 
         //player enough thakle bot re bair koro
-        tryRemoveBot();
 
         activeCountInRound = 0;
         roundCall = minCallValue;
@@ -998,10 +1006,10 @@ public class GameThread implements Runnable, Comparable {
             }
         }
 
-        if (activeCountInRound == 0 || activeCountInRound == 1) {
+        if (activeCountInRound < Server.pokerServer.getLeastPlayerCount()) {
 
             gameRunning = false;
-            if (waitingToClose == true) return;
+            if(waitingToClose) return;
 
             waitForPlayersToBuyMsg();
             waitingToClose = true;
@@ -1014,9 +1022,14 @@ public class GameThread implements Runnable, Comparable {
                 }
             }, 30000);
 
+            waitGame(Server.pokerServer.addBotDelay);
+            tryAddBot();
+
             return;
         }
+
         if (closeTimer != null) closeTimer.cancel();
+        tryRemoveBot();         //activeCountInRound >= 2
 
         cycleCount = 1;
         turnCount = 0;

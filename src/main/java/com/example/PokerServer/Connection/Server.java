@@ -84,6 +84,8 @@ public class Server {
     public long addBotDelay;
     public int deleteBotBeforeRound;
 
+    private long queueIteratorDelay;
+
     //====================================================
 
 
@@ -103,7 +105,7 @@ public class Server {
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version, int imageCount,
-                  long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound) {
+                  long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay) {
 
         this.version = version;
         this.showButton = showButton;
@@ -170,13 +172,15 @@ public class Server {
         this.port = port;
         this.host = host;
 
+        this.queueIteratorDelay = queueIteratorDelay;
+
         //TIMER TO CHECK QUEUE
         new Timer().scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
                 queueIterator();
             }
-        }, 0, 5000);
+        }, 0, queueIteratorDelay);
 
         allowLogin = true;
         loginDelay = null;
