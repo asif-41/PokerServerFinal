@@ -564,7 +564,12 @@ public class GameThread implements Runnable, Comparable {
             }
         }
 
-        if(loc == -1) return ;
+        if(loc == -1) {
+            if(s.getUser().isBot())
+                s.leaveGameRoom();
+
+            return ;
+        }
 
         if(s.getUser().isBot()){
             hasBot = true;
@@ -2672,6 +2677,10 @@ public class GameThread implements Runnable, Comparable {
 
     public boolean isGameRunning() {
         return gameRunning;
+    }
+
+    public int getCycleCount() {
+        return cycleCount;
     }
 
     //==================================================================================================================

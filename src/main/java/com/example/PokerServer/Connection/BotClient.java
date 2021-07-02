@@ -407,6 +407,8 @@ public class BotClient extends ServerToClient {
         //System.out.println("option -> " + option);
 
         delayBot();
+
+        if(gameThread == null || !gameThread.isGameRunning()) return;
         //System.out.println("Sending option from bot");
 
         if(option.getString("name").equals("Call")) sendGameThreadCallRequest();
@@ -543,6 +545,8 @@ public class BotClient extends ServerToClient {
 
     public void leaveGameRoom() {
 
+        if(increaseCoinTimer != null) increaseCoinTimer.cancel();
+
         gameThread = null;
         user.deInitializeGameData();
         Server.pokerServer.removeFromBotClients(this);
@@ -567,7 +571,10 @@ public class BotClient extends ServerToClient {
         int x = (int) (Server.pokerServer.botTurnDelayMin / 1000);      //5
         int y = (int) (Server.pokerServer.botTurnDelayMax / 1000);      //10
 
-        int t = Randomizer.one(y-x+1) + 5;
+        x = gameThread.getCycleCount();
+        y = x+5;
+
+        int t = Randomizer.one(y-x+1) + x;
         waitBot(t);
     }
 
