@@ -2683,6 +2683,45 @@ public class GameThread implements Runnable, Comparable {
         return cycleCount;
     }
 
+    public boolean isHasAnyoneRaised() {
+        return hasAnyoneRaised;
+    }
+
+    public long getRoundCall() {
+        return roundCall;
+    }
+
+    public ArrayList getBoardCards() {
+        return boardCards;
+    }
+
+    public ArrayList getPlayerCards(){
+
+        ArrayList ret = new ArrayList<Card[]>();
+
+        for(int i=0; i<maxPlayerCount; i++){
+
+            if(inGamePlayers[i] == null) ret.add(null);
+            else{
+                Card[] temp = new Card[2];
+                temp[0] = (Card) inGamePlayers[i].getUser().getPlayerCards().get(0);
+                temp[1] = (Card) inGamePlayers[i].getUser().getPlayerCards().get(1);
+
+                ret.add(temp);
+            }
+        }
+        return ret;
+    }
+
+    public int getBotLoc() {
+        return botLoc;
+    }
+
+    public User getPlayer(int i){
+        if(inGamePlayers[i] == null) return null;
+        else return inGamePlayers[i].getUser();
+    }
+
     //==================================================================================================================
     //
     //==================================================================================================================
