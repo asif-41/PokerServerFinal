@@ -1025,7 +1025,7 @@ public class GameThread implements Runnable, Comparable {
                 public void run() {
                     closeRoom();
                 }
-            }, 30000);
+            }, 20000);
 
             waitGame(Server.pokerServer.addBotDelay);
             tryAddBot();
@@ -1393,6 +1393,7 @@ public class GameThread implements Runnable, Comparable {
 
             temp.put("cost", min);
             temp.put("maxCost", max);
+            temp.put("stepSize", incr);
 
             array.put(temp);
         }
@@ -2720,6 +2721,10 @@ public class GameThread implements Runnable, Comparable {
     public User getPlayer(int i){
         if(inGamePlayers[i] == null) return null;
         else return inGamePlayers[i].getUser();
+    }
+
+    public boolean isHasBot() {
+        return hasBot;
     }
 
     //==================================================================================================================

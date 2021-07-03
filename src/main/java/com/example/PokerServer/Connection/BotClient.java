@@ -159,23 +159,7 @@ public class BotClient extends ServerToClient {
 
                 enableGameButtons(jsonIncoming);
             }
-
-
         }
-
-
-
-
-
-//            else if (tempJson.get("gameRequest").equals("LeaveGame")) {
-//
-//                leaveGameRoom();
-//
-//                disableGameButtons();
-//                exitButton.setEnabled(false);
-//                joinGame.setText("Join");
-//                addTextInGui("Leaving game");
-//            }
 
     }
 
@@ -771,14 +755,11 @@ public class BotClient extends ServerToClient {
                 int step;
                 long min = option.getLong("cost");
                 long max = option.getLong("maxCost");
-                long stepsize;
-
-                if(gameThread.getRoundCall() == 0) stepsize = gameThread.getMinCallValue();
-                else stepsize = gameThread.getRoundCall();
+                long stepSize = option.getLong("stepSize");
 
                 if(min == max) step = 0;
                 else{
-                    step = (int) ( (max - min + stepsize) / stepsize );
+                    step = (int) ( (max - min + stepSize) / stepSize );
                 }
 
                 if(step == 0) cost = min;
@@ -786,7 +767,7 @@ public class BotClient extends ServerToClient {
                 else {
 
                     int k = Randomizer.one(step) + 1;
-                    cost = Math.min( min + k*stepsize, max);
+                    cost = Math.min( min + k*stepSize, max);
                 }
             }
             else if(raiseValue == 3) cost = option.getLong("maxCost");
@@ -945,8 +926,8 @@ public class BotClient extends ServerToClient {
 
     private void delayBot(){
 
-        int x = (int) (Server.pokerServer.botTurnDelayMin / 1000);      //5
-        int y = (int) (Server.pokerServer.botTurnDelayMax / 1000);      //10
+        int x = (int) (Server.pokerServer.botTurnDelayMin / 1000);      //2
+        int y = (int) (Server.pokerServer.botTurnDelayMax / 1000);      //8
 
         int t = Randomizer.one(y-x+1) + x;
         waitBot(t);

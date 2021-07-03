@@ -20,11 +20,11 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-4.0.0.out";
+    private static String terminalPath = "terminal-6.0.0.out";
     private static String imagePath = "images/";
 
     private static boolean showButton = false;
-    private static int version = 5;
+    private static int version = 6;
 
     private static String host = "66.42.55.46";
     private static int port = 1112;
@@ -60,7 +60,7 @@ public class PokerServerApplication {
                 10, 50000, 100000, 60, 10, 10,
                 coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, 10, showButton, version, imageCount,
-                5000, 10000, 3, 3, 2000);
+                2000, 8000, 3, 3, 2000);
     }
 
 

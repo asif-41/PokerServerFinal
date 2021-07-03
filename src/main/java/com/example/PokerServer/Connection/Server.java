@@ -689,6 +689,7 @@ public class Server {
 
                     if(gg.isPrivate()) continue;
                     else if(gg.getPlayerCount() == 0) continue;
+                    else if(gg.getPlayerCount() == 1 && gg.isHasBot()) continue;
                     else if(gg.getPlayerCount() == gg.getMaxPlayerCount()) break;
 
                     if(gg.getGameCode() == s.getLastGameCode()) loc = gg;
