@@ -720,7 +720,7 @@ public class GameThread implements Runnable, Comparable {
     }
 
 
-    private void closeRoom() {
+    public void closeRoom() {
 
         if(closeTimer != null) closeTimer.cancel();
 
@@ -1728,6 +1728,7 @@ public class GameThread implements Runnable, Comparable {
         }
 
         //STORES WINNER DATA INITIALIZED VALUES
+        gameRunning = false;
         winnerWhenChecked();
         loadWinnerData();
 
@@ -2640,7 +2641,7 @@ public class GameThread implements Runnable, Comparable {
 
 
         for(int i=0; i<maxPlayerCount; i++){
-            if(inGamePlayers[i] == null) continue;
+            if(inGamePlayers[i] == null || inGamePlayers[i].getUser() == null) continue;
 
             User user = inGamePlayers[i].getUser();
 

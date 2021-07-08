@@ -407,7 +407,7 @@ public class WaitingRoom implements Runnable {
         if(owner == null && closing == false) closeEverything();
     }
 
-    private void closeEverything() {
+    public void closeEverything() {
 
         if(closeTimer != null) closeTimer.cancel();
         closing = true;

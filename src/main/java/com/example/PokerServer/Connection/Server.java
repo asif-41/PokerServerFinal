@@ -655,23 +655,23 @@ public class Server {
 
             if (pendingQueue[i].size() < leastPlayerCount) {
 
-                if(pendingQueue[i].size() > 0 && botIds.size() < maxBotLimit){
-
-                    ArrayList temp = new ArrayList<ServerToClient>();
-
-                    for(int j=0; j<pendingQueue[i].size(); j++){
-
-                        temp.add(pendingQueue[i].get(0));
-                        pendingQueue[i].remove(0);
-                        queueTimeCount[i].remove(0);
-                    }
-
-                    BotClient botClient = makeBotClient(i);
-                    temp.add(botClient);
-
-                    makeGameThread(temp, i);
-                    temp.clear();
-                }
+//                if(pendingQueue[i].size() > 0 && botIds.size() < maxBotLimit){
+//
+//                    ArrayList temp = new ArrayList<ServerToClient>();
+//
+//                    for(int j=0; j<pendingQueue[i].size(); j++){
+//
+//                        temp.add(pendingQueue[i].get(0));
+//                        pendingQueue[i].remove(0);
+//                        queueTimeCount[i].remove(0);
+//                    }
+//
+//                    BotClient botClient = makeBotClient(i);
+//                    temp.add(botClient);
+//
+//                    makeGameThread(temp, i);
+//                    temp.clear();
+//                }
                 i++;
                 continue;
             }
@@ -960,6 +960,20 @@ public class Server {
 
             BotClient b = (BotClient) botClients.get(0);
             b.forceLogout("hehe");
+        }
+
+        for(int i=0; i<boardTypeCount; i++){
+            while(gameThreads[i].size() != 0){
+                GameThread g = (GameThread) gameThreads[i].get(0);
+                g.closeRoom();
+            }
+        }
+
+        for(int i=0; i<boardTypeCount; i++){
+            while(waitingRoom[i].size() != 0){
+                WaitingRoom w = (WaitingRoom) waitingRoom[i].get(0);
+                w.closeEverything();
+            }
         }
 
         loggedInUsers.clear();
