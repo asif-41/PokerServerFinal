@@ -655,23 +655,23 @@ public class Server {
 
             if (pendingQueue[i].size() < leastPlayerCount) {
 
-//                if(pendingQueue[i].size() > 0 && botIds.size() < maxBotLimit){
-//
-//                    ArrayList temp = new ArrayList<ServerToClient>();
-//
-//                    for(int j=0; j<pendingQueue[i].size(); j++){
-//
-//                        temp.add(pendingQueue[i].get(0));
-//                        pendingQueue[i].remove(0);
-//                        queueTimeCount[i].remove(0);
-//                    }
-//
-//                    BotClient botClient = makeBotClient(i);
-//                    temp.add(botClient);
-//
-//                    makeGameThread(temp, i);
-//                    temp.clear();
-//                }
+                if(pendingQueue[i].size() > 0 && botIds.size() < maxBotLimit){
+
+                    ArrayList temp = new ArrayList<ServerToClient>();
+
+                    for(int j=0; j<pendingQueue[i].size(); j++){
+
+                        temp.add(pendingQueue[i].get(0));
+                        pendingQueue[i].remove(0);
+                        queueTimeCount[i].remove(0);
+                    }
+
+                    BotClient botClient = makeBotClient(i);
+                    temp.add(botClient);
+
+                    makeGameThread(temp, i);
+                    temp.clear();
+                }
                 i++;
                 continue;
             }
