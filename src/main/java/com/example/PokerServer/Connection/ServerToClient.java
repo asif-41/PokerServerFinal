@@ -140,14 +140,14 @@ public class ServerToClient implements Runnable {
                 jsonObject.put("done", false);
                 jsonObject.put("data", splitted[i]);
 
-                session.sendMessage(new TextMessage(jsonObject.toString()));
+                if(session.isOpen()) session.sendMessage(new TextMessage(jsonObject.toString()));
             }
 
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("done", true);
             jsonObject.put("data", splitted[splitted.length-1]);
 
-            session.sendMessage(new TextMessage(jsonObject.toString()));
+            if(session.isOpen()) session.sendMessage(new TextMessage(jsonObject.toString()));
 
         } catch (Exception e) {
             System.out. println("Error for connection with key -> " + webSocketKey);
