@@ -268,11 +268,14 @@ public class RawDataController {
 
         if(authorizeAdmin(username, password)){
 
-            ret += "Bots limit: " + Server.pokerServer.getMaxBotLimit() + "\n";
-            ret += "Bots user count: " + Server.pokerServer.getBots().size() + "\n";
-            ret += "Bots users id: " + "\n\n";
+            ret += "Max bot limit: " + Server.pokerServer.getMaxBotLimit() + "\n";
+            ret += "Bots user count: " + Server.pokerServer.getBotClients().size() + "\n";
+            ret += "Bot users: " + "\n\n";
 
-            for(Object x : Server.pokerServer.getBots()) ret += (int) x + "\n";
+            for(Object x : Server.pokerServer.getBotClients()) {
+                ret += ((BotClient) x).getUser().getId() + " ";
+                ret += ((BotClient) x).getUser().getUsername() + "\n";
+            }
             ret += "\n\n";
 
             ret += "Bots:\n\n";

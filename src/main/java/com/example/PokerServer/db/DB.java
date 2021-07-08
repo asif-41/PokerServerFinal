@@ -98,8 +98,9 @@ public class DB {
                     updateUser(user, "toggleLogin");
                 }
                 catch (Exception  e){
-                    e.printStackTrace();
                     System.out.println("some fields are null");
+                    e.printStackTrace(System.out);
+                    System.out.println();
                     return null;
                 }
 
@@ -127,7 +128,8 @@ public class DB {
             }
         }
         catch (Exception e){
-            e.printStackTrace();
+            e.printStackTrace(System.out);
+            System.out.println();
         }
         return user;
 
@@ -658,6 +660,8 @@ public class DB {
                     amount = Double.valueOf((String) map.get("refundAmount" + id));
                 }catch (Exception e){
                     cmds.add(new String[]{});
+                    e.printStackTrace(System.out);
+                    System.out.println();
                     continue;
                 }
                 cmds.add(new String[]{action, "", reason, String.valueOf(amount)});

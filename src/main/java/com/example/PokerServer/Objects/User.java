@@ -210,9 +210,11 @@ public class User {
         return ret;
     }
 
-    public static User makeBotUser(String username, long startCoin){
+    public static User makeBotUser(int id, long startCoin){
+
 
         int imageId = Randomizer.one(24) + 1;
+        String username = Server.pokerServer.botNames[imageId-1];
         String imageLink = "http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id=" + imageId;
 
         int roundsPlayed = getRoundsPlayed(startCoin);
@@ -245,7 +247,7 @@ public class User {
 
         long biggestWin = coinWon / (Randomizer.one(25) + 10);
 
-        User user = new User(-1, username, "", "", "guest", imageLink,
+        User user = new User(id, username, "", "", "guest", imageLink,
                 exp, startCoin, coinWon, coinLost, roundsWon, roundsPlayed, winStreak,
                 totalCallCount, callCount, raiseCount, foldCount, allInCount, checkCount, biggestWin, bestHand,
                 Server.pokerServer.dailyCoinVideoCount, Calendar.getInstance().getTime(), Calendar.getInstance().getTime(),
@@ -747,6 +749,8 @@ public class User {
             return diff1.getYears();
         } catch (ParseException e) {
             System.out.println("Invalid date format");
+            e.printStackTrace(System.out);
+            System.out.println();
             return -1;
         }
     }
@@ -761,6 +765,8 @@ public class User {
             return d;
         } catch (ParseException e) {
 
+            e.printStackTrace(System.out);
+            System.out.println();
             return null;
         }
     }

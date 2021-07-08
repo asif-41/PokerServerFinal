@@ -65,9 +65,6 @@ public class Server {
     private long connectionCheckDelay;
     private long connectionResponseDelay;
 
-    private int tokenValidityDuration;
-    private ArrayList savedTokens;
-
     public boolean showButton;
     public int version;
 
@@ -75,16 +72,20 @@ public class Server {
 
 
 
-
     private int maxBotLimit;
-    private ArrayList bots;
     private ArrayList botClients;
+    public String[] botNames;
+    public ArrayList botIds;
+
     public long botTurnDelayMin;
     public long botTurnDelayMax;
     public long addBotDelay;
     public int deleteBotBeforeRound;
 
     private long queueIteratorDelay;
+
+    public long waitingToCloseDelay;
+    private int reloginAllowTime;
 
     //====================================================
 
@@ -101,11 +102,15 @@ public class Server {
     public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] maxEntryValue, long[] minCallValue, long[] mcr,
                   int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
-                  int queueWaitLimit, int port, String host, int maxGuestLimit, int maxBotLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
+                  int queueWaitLimit, int port, String host, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
-                  long connectionCheckDelay, long connectionResponseDelay, int tokenValidityDuration, boolean showButton, int version, int imageCount,
-                  long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay) {
+                  long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
+                  long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
+                  String[] botNames, int maxBotLimit) {
+
+        this.reloginAllowTime = reloginAllowTime;
+        this.waitingToCloseDelay = waitingToCloseDelay;
 
         this.version = version;
         this.showButton = showButton;
@@ -149,8 +154,9 @@ public class Server {
         casualConnections = new ArrayList<ServerToClient>();
         loggedInUsers = new ArrayList<ServerToClient>();
 
+        this.botNames = botNames;
+        botIds = new ArrayList<Integer>();
         this.maxBotLimit = maxBotLimit;
-        bots = new ArrayList<Integer>();
         botClients = new ArrayList<BotClient>();
         this.botTurnDelayMin = botTurnDelayMin;
         this.botTurnDelayMax = botTurnDelayMax;
@@ -180,21 +186,11 @@ public class Server {
             public void run() {
                 queueIterator();
             }
-        }, 0, queueIteratorDelay);
+        }, 0, this.queueIteratorDelay);
 
         allowLogin = true;
         loginDelay = null;
         this.delayLoginOnForce = delayLoginOnForce;
-
-        this.tokenValidityDuration = tokenValidityDuration;
-        savedTokens = new ArrayList<Token>();
-
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                tokenChecker();
-            }
-        }, 0,60000);
     }
 
     //========================================================================================
@@ -255,10 +251,10 @@ public class Server {
         long startCoin = getBotStartCoin(boardKey);
         long boardCoin = getBotBoardCoin(startCoin, boardKey);
 
-        int id = Randomizer.randomUnique(bots, maxBotLimit) + 20000;
-        bots.add(id);
+        int id = Randomizer.randomUnique(botIds, maxBotLimit) + 20000;
+        botIds.add(id);
 
-        User user = User.makeBotUser("Guest_" + id, startCoin);
+        User user = User.makeBotUser(id, startCoin);
         user.initializeGameData(-1, -1, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey], -1, -1, boardCoin);
 
         user.setBot(true);
@@ -266,6 +262,8 @@ public class Server {
     }
 
     public BotClient makeBotClient(int boardKey) {
+
+        if(botIds.size() == maxBotLimit) return null;
 
         User botUser = makeBotUser(boardKey);
         BotClient botClient = new BotClient(botUser);
@@ -343,6 +341,16 @@ public class Server {
         return jsonObject;
     }
 
+    private long secsBetween(Date a, Date b){
+
+        long ret;
+
+        ret = a.getTime() - b.getTime();
+        if(ret < 0) ret = 0-ret;
+
+        return (ret/1000);
+    }
+
     private boolean checkIfBanned(String account_type, String account_id){
 
         int id = db.findBannedId(account_type, account_id);
@@ -368,7 +376,14 @@ public class Server {
             else if(userAccountType.equals("google")) userAccountId = user.getGmail_id();
 
             if(userAccountType.equals(account_type) && userAccountId.equals(account_id)) {
-                return true;
+
+                long diff = secsBetween(Calendar.getInstance().getTime(), user.getCurrentLoginTime());
+
+                if(diff >= reloginAllowTime) return true;
+                else {
+                    removeFromLoggedUsers(s);
+                    return false;
+                }
             }
         }
         return false;
@@ -637,7 +652,7 @@ public class Server {
 
             if (pendingQueue[i].size() < leastPlayerCount) {
 
-                if(pendingQueue[i].size() > 0){
+                if(pendingQueue[i].size() > 0 && botIds.size() < maxBotLimit){
 
                     ArrayList temp = new ArrayList<ServerToClient>();
 
@@ -848,6 +863,7 @@ public class Server {
             loadUserToDatabase(s.getUser());
         }
         loggedInUsers.remove(s);
+        s.setUser(null);
     }
 
     public void removeFromBotClients(BotClient b) {
@@ -856,10 +872,11 @@ public class Server {
 
             removeFromGameThread(b);
 
-            int nameCode = Integer.valueOf(b.getUser().getUsername().split("_")[1]);
-            bots.remove((Integer) nameCode);
+            int nameCode = b.getUser().getId();
+            botIds.remove((Integer) nameCode);
         }
         botClients.remove(b);
+        b.setUser(null);
     }
 
     public void removeFromCasualConnections(ServerToClient s) {
@@ -942,6 +959,10 @@ public class Server {
             b.forceLogout("hehe");
         }
 
+        loggedInUsers.clear();
+        guests.clear();
+        botIds.clear();
+
         if(loginDelay != null) loginDelay.cancel();
 
         loginDelay = new Timer();
@@ -1009,6 +1030,8 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(other table)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
 
         try{
@@ -1019,36 +1042,48 @@ public class Server {
                     int mpr = Integer.parseInt(map.get("maxPendingReq"));
                     if(mpr > 0) maxPendingReq = mpr;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
                     int dcvc = Integer.parseInt(map.get("dailyCoinVideoCount"));
                     if(dcvc > 0) dailyCoinVideoCount = dcvc;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
                     long flc = Long.parseLong(map.get("FreeLoginCoin"));
                     if(flc >= 0) freeLoginCoin = flc;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
                     long evc = Long.parseLong(map.get("eachVideoCoin"));
                     if(evc >= 0) eachVideoCoin = evc;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
                     long ic = Long.parseLong(map.get("initialCoin"));
                     if(ic >= 0) initialCoin = ic;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
                     long dlof = Long.parseLong(map.get("delayLoginOnForce"));
                     if(dlof >= 0) delayLoginOnForce = dlof;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
@@ -1057,6 +1092,8 @@ public class Server {
                 }catch (Exception e){
                     System.out.println("Error in converting data of hashmap in basic data edit(version)");
                     System.out.println("Error -> " + e);
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
                 try{
@@ -1065,12 +1102,16 @@ public class Server {
                 }catch (Exception e){
                     System.out.println("Error in converting data of hashmap in basic data edit(showButton)");
                     System.out.println("Error -> " + e);
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
             }
 
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(other table)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
 
         try{
@@ -1085,6 +1126,8 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(withdraw)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
 
         try{
@@ -1102,6 +1145,8 @@ public class Server {
                     TransactionMethods.getCoinPriceOnBuy()[loc] = price;
                     TransactionMethods.getCoinAmountOnBuy()[loc] = amount;
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
             }
@@ -1109,6 +1154,8 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(buy package)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
 
 
@@ -1130,6 +1177,8 @@ public class Server {
                         break;
                     }
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
             }
@@ -1137,6 +1186,8 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(Transaction number)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
 
 
@@ -1163,6 +1214,8 @@ public class Server {
                     this.mcr[loc] = mcr;
 
                 }catch (Exception e){
+                    e.printStackTrace(System.out);
+                    System.out.println();
                 }
 
             }
@@ -1170,6 +1223,8 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(Board data)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
 
 
@@ -1179,6 +1234,8 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(force logout)");
             System.out.println("Error -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
     }
 
@@ -1196,49 +1253,6 @@ public class Server {
     //              TOKEN RELATED WORKS
     //
     //================================================================================
-
-    private void tokenChecker(){
-
-        for(int i=0; i<savedTokens.size(); i++){
-
-            Token x = (Token) savedTokens.get(i);
-            x.setTime(x.getTime() + 1);
-
-            if(x.getTime() == tokenValidityDuration){
-                savedTokens.remove(i);
-                i--;
-            }
-        }
-    }
-
-    public String getToken(int userId){
-
-        String ret = "";
-        boolean paisi = false;
-
-        //if(userId < 0) return ret;
-
-        for(int i=0; i<savedTokens.size(); i++){
-
-            Token x = (Token) savedTokens.get(i);
-
-            if(x.getUserId() == userId){
-                paisi = true;
-                ret = x.getToken();
-                x.setTime(0);
-
-                break;
-            }
-        }
-
-        if(paisi) return ret;
-
-        Token x = new Token(savedTokens.size(), userId);
-        ret = x.getToken();
-        savedTokens.add(x);
-
-        return ret;
-    }
 
     //================================================================================
     //
@@ -1513,10 +1527,6 @@ public class Server {
 
     public ArrayList getBotClients() {
         return botClients;
-    }
-
-    public ArrayList getBots() {
-        return bots;
     }
 
     public int getMaxBotLimit() {

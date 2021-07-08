@@ -143,6 +143,8 @@ public class BotClient extends ServerToClient {
         } catch (Exception e) {
             System.out. println("Error for send message in bot -> " + user.getUsername());
             System.out. println("Error in sending data from server -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
 
             return ;
         }
@@ -169,6 +171,8 @@ public class BotClient extends ServerToClient {
             jsonIncoming = new JSONObject(temp);
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
+            e.printStackTrace(System.out);
+            System.out.println();
             jsonIncoming = null;
             return;
         }
@@ -741,43 +745,48 @@ public class BotClient extends ServerToClient {
         if(choice == -1) return;
         JSONObject option = temp.getJSONObject(choice);
 
-        delayBot();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                delayBot();
 
-        if(gameThread == null || !gameThread.isGameRunning()) return;
+                if(gameThread == null || !gameThread.isGameRunning()) return;
 
-        if(option.getString("name").equals("Call")) sendGameThreadCallRequest();
-        else if(option.getString("name").equals("Raise")){
+                if(option.getString("name").equals("Call")) sendGameThreadCallRequest();
+                else if(option.getString("name").equals("Raise")){
 
-            long cost;
+                    long cost;
 
-            if(raiseValue == 2){
+                    if(raiseValue == 2){
 
-                int step;
-                long min = option.getLong("cost");
-                long max = option.getLong("maxCost");
-                long stepSize = option.getLong("stepSize");
+                        int step;
+                        long min = option.getLong("cost");
+                        long max = option.getLong("maxCost");
+                        long stepSize = option.getLong("stepSize");
 
-                if(min == max) step = 0;
-                else{
-                    step = (int) ( (max - min + stepSize) / stepSize );
+                        if(min == max) step = 0;
+                        else{
+                            step = (int) ( (max - min + stepSize) / stepSize );
+                        }
+
+                        if(step == 0) cost = min;
+                        else if(step == 1) cost = max;
+                        else {
+
+                            int k = Randomizer.one(step) + 1;
+                            cost = Math.min( min + k*stepSize, max);
+                        }
+                    }
+                    else if(raiseValue == 3) cost = option.getLong("maxCost");
+                    else cost = option.getLong("cost");
+
+                    sendGameThreadRaiseRequest(cost);
                 }
-
-                if(step == 0) cost = min;
-                else if(step == 1) cost = max;
-                else {
-
-                    int k = Randomizer.one(step) + 1;
-                    cost = Math.min( min + k*stepSize, max);
-                }
+                else if(option.getString("name").equals("AllIn")) sendGameThreadAllInRequest();
+                else if(option.getString("name").equals("Check")) sendGameThreadCheckRequest();
+                else if(option.getString("name").equals("Fold")) sendGameThreadFoldRequest();
             }
-            else if(raiseValue == 3) cost = option.getLong("maxCost");
-            else cost = option.getLong("cost");
-
-            sendGameThreadRaiseRequest(cost);
-        }
-        else if(option.getString("name").equals("AllIn")) sendGameThreadAllInRequest();
-        else if(option.getString("name").equals("Check")) sendGameThreadCheckRequest();
-        else if(option.getString("name").equals("Fold")) sendGameThreadFoldRequest();
+        }).start();
     }
 
 
@@ -927,7 +936,7 @@ public class BotClient extends ServerToClient {
     private void delayBot(){
 
         int x = (int) (Server.pokerServer.botTurnDelayMin / 1000);      //2
-        int y = (int) (Server.pokerServer.botTurnDelayMax / 1000);      //8
+        int y = (int) (Server.pokerServer.botTurnDelayMax / 1000);      //5
 
         int t = Randomizer.one(y-x+1) + x;
         waitBot(t);

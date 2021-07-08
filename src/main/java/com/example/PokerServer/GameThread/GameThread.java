@@ -153,6 +153,8 @@ public class GameThread implements Runnable, Comparable {
     private boolean hasBot;
     private int botLoc;
     private int deletingBot;
+
+    private int deductingBlinds;
     //  INDICATES IF WE NEED A KICKER OR NOT
 
     //==================================================================================================================
@@ -223,6 +225,7 @@ public class GameThread implements Runnable, Comparable {
             inGamePlayers[i] = s.get(i);
 
             inGamePlayers[i].setGameThread(this);
+            inGamePlayers[i].setWaitingRoom(null);
             inGamePlayers[i].setLastGameCode(gameCode);
 
             hasBot |= inGamePlayers[i].getUser().isBot();
@@ -305,6 +308,8 @@ public class GameThread implements Runnable, Comparable {
 
         } catch (Exception e) {
             System.out.println("Error in getting json in gameThread\n" + e);
+            e.printStackTrace(System.out);
+            System.out.println();
             jsonIncoming = null;
             return;
         }
@@ -530,6 +535,7 @@ public class GameThread implements Runnable, Comparable {
         if(isPrivate) return ;
         if(hasBot || gameRunning || activeCountInRound >= Server.pokerServer.getLeastPlayerCount()) return;
         if(playerCount == maxPlayerCount) return ;
+        if(Server.pokerServer.getMaxBotLimit() <= Server.pokerServer.botIds.size()) return ;
 
         int key = Server.pokerServer.getBoardKey(boardType);
         BotClient b = Server.pokerServer.makeBotClient(key);
@@ -682,34 +688,32 @@ public class GameThread implements Runnable, Comparable {
 
         Server.pokerServer.sortGameThreads(boardType);
 
+        setOwner();
+        sendPlayersDataToAll();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                setOwner();
-                sendPlayersDataToAll();
-
-                if (!gameRunning) {
+        if (!gameRunning) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
                     waitGame(Server.pokerServer.addBotDelay);
                     tryAddBot();
-                    return;
                 }
+            }).start();
+            return;
+        }
 
-                if (seatPosition == roundIteratorSeat) {
-                    playRound();
-                    return;
-                } else if (seatPosition == roundStarterSeat) {
+        if (seatPosition == roundIteratorSeat) {
+            playRound();
+            return;
+        } else if (seatPosition == roundStarterSeat) {
 
-                    roundStarterSeat = getNextActivePlayer(roundStarterSeat, roundIteratorSeat);
-                }
-                if (activeCountInRound == 1 || activeCountInRound == 0) {
+            roundStarterSeat = getNextActivePlayer(roundStarterSeat, roundIteratorSeat);
+        }
+        if (activeCountInRound == 1 || activeCountInRound == 0) {
 
-                    sendShowBoardInfo();
-                    endRound();
-                }
-            }
-        }).start();
+            sendShowBoardInfo();
+            endRound();
+        }
     }
 
 
@@ -894,7 +898,7 @@ public class GameThread implements Runnable, Comparable {
                 bigBlindSeat = findPrevAvailableSeatFromThisPosition(roundIteratorSeat);
                 smallBlindSeat = findPrevAvailableSeatFromThisPosition(bigBlindSeat);
 
-                deductBlindCoins();
+                deductingBlinds = 1;
             } else {
                 roundIteratorSeat = roundStarterSeat;
                 roundStarterSeat = -1;
@@ -951,26 +955,36 @@ public class GameThread implements Runnable, Comparable {
             endRound();
             return;
         }
+
+        deductingBlinds = 0;
         setupForNextTurn();
 
-        //ROUND E EKBAR TOTAL GHURA HOISE
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        if (roundIteratorSeat == roundStarterSeat) {
+                if(deductingBlinds == 1) deductBlindCoins();
 
-            sendShowBoardInfo();
-            sendPlayersDataToAll();
+                //ROUND E EKBAR TOTAL GHURA HOISE
 
-            endRound();
-            return;
-        }
-        sendShowCards();
-        sendShowBoardInfo();
+                if (roundIteratorSeat == roundStarterSeat) {
 
-        sendShowNextTurnInfo();
-        JSONObject j = enableGameButtons();
+                    sendShowBoardInfo();
+                    sendPlayersDataToAll();
 
-        sendPlayersDataToAll();
-        sendEnableGameButtons(j);
+                    endRound();
+                    return;
+                }
+                sendShowCards();
+                sendShowBoardInfo();
+
+                sendShowNextTurnInfo();
+                JSONObject j = enableGameButtons();
+
+                sendPlayersDataToAll();
+                sendEnableGameButtons(j);
+            }
+        }).start();
     }
 
     private void startNewRound() {
@@ -1025,10 +1039,15 @@ public class GameThread implements Runnable, Comparable {
                 public void run() {
                     closeRoom();
                 }
-            }, 20000);
+            }, Server.pokerServer.waitingToCloseDelay);
 
-            waitGame(Server.pokerServer.addBotDelay);
-            tryAddBot();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    waitGame(Server.pokerServer.addBotDelay);
+                    tryAddBot();
+                }
+            }).start();
 
             return;
         }
@@ -1678,10 +1697,17 @@ public class GameThread implements Runnable, Comparable {
 
                 playerCallValues[i] = 0;
             }
-            oneCycleEndMsg();
 
-            showMoreCards();
-            playRound();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+
+                    oneCycleEndMsg();
+
+                    showMoreCards();
+                    playRound();
+                }
+            }).start();
 
             return;
         }
@@ -1699,9 +1725,14 @@ public class GameThread implements Runnable, Comparable {
         //STORES WINNER DATA INITIALIZED VALUES
         winnerWhenChecked();
         loadWinnerData();
-        winnerResultSend();
 
-        startNewRound();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                winnerResultSend();
+                startNewRound();
+            }
+        }).start();
     }
 
     private void test(){
@@ -2611,6 +2642,7 @@ public class GameThread implements Runnable, Comparable {
             ret += "Seat: " + i + " ";
             ret += "Username: " + user.getUsername() + " ";
             ret += "Id: " + user.getId() + " ";
+            ret += "isBot: " + user.isBot() + " ";
 
             if(user.getLoginMethod().equals("facebook")) ret += "Login id: " + user.getFb_id() + " ";
             else if(user.getLoginMethod().equals("google")) ret += "Login id: " + user.getGmail_id() + " ";

@@ -53,6 +53,7 @@ public class ServerToClient implements Runnable {
     private boolean isConnected;
 
     private int lastGameCode;
+    private boolean active;
 
     //============================================================
     //
@@ -68,6 +69,7 @@ public class ServerToClient implements Runnable {
 
     public ServerToClient(WebSocketSession session) {
 
+        active = true;
         incoming = "";
         jsonIncoming = null;
         user = null;
@@ -91,6 +93,8 @@ public class ServerToClient implements Runnable {
 
         } catch (Exception e) {
             System.out. println("Exception in fetching ip -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
     }
 
@@ -145,6 +149,8 @@ public class ServerToClient implements Runnable {
         } catch (Exception e) {
             System.out. println("Error for connection with key -> " + webSocketKey);
             System.out. println("Error in sending data from server -> " + e);
+            e.printStackTrace(System.out);
+            System.out.println();
         }
     }
 
@@ -157,6 +163,8 @@ public class ServerToClient implements Runnable {
             incoming = "";
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
+            e.printStackTrace(System.out);
+            System.out.println();
             incoming = "";
             jsonIncoming = null;
             return;
@@ -206,10 +214,6 @@ public class ServerToClient implements Runnable {
         else if (jsonIncoming.get("requestType").equals("NotificationRequest")){
 
             getNotifications();
-        }
-        else if (jsonIncoming.get("requestType").equals("TokenRequest")){
-
-            getTokenResponse();
         }
         else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
@@ -455,9 +459,7 @@ public class ServerToClient implements Runnable {
         if (user == null) send.put("success", false);
         else {
             send.put("success", true);
-
             Server.pokerServer.removeFromLoggedUsers(this);
-            user = null;
         }
 
         sendMessage(send.toString());
@@ -503,6 +505,9 @@ public class ServerToClient implements Runnable {
 
     public void closeEverything() {
 
+        if(! active) return ;
+        active = false;
+
         try {
             System.out. println("A Connection got removed");
 
@@ -513,7 +518,9 @@ public class ServerToClient implements Runnable {
             if(session != null && session.isOpen()) session.close();
 
         } catch (Exception e) {
-            System.out. println("Error in closing connection in Server side, error -> " + e);
+            System.out. println("Error in closing connection in Server side, error -> " + e + " in " + user.getUsername());
+            e.printStackTrace(System.out);
+            System.out.println();
         }
     }
 
@@ -529,18 +536,6 @@ public class ServerToClient implements Runnable {
     //      BUY COIN, ADD COIN BY WATCHING VIDEO, ADD COIN BY LOGGING IN
     //
     //==============================================================================
-
-    private void getTokenResponse(){
-
-        String token = Server.pokerServer.getToken(user.getId());
-
-        JSONObject send = initiateJson();
-
-        send.put("requestType", "TokenRequestResponse");
-        send.put("token", token);
-
-        sendMessage(send.toString());
-    }
 
 
 
@@ -873,7 +868,6 @@ public class ServerToClient implements Runnable {
     public void askToJoinWaitingRoom(int code) {
 
         WaitingRoom w = Server.pokerServer.findWaitingRoomByCode(code);
-
 
         if (w == null || w.getAtSeat(0) == null || w.getOwner() == null) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " not found.");
         else if(w.getPlayerCount() == w.getMaxPlayerCount()) sendAskJoinWaitingRoomByCodeResponse(false, code, "Waiting room with code " + code + " is full.");
