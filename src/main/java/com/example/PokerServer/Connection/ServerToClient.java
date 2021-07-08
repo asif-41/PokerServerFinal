@@ -297,11 +297,11 @@ public class ServerToClient implements Runnable {
         }
         else if (jsonIncoming.get("requestType").equals("ChangeImage")){
 
-            changeImageRequest(jsonIncoming);
+            if(user != null) changeImageRequest(jsonIncoming);
         }
         else if (jsonIncoming.get("requestType").equals("CurrentImage")){
 
-            sendCurrentImage();
+            if(user != null) sendCurrentImage();
         }
     }
 

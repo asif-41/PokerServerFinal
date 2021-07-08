@@ -912,7 +912,7 @@ public class Server {
         ArrayList ret = new ArrayList<Notification>();
 
 
-        if ( user != null & !(user.getId() < 0) ){
+        if ( user != null && !(user.getId() < 0) ){
 
             for(int i=0; i<unsentNotifications.size(); i++){
 

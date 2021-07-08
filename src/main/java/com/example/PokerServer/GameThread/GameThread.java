@@ -155,6 +155,7 @@ public class GameThread implements Runnable, Comparable {
     private int deletingBot;
 
     private int deductingBlinds;
+    private boolean waitingAtEnd;
     //  INDICATES IF WE NEED A KICKER OR NOT
 
     //==================================================================================================================
@@ -195,6 +196,7 @@ public class GameThread implements Runnable, Comparable {
         jsonIncoming = null;
         waitingToClose = false;
         gameRunning = false;
+        waitingAtEnd = false;
     }
 
     private void initializeGameThread(ArrayList<ServerToClient> s) {
@@ -605,7 +607,7 @@ public class GameThread implements Runnable, Comparable {
         sendPlayersDataToAll();
         sendWelcomeGameMsg(loc);
 
-        if (gameRunning == false) startNewRound();
+        if (gameRunning == false && waitingAtEnd == false) startNewRound();
         else {
 
             if(s.getUser().isBot()) return ;
@@ -1031,6 +1033,7 @@ public class GameThread implements Runnable, Comparable {
         if (activeCountInRound < Server.pokerServer.getLeastPlayerCount()) {
 
             gameRunning = false;
+            waitingAtEnd = false;
             if(waitingToClose) return;
 
             waitForPlayersToBuyMsg();
@@ -1071,6 +1074,7 @@ public class GameThread implements Runnable, Comparable {
 
         waitingToClose = false;
         gameRunning = true;
+        waitingAtEnd = false;
 
         sendPlayersDataToAll();
 
@@ -1677,6 +1681,7 @@ public class GameThread implements Runnable, Comparable {
 
     private void endRound() {
 
+        //System.out.println("Dhuke!");
         showAllCardsAtEnd = false;
 
         if (activeCountInRound == 0) {
@@ -1729,13 +1734,16 @@ public class GameThread implements Runnable, Comparable {
 
         //STORES WINNER DATA INITIALIZED VALUES
         gameRunning = false;
+        waitingAtEnd = true;
         winnerWhenChecked();
         loadWinnerData();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
+                //System.out.println("Dhukse");
                 winnerResultSend();
+                //System.out.println("Ber hoitese");
                 startNewRound();
             }
         }).start();
@@ -2381,7 +2389,7 @@ public class GameThread implements Runnable, Comparable {
         sendMessageToAll(send.toString());
 
         double v = 3.5 * (double) maxWinLevelCount;
-        waitGame( v );
+        waitGame( 20 );
     }
 
 
