@@ -2389,7 +2389,7 @@ public class GameThread implements Runnable, Comparable {
         sendMessageToAll(send.toString());
 
         double v = 3.5 * (double) maxWinLevelCount;
-        waitGame( 20 );
+        waitGame( v );
     }
 
 
