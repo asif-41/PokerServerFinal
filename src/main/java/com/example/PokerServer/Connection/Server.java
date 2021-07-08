@@ -966,6 +966,8 @@ public class Server {
         guests.clear();
         botIds.clear();
 
+        db.forceLogout();
+
         if(loginDelay != null) loginDelay.cancel();
 
         loginDelay = new Timer();

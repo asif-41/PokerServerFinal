@@ -256,6 +256,20 @@ public class DB {
         accountRepository.saveAndFlush(acc);
     }
 
+    public void forceLogout(){
+
+        List<Account> accountList = accountRepository.findAll();
+
+        for(int i=0; i<accountList.size(); i++) {
+
+            Account acc = accountList.get(i);
+            if(acc.isLoggedIn()) {
+                acc.setLoggedIn(false);
+                accountRepository.saveAndFlush(acc);
+            }
+        }
+    }
+
 
     public int findByGoogleId(String googleId){
 

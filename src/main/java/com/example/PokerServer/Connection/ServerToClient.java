@@ -275,7 +275,6 @@ public class ServerToClient implements Runnable {
             if (waitingRoomData.get("requestType").equals("Create")) {
 
                 createWaitingRoom(jsonIncoming);
-                System.out.println("Created");
             }
             else if (waitingRoomData.get("requestType").equals("AskJoinWaitingRoomByCode")) {
 
@@ -289,7 +288,6 @@ public class ServerToClient implements Runnable {
             else if(waitingRoomData.get("requestType").equals("JoinAmount")){
 
                 joinAmountRequest(jsonIncoming);
-                System.out.println("Join result -> " + jsonIncoming);
             }
             else waitingRoom.incomingMsg(temp, this);
         }
