@@ -370,7 +370,7 @@ public class RawDataController {
                 for(int j=0; j<waitingRoom[i].size(); j++){
 
                     WaitingRoom w = (WaitingRoom) waitingRoom[i].get(j);
-                    if(w != null) ret += w.printWaitingRoom() + "\n";
+                    ret += w.printWaitingRoom() + "\n";
                 }
                 ret += "\n";
             }

@@ -575,6 +575,10 @@ public class WaitingRoom implements Runnable {
 
     public String printWaitingRoom(){
 
+        String t;
+        if(owner == null) t = "-1";
+        else t = owner.getUser().getUsername();
+
         String ret = "";
 
         ret += "Id: " + gameId + "\n";
@@ -583,7 +587,7 @@ public class WaitingRoom implements Runnable {
         ret += "Min Entry Value: " + ( (double) minEntryValue / 100000 ) + "lac\n";
         ret += "Min Call Value: " + ( (double) minCallValue / 100000 ) + "lac\n";
         ret += "Player Count: " + playerCount + "\n";
-        ret += "Owner Username: " + owner.getUser().getUsername() + "\n";
+        ret += "Owner Username: " + t + "\n";
         ret += "Players: " + "\n";
 
 
