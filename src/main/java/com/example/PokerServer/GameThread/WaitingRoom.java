@@ -129,8 +129,11 @@ public class WaitingRoom implements Runnable {
 
         } catch (Exception e) {
             System.out.println("Error in getting json in waiting room in server side\n" + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
             jsonIncoming = null;
             return;
         }

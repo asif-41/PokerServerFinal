@@ -143,8 +143,11 @@ public class BotClient extends ServerToClient {
         } catch (Exception e) {
             System.out. println("Error for send message in bot -> " + user.getUsername());
             System.out. println("Error in sending data from server -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
             return ;
         }
@@ -171,8 +174,11 @@ public class BotClient extends ServerToClient {
             jsonIncoming = new JSONObject(temp);
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
             jsonIncoming = null;
             return;
         }

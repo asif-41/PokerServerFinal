@@ -749,8 +749,11 @@ public class User {
             return diff1.getYears();
         } catch (ParseException e) {
             System.out.println("Invalid date format");
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
             return -1;
         }
     }
@@ -765,8 +768,10 @@ public class User {
             return d;
         } catch (ParseException e) {
 
-            e.printStackTrace(System.out);
-            System.out.println();
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
             return null;
         }
     }

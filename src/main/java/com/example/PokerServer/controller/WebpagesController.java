@@ -63,8 +63,11 @@ public class WebpagesController {
             try{
                 Page = Integer.parseInt(page);
             }catch (Exception e){
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 return "Forbidden";
             }
         }
@@ -94,8 +97,11 @@ public class WebpagesController {
         try {
             data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
         }
 
@@ -208,8 +214,11 @@ public class WebpagesController {
             try{
                 Page = Integer.parseInt(page);
             }catch (Exception e){
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 return "Forbidden";
             }
         }
@@ -240,8 +249,11 @@ public class WebpagesController {
         try {
             data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
         }
 
@@ -299,8 +311,11 @@ public class WebpagesController {
             try{
                 Page = Integer.parseInt(page);
             }catch (Exception e){
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 return "Forbidden";
             }
         }
@@ -330,8 +345,11 @@ public class WebpagesController {
         try {
             data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
         }
 
@@ -389,8 +407,11 @@ public class WebpagesController {
             try{
                 Page = Integer.parseInt(page);
             }catch (Exception e){
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 return "Forbidden";
             }
         }
@@ -422,8 +443,11 @@ public class WebpagesController {
             try{
                 Page = Integer.parseInt(page);
             }catch (Exception e){
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 return "Forbidden";
             }
         }
@@ -458,8 +482,11 @@ public class WebpagesController {
             try{
                 Page = Integer.parseInt(page);
             }catch (Exception e){
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 return "Forbidden";
             }
         }
@@ -532,8 +559,11 @@ public class WebpagesController {
 
             }catch (Exception e){
                 data.add( "File not found......" + e);
-                e.printStackTrace(System.out);
-                System.out.println();
+
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
             }
 
             model.addAttribute("threadCount", Thread.activeCount());
@@ -608,8 +638,11 @@ public class WebpagesController {
         try {
             data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
         }
 
@@ -682,8 +715,11 @@ public class WebpagesController {
         try {
             data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
         }
 
@@ -728,8 +764,11 @@ public class WebpagesController {
         try {
             data = java.net.URLDecoder.decode(D, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
 
         }
 

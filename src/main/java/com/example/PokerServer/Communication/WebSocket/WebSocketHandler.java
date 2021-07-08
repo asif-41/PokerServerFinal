@@ -87,7 +87,10 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
             }catch (Exception e){
                 System.out.println("Error in converting incoming message to json: " + e + " msg -> " + message);
-                e.printStackTrace(System.out);
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
                 s.setIncoming("");
             }
         }

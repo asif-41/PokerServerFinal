@@ -93,8 +93,11 @@ public class ServerToClient implements Runnable {
 
         } catch (Exception e) {
             System.out. println("Exception in fetching ip -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
     }
 
@@ -149,8 +152,11 @@ public class ServerToClient implements Runnable {
         } catch (Exception e) {
             System.out. println("Error for connection with key -> " + webSocketKey);
             System.out. println("Error in sending data from server -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
     }
 
@@ -163,8 +169,11 @@ public class ServerToClient implements Runnable {
             incoming = "";
         } catch (Exception e) {
             System.out.println("Error in getting json in server side\n" + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
             incoming = "";
             jsonIncoming = null;
             return;
@@ -519,8 +528,11 @@ public class ServerToClient implements Runnable {
 
         } catch (Exception e) {
             System.out. println("Error in closing connection in Server side, error -> " + e + " in " + user.getUsername());
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
     }
 

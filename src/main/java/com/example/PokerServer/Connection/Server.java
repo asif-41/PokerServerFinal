@@ -87,6 +87,7 @@ public class Server {
     public long waitingToCloseDelay;
     private int reloginAllowTime;
 
+    public boolean printError;
     //====================================================
 
 
@@ -107,7 +108,9 @@ public class Server {
                   double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
-                  String[] botNames, int maxBotLimit) {
+                  String[] botNames, int maxBotLimit, boolean printError) {
+
+        this.printError = printError;
 
         this.reloginAllowTime = reloginAllowTime;
         this.waitingToCloseDelay = waitingToCloseDelay;
@@ -863,7 +866,7 @@ public class Server {
             loadUserToDatabase(s.getUser());
         }
         loggedInUsers.remove(s);
-        s.setUser(null);
+        if(s != null) s.setUser(null);
     }
 
     public void removeFromBotClients(BotClient b) {
@@ -876,7 +879,7 @@ public class Server {
             botIds.remove((Integer) nameCode);
         }
         botClients.remove(b);
-        b.setUser(null);
+        if(b != null) b.setUser(null);
     }
 
     public void removeFromCasualConnections(ServerToClient s) {
@@ -1029,8 +1032,11 @@ public class Server {
             removeTransaction(id);
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(other table)");
-            System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
             System.out.println();
         }
 
@@ -1042,48 +1048,66 @@ public class Server {
                     int mpr = Integer.parseInt(map.get("maxPendingReq"));
                     if(mpr > 0) maxPendingReq = mpr;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
                     int dcvc = Integer.parseInt(map.get("dailyCoinVideoCount"));
                     if(dcvc > 0) dailyCoinVideoCount = dcvc;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
                     long flc = Long.parseLong(map.get("FreeLoginCoin"));
                     if(flc >= 0) freeLoginCoin = flc;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
                     long evc = Long.parseLong(map.get("eachVideoCoin"));
                     if(evc >= 0) eachVideoCoin = evc;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
                     long ic = Long.parseLong(map.get("initialCoin"));
                     if(ic >= 0) initialCoin = ic;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
                     long dlof = Long.parseLong(map.get("delayLoginOnForce"));
                     if(dlof >= 0) delayLoginOnForce = dlof;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
@@ -1092,8 +1116,11 @@ public class Server {
                 }catch (Exception e){
                     System.out.println("Error in converting data of hashmap in basic data edit(version)");
                     System.out.println("Error -> " + e);
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
                 try{
@@ -1102,16 +1129,21 @@ public class Server {
                 }catch (Exception e){
                     System.out.println("Error in converting data of hashmap in basic data edit(showButton)");
                     System.out.println("Error -> " + e);
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
             }
 
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(other table)");
-            System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+            }
         }
 
         try{
@@ -1121,13 +1153,20 @@ public class Server {
                     double d = Double.parseDouble(map.get("coinPriceOnWithdraw"));
                     TransactionMethods.setCoinPricePerCrore(d);
                 }catch (Exception e){
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
             }
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(withdraw)");
             System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
 
         try{
@@ -1145,8 +1184,11 @@ public class Server {
                     TransactionMethods.getCoinPriceOnBuy()[loc] = price;
                     TransactionMethods.getCoinAmountOnBuy()[loc] = amount;
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
             }
@@ -1154,8 +1196,11 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(buy package)");
             System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
 
 
@@ -1177,8 +1222,11 @@ public class Server {
                         break;
                     }
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
             }
@@ -1186,8 +1234,11 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(Transaction number)");
             System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
 
 
@@ -1214,8 +1265,11 @@ public class Server {
                     this.mcr[loc] = mcr;
 
                 }catch (Exception e){
-                    e.printStackTrace(System.out);
-                    System.out.println();
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
                 }
 
             }
@@ -1223,8 +1277,11 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(Board data)");
             System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
 
 
@@ -1234,8 +1291,11 @@ public class Server {
         }catch (Exception e){
             System.out.println("Error in converting data of hashmap in basic data edit(force logout)");
             System.out.println("Error -> " + e);
-            e.printStackTrace(System.out);
-            System.out.println();
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
         }
     }
 

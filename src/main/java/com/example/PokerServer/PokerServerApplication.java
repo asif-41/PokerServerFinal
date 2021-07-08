@@ -23,7 +23,7 @@ public class PokerServerApplication {
     private static String terminalPath = "terminal-6.0.0.out";
     private static String imagePath = "images/";
 
-    private static boolean showButton = false;
+    private static boolean showButton = true;
     private static int version = 6;
 
     private static String host = "66.42.55.46";
@@ -64,7 +64,7 @@ public class PokerServerApplication {
                 coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, showButton, version, imageCount,
                 2000, 5000, 3, 3, 2000, 10000, 5,
-                botNames, 10000);
+                botNames, 10000, true);
     }
 
 
