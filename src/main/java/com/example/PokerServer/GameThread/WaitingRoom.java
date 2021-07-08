@@ -55,6 +55,7 @@ public class WaitingRoom implements Runnable {
     public void run() {
 
         askBoardCoin(owner);
+        System.out.println("Sending ask");
 
         closeTimer = new Timer();
         closeTimer.schedule(new TimerTask() {
