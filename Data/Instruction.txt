@@ -8,3 +8,6 @@ FOR DEPLOYMENT, EDIT THESE::
 5.  Button show: true (in webpage)
 6.  Version: 6 (in webpage)
 7.  Host of page: 66.42.55.46
+
+
+changes:

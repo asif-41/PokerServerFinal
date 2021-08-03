@@ -612,6 +612,8 @@ public class User {
 
         JSONObject data = jsonObject.getJSONObject("data");
 
+        if(user == null) return ;
+
         user.roundCount = data.getInt("roundCount");
         user.roundCall = data.getLong("roundCall");
         user.roundStarterSeat = data.getInt("roundStarterSeat");

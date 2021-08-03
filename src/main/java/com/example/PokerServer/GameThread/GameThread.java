@@ -156,6 +156,8 @@ public class GameThread implements Runnable, Comparable {
 
     private int deductingBlinds;
     private boolean waitingAtEnd;
+
+    private boolean nullAtGamuButtons;
     //  INDICATES IF WE NEED A KICKER OR NOT
 
     //==================================================================================================================
@@ -984,10 +986,14 @@ public class GameThread implements Runnable, Comparable {
                 sendShowBoardInfo();
 
                 sendShowNextTurnInfo();
+
+                nullAtGamuButtons = false;
                 JSONObject j = enableGameButtons();
 
-                sendPlayersDataToAll();
-                sendEnableGameButtons(j);
+                if(! nullAtGamuButtons) {
+                    sendPlayersDataToAll();
+                    sendEnableGameButtons(j);
+                }
             }
         }).start();
     }
@@ -1381,9 +1387,12 @@ public class GameThread implements Runnable, Comparable {
 
         JSONArray array = new JSONArray();
         JSONObject temp;
-        User tempUser = inGamePlayers[roundIteratorSeat].getUser();
 
-        if(tempUser == null) return send;
+        if(inGamePlayers[roundIteratorSeat] == null || inGamePlayers[roundIteratorSeat].getUser() == null) {
+            nullAtGamuButtons = true;
+            return send;
+        }
+        User tempUser = inGamePlayers[roundIteratorSeat].getUser();
 
         //      FOLD BUTTON
         temp = new JSONObject();
@@ -1681,7 +1690,6 @@ public class GameThread implements Runnable, Comparable {
 
     private void endRound() {
 
-        //System.out.println("Dhuke!");
         showAllCardsAtEnd = false;
 
         if (activeCountInRound == 0) {
@@ -1741,9 +1749,8 @@ public class GameThread implements Runnable, Comparable {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                //System.out.println("Dhukse");
+
                 winnerResultSend();
-                //System.out.println("Ber hoitese");
                 startNewRound();
             }
         }).start();
@@ -2056,6 +2063,12 @@ public class GameThread implements Runnable, Comparable {
 
             User tempUser = inGamePlayers[i].getUser();
 
+            if(tempUser.getPlayerCards().size() < 2){
+                checker[i] = 0;
+                powers.add(new String[]{"nai"});
+                continue;
+            }
+
             sevenCards.set(5, tempUser.getPlayerCards().get(0));
             sevenCards.set(6, tempUser.getPlayerCards().get(1));
 
@@ -2236,7 +2249,6 @@ public class GameThread implements Runnable, Comparable {
 
         roundWinnersSeat = new int[maxPlayerCount];
         roundResultPower = new String[maxPlayerCount];
-        resultFoundAtLevel = new ArrayList[maxPlayerCount];
         roundWinnersAmount = new long[maxPlayerCount];
         roundPlayersCoinBack = new long[maxPlayerCount];
 

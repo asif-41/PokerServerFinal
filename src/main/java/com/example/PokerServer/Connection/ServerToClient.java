@@ -193,6 +193,7 @@ public class ServerToClient implements Runnable {
         }
         else if (jsonIncoming.get("requestType").equals("Transaction")) {
 
+            if(user == null) closeEverything();
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
 
             if(tempJson.get("request").equals("BuyCoin")){
@@ -210,39 +211,48 @@ public class ServerToClient implements Runnable {
         }
         else if (jsonIncoming.get("requestType").equals("ShopData")){
 
+            if(user == null) closeEverything();
             sendShopData();
         }
         else if (jsonIncoming.get("requestType").equals("AddCoinVideoRequest")) {
 
+            if(user == null) closeEverything();
             addCoinVideoResponse(jsonIncoming.getString("requestTime"));
         }
         else if (jsonIncoming.get("requestType").equals("AddFreeCoinRequest")) {
 
+            if(user == null) closeEverything();
             addFreeCoinResponse(jsonIncoming.getString("requestTime"));
         }
         else if (jsonIncoming.get("requestType").equals("NotificationRequest")){
 
+            if(user == null) closeEverything();
             getNotifications();
         }
         else if (jsonIncoming.get("requestType").equals("JoinRequest")) {
 
+            if(user == null) closeEverything();
             JSONObject tempJson = jsonIncoming.getJSONObject("data");
             requestJoin(true, tempJson);
         }
         else if (jsonIncoming.get("requestType").equals("BoardData")){
 
+            if(user == null) closeEverything();
             sendBoardData();
         }
         else if (jsonIncoming.get("requestType").equals("AbortRequest")) {
 
+            if(user == null) closeEverything();
             requestAbort();
         }
         else if (jsonIncoming.get("requestType").equals("UpdateOwn")) {
 
+            if(user == null) closeEverything();
             sendOwnData();
         }
         else if (jsonIncoming.get("requestType").equals("UpdateOwnInGame")) {
 
+            if(user == null) closeEverything();
             sendOwnInGameData();
         }
         else if (jsonIncoming.get("requestType").equals("CheckConnection")) {
@@ -251,6 +261,7 @@ public class ServerToClient implements Runnable {
         }
         else if (jsonIncoming.get("requestType").equals("GameThread")) {
 
+            if(user == null) closeEverything();
             JSONObject gameData = jsonIncoming.getJSONObject("gameData");
 
             if(gameData.get("requestType").equals("AskJoinGameThreadByCode")){
@@ -266,10 +277,11 @@ public class ServerToClient implements Runnable {
 
                 joinGameAmountRequest(jsonIncoming);
             }
-            else gameThread.incomingMessage(temp, this);
+            else if(gameThread != null) gameThread.incomingMessage(temp, this);
         }
         else if (jsonIncoming.get("requestType").equals("WaitingRoom")) {
 
+            if(user == null) closeEverything();
             JSONObject waitingRoomData = jsonIncoming.getJSONObject("waitingRoomData");
 
             if (waitingRoomData.get("requestType").equals("Create")) {
@@ -289,7 +301,7 @@ public class ServerToClient implements Runnable {
 
                 joinAmountRequest(jsonIncoming);
             }
-            else waitingRoom.incomingMsg(temp, this);
+            else if(waitingRoom != null) waitingRoom.incomingMsg(temp, this);
         }
         else if (jsonIncoming.get("requestType").equals("Version")){
 
@@ -297,10 +309,12 @@ public class ServerToClient implements Runnable {
         }
         else if (jsonIncoming.get("requestType").equals("ChangeImage")){
 
+            if(user == null) closeEverything();
             if(user != null) changeImageRequest(jsonIncoming);
         }
         else if (jsonIncoming.get("requestType").equals("CurrentImage")){
 
+            if(user == null) closeEverything();
             if(user != null) sendCurrentImage();
         }
     }
@@ -368,13 +382,13 @@ public class ServerToClient implements Runnable {
 
         JSONObject send = initiateJson();
         send.put("requestType", "LoginResponse");
-        send.put("transactionButtons", Server.pokerServer.showButton);
 
         if (user == null) {
             send.put("response", false);
 
             JSONObject temp = new JSONObject();
             send.put("data", temp);
+            send.put("transactionButtons", false);
         }
         else {
             send.put("response", true);
@@ -382,6 +396,9 @@ public class ServerToClient implements Runnable {
             JSONObject temp = User.UserToJson(user);
             temp.put("appData", getAppData());
             send.put("data", temp);
+
+            if(user.getId() != -1) send.put("transactionButtons", Server.pokerServer.showButton);
+            else send.put("transactionButtons", false);
         }
         sendMessage(send.toString());
     }
@@ -455,7 +472,9 @@ public class ServerToClient implements Runnable {
             array.put(x.getJSON());
 
         send.put("Numbers", array);
-        send.put("requestLeft", Server.pokerServer.maxPendingReq - Server.pokerServer.getDb().getPendingTransactionCount(user.getId()));
+        if(user != null) send.put("requestLeft", Server.pokerServer.maxPendingReq - Server.pokerServer.getDb().getPendingTransactionCount(user.getId()));
+        else send.put("requestLeft", 0);
+
         sendMessage(send.toString());
 
     }
