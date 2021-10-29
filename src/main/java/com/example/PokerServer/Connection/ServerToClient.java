@@ -421,6 +421,7 @@ public class ServerToClient implements Runnable {
 
         JSONObject jsonObject = new JSONObject();
 
+        jsonObject.put("minCoinWithdraw", TransactionMethods.getMinCoinWithdraw());
         jsonObject.put("coinPricePerCrore", TransactionMethods.getCoinPricePerCrore());
         jsonObject.put("coinAmountOnBuy", TransactionMethods.getCoinAmountOnBuy());
         jsonObject.put("coinPriceOnBuy", TransactionMethods.getCoinPriceOnBuy());
@@ -431,6 +432,7 @@ public class ServerToClient implements Runnable {
         jsonObject.put("minEntryValue", Server.pokerServer.getMinEntryValue());
         jsonObject.put("maxEntryValue", Server.pokerServer.getMaxEntryValue());
         jsonObject.put("mcr", Server.pokerServer.getMcr());
+        jsonObject.put("hiddenStatus", Server.pokerServer.getHiddenStatus());
 
         jsonObject.put("expIncrease", User.getExpIncrease());
         jsonObject.put("rankString", User.getRankString());
@@ -450,6 +452,7 @@ public class ServerToClient implements Runnable {
         jsonObject.put("minEntryValue", Server.pokerServer.getMinEntryValue());
         jsonObject.put("maxEntryValue", Server.pokerServer.getMaxEntryValue());
         jsonObject.put("mcr", Server.pokerServer.getMcr());
+        jsonObject.put("hiddenStatus", Server.pokerServer.getHiddenStatus());
 
         send.put("data", jsonObject);
         sendMessage(send.toString());
@@ -461,6 +464,7 @@ public class ServerToClient implements Runnable {
         send.put("requestType", "LoadShopData");
 
         JSONObject jsonObject = new JSONObject();
+        jsonObject.put("minCoinWithdraw", TransactionMethods.getMinCoinWithdraw());
         jsonObject.put("coinPricePerCrore", TransactionMethods.getCoinPricePerCrore());
         jsonObject.put("coinAmountOnBuy", TransactionMethods.getCoinAmountOnBuy());
         jsonObject.put("coinPriceOnBuy", TransactionMethods.getCoinPriceOnBuy());
@@ -617,9 +621,13 @@ public class ServerToClient implements Runnable {
         String sender = "";
         String receiverNumber = tempJson.getString("receiver");
         double price = TransactionMethods.getCurrencyAmount(coinAmount, "withdraw");
+        long minWithdrawAmount = 10000000 * TransactionMethods.getMinCoinWithdraw();
 
         if(coinAmount > user.getCurrentCoin()) {
             sendTransactionRequestResponse(false, Server.pokerServer.maxPendingReq - count, "Invalid request, insufficient coin!");
+        }
+        else if(coinAmount < minWithdrawAmount) {
+            sendTransactionRequestResponse(false, Server.pokerServer.maxPendingReq - count, "Invalid request, insufficient coin withdraw request!");
         }
         else{
             user.setCurrentCoin(user.getCurrentCoin() - coinAmount);

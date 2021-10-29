@@ -15,7 +15,7 @@
 
     <div align="center" class="container-fluid my-2" aria-label="Basic example">
 
-        <h1>Raw lLinks</h1>
+        <h1>Raw Links</h1>
 
         <table border="5" class = "table table-dark table-striped table-responsive-md" style="text-align:center;margin-bottom: 60px !important">
 
@@ -34,6 +34,11 @@
                 <td>
                     <button type="button" class="btn btn-success">
                         <a target="_blank"  th:href="'/memory?username=' + ${username} + '&password=' + ${password}" style="text-decoration:none; color:white" >Memory</a>
+                    </button>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-success">
+                        <a target="_blank"  href="/allOkay" style="text-decoration:none; color:white" >All Okay</a>
                     </button>
                 </td>
             </tr>

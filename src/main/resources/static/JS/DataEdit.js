@@ -163,6 +163,21 @@ window.onload = function() {
         input.value = col.innerText;
     }
 
+    var MinCoinWithdrawEdit = document.getElementsByClassName('minCoinWithdrawEdit')[0];
+    MinCoinWithdrawEdit.onclick = function(){
+
+        var row = MinCoinWithdrawEdit.parentElement.parentElement;
+        var col = row.getElementsByTagName('td')[0];
+
+        var modalBody = document.getElementById('minCoinWithdrawEditModalBody');
+        var div = modalBody.getElementsByTagName('div')[0];
+        var input = div.getElementsByTagName('input')[0];
+
+        var v = parseInt(col.innerText);
+        v = (v / 10000000);
+        input.value = v;
+    }
+
     var BuyEdit = document.getElementsByClassName('BuyPackageEdit');
     for(var i=0; i<BuyEdit.length; i++){
         (
@@ -197,7 +212,6 @@ window.onload = function() {
     WithdrawEditCancel.onclick = function(){
 
         var row = document.getElementById('coinPriceWithdraw');
-        var cols = row.getElementsByTagName('td');
         var col1 = row.getElementsByTagName('td')[0];
         var col2 = row.getElementsByTagName('td')[1];
         var col3 = row.getElementsByTagName('td')[2];
@@ -218,6 +232,35 @@ window.onload = function() {
 
         var input = col2.getElementsByTagName('input')[0];
         input.value = cur;
+        input.disabled = true;
+
+        col1.childNodes[0].nodeValue = cur;
+    }
+
+    var MinWithdrawEditCancel = document.getElementsByClassName('minCoinWithdrawEditCancel')[0];
+    MinWithdrawEditCancel.onclick = function(){
+
+        var row = document.getElementById('minCoinWithdraw');
+        var col1 = row.getElementsByTagName('td')[0];
+        var col2 = row.getElementsByTagName('td')[1];
+        var col3 = row.getElementsByTagName('td')[2];
+
+        var cnt = document.getElementById('minWithdrawCount');
+        cnt.value = 0;
+
+        var b = col3.getElementsByTagName('button')[0];
+        b.disabled = false;
+
+        var list = col2.getElementsByTagName('ul')[0].getElementsByTagName('li')[0];
+        list.innerHTML = "";
+        list.style.display = "none";
+
+        var savePrev = col1.childNodes[1];
+        var cur = savePrev.value;
+        savePrev.value = -1;
+
+        var input = col2.getElementsByTagName('input')[0];
+        input.value = cur/10000000;
         input.disabled = true;
 
         col1.childNodes[0].nodeValue = cur;
@@ -296,17 +339,20 @@ window.onload = function() {
                     var minEntryValueRow = document.getElementById('minEntryValueRow');
                     var maxEntryValueRow = document.getElementById('maxEntryValueRow');
                     var mcrValueRow = document.getElementById('mcrValueRow');
+                    var hiddenStatusRow = document.getElementById('hiddenStatusRow');
 
                     var minCallValueCol = minCallValueRow.getElementsByTagName('td')[i];
                     var minEntryValueCol = minEntryValueRow.getElementsByTagName('td')[i];
                     var maxEntryValueCol = maxEntryValueRow.getElementsByTagName('td')[i];
                     var mcrValueCol = mcrValueRow.getElementsByTagName('td')[i];
+                    var hiddenStatusCol = hiddenStatusRow.getElementsByTagName('td')[i];
 
                     inputs[0].value = (i + 1);
                     inputs[1].value = minCallValueCol.innerText;
                     inputs[2].value = minEntryValueCol.innerText;
                     inputs[3].value = maxEntryValueCol.innerText;
                     inputs[4].value = mcrValueCol.innerText;
+                    inputs[5].value = hiddenStatusCol.innerText;
                 }
 
             }
@@ -324,6 +370,7 @@ window.onload = function() {
                     var minEntryValueRow = document.getElementById('minEntryValueRow');
                     var maxEntryValueRow = document.getElementById('maxEntryValueRow');
                     var mcrValueRow = document.getElementById('mcrValueRow');
+                    var hiddenStatusRow = document.getElementById('hiddenStatusRow');
 
                     var id = i;
 
@@ -331,12 +378,14 @@ window.onload = function() {
                     var minEntryValueCol = minEntryValueRow.getElementsByTagName('td')[id];
                     var maxEntryValueCol = maxEntryValueRow.getElementsByTagName('td')[id];
                     var mcrValueCol = mcrValueRow.getElementsByTagName('td')[id];
+                    var hiddenStatusCol = hiddenStatusRow.getElementsByTagName('td')[id];
 
                     var dec = false;
                     var curMinCallValue;
                     var curMinEntryValue;
                     var curMaxEntryValue;
                     var curMCRValue;
+                    var curHiddenStatusValue;
 
                     var savePrevMinCallValue = minCallValueCol.childNodes[1];
                     if(savePrevMinCallValue.value != "-1"){
@@ -374,6 +423,15 @@ window.onload = function() {
                     }
                     else curMCRValue = mcrValueCol.innerText;
 
+                    var savePrevHiddenStatusValue = hiddenStatusCol.childNodes[1];
+                    if(savePrevHiddenStatusValue.value != "-1"){
+                        curHiddenStatusValue = savePrevHiddenStatusValue.value;
+                        savePrevHiddenStatusValue.value = -1;
+                        hiddenStatusCol.childNodes[0].nodeValue = curHiddenStatusValue;
+                        dec = true;
+                    }
+                    else curHiddenStatusValue = hiddenStatusCol.innerText;
+
                     if(dec == false) return ;
 
                     var cnt = document.getElementById('boardDataEditCount');
@@ -396,6 +454,7 @@ window.onload = function() {
                     targets[2].value = curMinEntryValue;
                     targets[3].value = curMaxEntryValue;
                     targets[4].value = curMCRValue;
+                    targets[5].value = curHiddenStatusValue;
 
                     for(var j=0; j<targets.length; j++) targets[j].disabled = true;
 
@@ -418,24 +477,28 @@ function boardDataSaveClick(){
     var minEntryValue = inputs[2].value;
     var maxEntryValue = inputs[3].value;
     var mcrValue = inputs[4].value;
+    var hiddenStatusValue = inputs[5].value;
 
     var minCallValueRow = document.getElementById('minCallValueRow');
     var minEntryValueRow = document.getElementById('minEntryValueRow');
     var maxEntryValueRow = document.getElementById('maxEntryValueRow');
     var mcrValueRow = document.getElementById('mcrValueRow');
+    var hiddenStatusRow = document.getElementById('hiddenStatusRow');
 
     var minCallValueCol = minCallValueRow.getElementsByTagName('td')[id];
     var minEntryValueCol = minEntryValueRow.getElementsByTagName('td')[id];
     var maxEntryValueCol = maxEntryValueRow.getElementsByTagName('td')[id];
     var mcrValueCol = mcrValueRow.getElementsByTagName('td')[id];
+    var hiddenStatusCol = hiddenStatusRow.getElementsByTagName('td')[id];
 
     var curMinCallValue = minCallValueCol.innerText;
     var curMinEntryValue = minEntryValueCol.innerText;
     var curMaxEntryValue = maxEntryValueCol.innerText;
     var curMCRValue = mcrValueCol.innerText;
+    var curHiddenStatus = hiddenStatusCol.innerText;
 
     if( ! ( minCallValue != curMinCallValue || minEntryValue != curMinEntryValue ||
-            maxEntryValue != curMaxEntryValue || mcrValue != curMCRValue ) ) return ;
+            maxEntryValue != curMaxEntryValue || mcrValue != curMCRValue || hiddenStatusValue != curHiddenStatus ) ) return ;
 
     var cnt = document.getElementById('boardDataEditCount');
     cnt.value = parseInt( cnt.value ) + 1;
@@ -458,6 +521,10 @@ function boardDataSaveClick(){
     var savePrevMCRValue = mcrValueCol.childNodes[1];
     savePrevMCRValue.value = curMCRValue;
     mcrValueCol.childNodes[0].nodeValue = mcrValue;
+
+    var savePrevHiddenStatusValue = hiddenStatusCol.childNodes[1];
+    savePrevHiddenStatusValue.value = curHiddenStatus;
+    hiddenStatusCol.childNodes[0].nodeValue = hiddenStatusValue;
 
     var NewDataRow = document.getElementById('boardDataNewDataRow');
     var NewDataCol = NewDataRow.getElementsByTagName('td')[id];
@@ -488,6 +555,12 @@ function boardDataSaveClick(){
         lists[j].innerHTML = "Editing mcr value";
         lists[j].style.display = "block";
         targets[4].value = mcrValue;
+        j += 1;
+    }
+    if(hiddenStatusValue != curHiddenStatus){
+        lists[j].innerHTML = "Editing hidden status";
+        lists[j].style.display = "block";
+        targets[5].value = hiddenStatusValue;
         j += 1;
     }
 
@@ -595,6 +668,41 @@ function withdrawEditSaveClick(){
     var savePrev = col1.childNodes[1];
     savePrev.value = cur;
     col1.childNodes[0].nodeValue = val;
+}
+
+function minCoinWithdrawEditSaveClick(){
+
+    var modalBody = document.getElementById('minCoinWithdrawEditModalBody');
+    var input = modalBody.getElementsByTagName('div')[0].getElementsByTagName('input')[0];
+    var val = parseFloat(input.value);
+
+    if(Number.isNaN(val)) return;
+
+    var row = document.getElementById('minCoinWithdraw');
+    var col1 = row.getElementsByTagName('td')[0];
+    var col2 = row.getElementsByTagName('td')[1];
+    var col3 = row.getElementsByTagName('td')[2];
+
+    var cur = col1.childNodes[0].nodeValue;
+    if(cur == val) return;
+
+    var cnt = document.getElementById('minWithdrawCount');
+    cnt.value = 1;
+
+    var b = col3.getElementsByTagName('button')[0];
+    b.disabled = true;
+
+    var list = col2.getElementsByTagName('ul')[0].getElementsByTagName('li')[0];
+    list.innerHTML = "Editing coin withdraw minimum amount";
+    list.style.display = "block";
+
+    var input = col2.getElementsByTagName('input')[0];
+    input.value = val;
+    input.disabled = false;
+
+    var savePrev = col1.childNodes[1];
+    savePrev.value = cur;
+    col1.childNodes[0].nodeValue = val * 10000000;
 }
 
 function otherDataSaveClick(){

@@ -591,6 +591,7 @@ public class WebpagesController {
             long[] minEntryValue = Server.pokerServer.getMinEntryValue();
             long[] maxEntryValue = Server.pokerServer.getMaxEntryValue();
             long[] mcr = Server.pokerServer.getMcr();
+            boolean[] hiddenStatus = Server.pokerServer.getHiddenStatus();
 
             double pricePerCrore = TransactionMethods.getCoinPricePerCrore();
             double[] coinPriceOnBuy = TransactionMethods.getCoinPriceOnBuy();
@@ -603,12 +604,15 @@ public class WebpagesController {
             int dailyCoinVideoCount = Server.pokerServer.getDailyCoinVideoCount();
             long eachVideoCoin = Server.pokerServer.getEachVideoCoin();
             long FreeLoginCoin = Server.pokerServer.getFreeLoginCoin();
+            long minCoinWithdraw = 10000000 * TransactionMethods.getMinCoinWithdraw();
 
             model.addAttribute("boardTypeCount", boardTypeCount);
             model.addAttribute("minCallValue", minCallValue);
             model.addAttribute("minEntryValue", minEntryValue);
             model.addAttribute("maxEntryValue", maxEntryValue);
             model.addAttribute("mcr", mcr);
+            model.addAttribute("hiddenStatus", hiddenStatus);
+            model.addAttribute("minCoinWithdraw", minCoinWithdraw);
             model.addAttribute("pricePerCrore", pricePerCrore);
             model.addAttribute("coinPriceOnBuy", coinPriceOnBuy);
             model.addAttribute("coinAmountOnBuy", coinAmountOnBuy);

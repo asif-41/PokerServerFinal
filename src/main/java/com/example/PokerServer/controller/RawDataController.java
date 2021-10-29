@@ -48,6 +48,11 @@ public class RawDataController {
         return show;
     }
 
+    @RequestMapping(value = "/allOkay", produces = "text/plain")
+    public @ResponseBody String allOkay(){
+        return "allOkay";
+    }
+
     @GetMapping(value = "/image", produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody ResponseEntity<Resource> image(@RequestParam String id) throws IOException {
 

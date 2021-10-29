@@ -46,6 +46,7 @@ public class Server {
     private long minCallValue[];                  //      MIN CALL VALUE FOR EACH TYPE {10000, 10000, 10000, 10000, 10000};
     private long maxEntryValue[];
     private long mcr[];
+    private boolean hiddenStatus[];
     private ArrayList guests;                   //      GUEST INTEGERS
     private int maxGuestLimit;                  //      MAX GUEST LIMIT
     public long initialCoin;                    //      INITIAL COIN
@@ -100,12 +101,12 @@ public class Server {
     //========================================================================================
 
 
-    public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] maxEntryValue, long[] minCallValue, long[] mcr,
+    public Server(int boardTypeCount, String[] boardType, long[] minEntryValue, long[] maxEntryValue, long[] minCallValue, long[] mcr, boolean hiddenStatus[],
                   int gameCodeLowerLimit, int gameCodeUpperLimit, int leastPlayerCount, int maxPlayerCount,
                   int queueCheckTimeInterval,
                   int queueWaitLimit, int port, String host, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
-                  double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
+                  int minCoinWithdraw, double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
                   String[] botNames, int maxBotLimit, boolean printError) {
@@ -122,6 +123,7 @@ public class Server {
         this.connectionCheckDelay = connectionCheckDelay;
         this.connectionResponseDelay = connectionResponseDelay;
 
+        TransactionMethods.setMinCoinWithdraw(minCoinWithdraw);
         TransactionMethods.setCoinPricePerCrore(coinPricePerCrore);
         TransactionMethods.setCoinAmountOnBuy(coinAmountOnBuy);
         TransactionMethods.setCoinPriceOnBuy(coinPriceOnBuy);
@@ -135,6 +137,8 @@ public class Server {
         this.minEntryValue = minEntryValue;
         this.maxEntryValue = maxEntryValue;
         this.mcr = mcr;
+        this.hiddenStatus = hiddenStatus;
+
 
         this.transactionNumbers = transactionNumbers;
         this.maxPendingReq = maxPendingReq;
@@ -1186,6 +1190,29 @@ public class Server {
         }
 
         try{
+            int mwc = Integer.parseInt(map.get("minWithdrawCount"));
+            if(mwc != 0) {
+                try{
+                    int k = Integer.parseInt(map.get("minCoinWithdraw"));
+                    TransactionMethods.setMinCoinWithdraw(k);
+                }catch (Exception e){
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
+                }
+            }
+        }catch (Exception e){
+            System.out.println("Error in converting data of hashmap in basic data edit(min withdraw)");
+            System.out.println("Error -> " + e);
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
+        }
+
+        try{
             int bpc = Integer.parseInt(map.get("buyPackageCount"));
             for(int i=0; i<bpc; i++){
                 try{
@@ -1269,16 +1296,19 @@ public class Server {
                     long minEntryValue = Long.parseLong(map.get("minEntryValue" + loc));
                     long maxEntryValue = Long.parseLong(map.get("maxEntryValue" + loc));
                     long mcr = Long.parseLong(map.get("mcr" + loc));
+                    String hiddenStatus = map.get("hiddenStatus" + loc).toLowerCase();
 
                     if(minCallValue < 0) continue;
                     if(minEntryValue < 0) continue;
                     if(maxEntryValue < minEntryValue) continue;
                     if(mcr < 0) continue;
+                    if( ! (hiddenStatus.equals("true") || hiddenStatus.equals("false") )) continue;
 
                     this.minCallValue[loc] = minCallValue;
                     this.minEntryValue[loc] = minEntryValue;
                     this.maxEntryValue[loc] = maxEntryValue;
                     this.mcr[loc] = mcr;
+                    this.hiddenStatus[loc] = Boolean.parseBoolean(hiddenStatus);
 
                 }catch (Exception e){
 
@@ -1607,6 +1637,10 @@ public class Server {
 
     public int getMaxBotLimit() {
         return maxBotLimit;
+    }
+
+    public boolean[] getHiddenStatus() {
+        return hiddenStatus;
     }
 
     //================================================================================================================================================

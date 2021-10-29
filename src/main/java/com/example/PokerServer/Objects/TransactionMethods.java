@@ -11,6 +11,7 @@ import java.util.ArrayList;
 
 public class TransactionMethods {
 
+    private static int minCoinWithdraw;
     private static double coinPricePerCrore;
     private static long[] coinAmountOnBuy;
     private static double[] coinPriceOnBuy;
@@ -158,9 +159,14 @@ public class TransactionMethods {
         TransactionMethods.coinPriceOnBuy = coinPriceOnBuy;
     }
 
+    public static int getMinCoinWithdraw() {
+        return minCoinWithdraw;
+    }
 
-
-        /*
+    public static void setMinCoinWithdraw(int minCoinWithdraw) {
+        TransactionMethods.minCoinWithdraw = minCoinWithdraw;
+    }
+/*
 
         AUTO TRANSACTION FUNCTIONS
 
