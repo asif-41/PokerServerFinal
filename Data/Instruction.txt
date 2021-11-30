@@ -1,13 +1,15 @@
 FOR DEPLOYMENT, EDIT THESE::
 
-1.  Image location to: images/
-2.  Terminal location to: terminal-7.0.0.out
-3.  Database        name: pokerdb
-                    password: PokerServerPa$$w0RD
-4.  Port: 1112
-5.  Button show: true (in webpage)
-6.  Version: 7 (in webpage)
-7.  Host of page: 66.42.55.46
-
+in PokerServerApplicationTests.java ->
+        1.  Image location to: images/
+        2.  Terminal location to: terminal-7.0.0.out
+in resources/application.properties ->
+        3.  Database        name: pokerdb
+                            password: PokerServerPa$$w0RD
+        4.  Port: 1112  
+in PokerServerApplicationTests.java ->
+        5.  Button show: true (in webpage)
+        6.  Version: 7 (in webpage)
+        7.  Host of page: 66.42.55.46
 
 changes:
