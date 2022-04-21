@@ -957,32 +957,35 @@ public class Server {
         while(loggedInUsers.size() != 0){
 
             ServerToClient x = (ServerToClient) loggedInUsers.get(0);
-            x.forceLogout("Updates are coming from server! please relogin");
+            if(x != null) x.forceLogout("Updates are coming from server! please relogin");
         }
 
         while(botClients.size() != 0){
 
             BotClient b = (BotClient) botClients.get(0);
-            b.forceLogout("hehe");
+            if(b != null) b.forceLogout("hehe");
         }
 
         for(int i=0; i<boardTypeCount; i++){
             while(gameThreads[i].size() != 0){
                 GameThread g = (GameThread) gameThreads[i].get(0);
-                g.closeRoom();
+                if(g != null) g.closeRoom();
             }
+            gameThreads[i].clear();
         }
 
         for(int i=0; i<boardTypeCount; i++){
             while(waitingRoom[i].size() != 0){
                 WaitingRoom w = (WaitingRoom) waitingRoom[i].get(0);
-                w.closeEverything();
+                if(w != null) w.closeEverything();
             }
+            waitingRoom[i].clear();
         }
 
         loggedInUsers.clear();
         guests.clear();
         botIds.clear();
+        botClients.clear();
 
         db.forceLogout();
 

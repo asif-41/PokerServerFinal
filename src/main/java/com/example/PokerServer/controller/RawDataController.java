@@ -33,10 +33,6 @@ import java.util.ArrayList;
 public class RawDataController {
 
 
-
-
-
-
     @RequestMapping(value = "/", produces = "text/plain")
     public @ResponseBody String readIp(HttpServletRequest request, HttpServletResponse response){
 

@@ -20,13 +20,13 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-7.0.0.out";
+    private static String terminalPath = "terminal-8.0.0.out";
     private static String imagePath = "images/";
 
     private static boolean showButton = true;
-    private static int version = 7;
+    private static int version = 8;
 
-    private static String host = "66.42.55.46";
+    private static String host = "140.82.0.55";
     private static int port = 1112;
 
     private static int imageCount = 24;
