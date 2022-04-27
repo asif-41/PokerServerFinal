@@ -587,6 +587,30 @@ public class DB {
         TransactionMethods.notifyUser(tr, "approved");
     }
 
+    //  only for buying
+    public void addTransaction(int accId, String type, long coinAmount, double price, String method, String sender, String receiver, String trxId, Date requestTime){
+
+        Transaction tr = new Transaction();
+
+        Account acc = findById(accId);
+        if(acc == null) return ;
+
+        tr.setAccount( acc );
+        tr.setType(type);
+        tr.setMethod(method);
+        tr.setTransactionId(trxId);
+        tr.setCoinAmount(coinAmount);
+        tr.setPrice(price);
+        tr.setSender(sender);
+        tr.setReceiver(receiver);
+        tr.setRequestTime(requestTime);
+        tr.setApprovalTime(requestTime);
+
+        transactionRepository.saveAndFlush(tr);
+        TransactionMethods.notifyUser(tr, "approved");
+    }
+
+
     public void addTransaction(int pendingTransactionId, String transactionId, String sender){
 
         Transaction tr = new Transaction();

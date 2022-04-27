@@ -188,9 +188,11 @@ window.onload = function() {
 
                     var amountRow = document.getElementById('coinAmountRow');
                     var priceRow = document.getElementById('coinPriceRow');
+                    var bkashLinkRow = document.getElementById('bkashLinkRow');
 
                     var amount = amountRow.getElementsByTagName('td')[i].innerText;
                     var price = priceRow.getElementsByTagName('td')[i].innerText;
+                    var bkashLink = bkashLinkRow.getElementsByTagName('td')[i].innerText;
 
                     var modalBody = document.getElementById('buyPackageEditModalBody');
                     var divs = modalBody.getElementsByTagName('div');
@@ -200,9 +202,12 @@ window.onload = function() {
                     var title = document.getElementById('buyPackageEditModalTitle');
                     title.innerHTML = "Editing buy package, id: " + (parseInt(i) + 1);
 
+                    console.log(bkashLink);
+
                     inputs[0].value = parseInt(i) + 1;
                     inputs[1].value = amount;
                     inputs[2].value = price;
+                    inputs[3].value = bkashLink;
                 }
             }
         )(BuyEdit[i], i);
@@ -275,15 +280,18 @@ window.onload = function() {
 
                     var amountRow = document.getElementById('coinAmountRow');
                     var priceRow = document.getElementById('coinPriceRow');
+                    var bkashLinkRow = document.getElementById('bkashLinkRow');
 
                     var amountCols = amountRow.getElementsByTagName('td');
                     var priceCols = priceRow.getElementsByTagName('td');
+                    var bkashLinkCols = bkashLinkRow.getElementsByTagName('td');
 
                     var cnt = document.getElementById('buyPackageCount');
                     cnt.value = parseInt(cnt.value) - 1;
 
                     amountCol = amountCols[i];
                     priceCol = priceCols[i];
+                    bkashLinkCol = bkashLinkCols[i];
 
                     var savePrevAmount = amountCol.childNodes[1];
                     amountCol.childNodes[0].nodeValue = savePrevAmount.value;
@@ -294,6 +302,11 @@ window.onload = function() {
                     priceCol.childNodes[0].nodeValue = savePrevPrice.value;
                     var price = savePrevPrice.value;
                     savePrevPrice.value = -1;
+
+                    var savePrevBkashLink = bkashLinkCol.childNodes[1];
+                    bkashLinkCol.childNodes[0].nodeValue = savePrevBkashLink.value;
+                    var bkashLink = savePrevBkashLink.value;
+                    savePrevBkashLink.value = -1;
 
                     var b = document.getElementsByClassName('BuyPackageEdit')[i];
                     b.disabled = false;
@@ -307,9 +320,11 @@ window.onload = function() {
                     targets[0].disabled = true;
                     targets[1].disabled = true;
                     targets[2].disabled = true;
+                    targets[3].disabled = true;
 
                     targets[1].value = amount;
                     targets[2].value = price;
+                    targets[3].value = bkashLink;
 
                     for(var j=0; j<lists.length; j++){
                         lists[j].innerHTML = "";
@@ -577,17 +592,21 @@ function buyPackageSaveClick(){
     var id = inputs[0].value;
     var amount = inputs[1].value;
     var price = inputs[2].value;
+    var bkashLink = inputs[3].value;
 
     var amountRow = document.getElementById('coinAmountRow');
     var priceRow = document.getElementById('coinPriceRow');
+    var bkashLinkRow = document.getElementById('bkashLinkRow');
 
     var amountCols = amountRow.getElementsByTagName('td');
     var priceCols = priceRow.getElementsByTagName('td');
+    var bkashLinkCols = bkashLinkRow.getElementsByTagName('td');
 
     var curAmount = amountCols[id-1].innerText;
     var curPrice = priceCols[id-1].innerText;
+    var curBkashLink = bkashLinkCols[id-1].innerText;
 
-    if(amount == curAmount && curPrice == price) return ;
+    if(amount == curAmount && curPrice == price && curBkashLink == bkashLink) return ;
 
 
 
@@ -596,6 +615,7 @@ function buyPackageSaveClick(){
 
     amountCol = amountCols[id-1];
     priceCol = priceCols[id-1];
+    bkashLinkCol = bkashLinkCols[id-1];
 
     var savePrevAmount = amountCol.childNodes[1];
     savePrevAmount.value = curAmount;
@@ -604,6 +624,10 @@ function buyPackageSaveClick(){
     var savePrevPrice = priceCol.childNodes[1];
     savePrevPrice.value = curPrice;
     priceCol.childNodes[0].nodeValue = price;
+
+    var savePrevBkashLink = bkashLinkCol.childNodes[1];
+    savePrevBkashLink.value = curBkashLink;
+    bkashLinkCol.childNodes[0].nodeValue = bkashLink;
 
     var b = document.getElementsByClassName('BuyPackageEdit')[id-1];
     b.disabled = true;
@@ -617,9 +641,11 @@ function buyPackageSaveClick(){
     targets[0].disabled = false;
     targets[1].disabled = false;
     targets[2].disabled = false;
+    targets[3].disabled = false;
 
     targets[1].value = amount;
     targets[2].value = price;
+    targets[3].value = bkashLink;
 
     var j = 0;
     if(price != curPrice){
@@ -629,6 +655,11 @@ function buyPackageSaveClick(){
     }
     if(amount != curAmount){
         lists[j].innerHTML = "Editing package coin amount";
+        lists[j].style.display = "block";
+        j += 1;
+    }
+    if(bkashLink != curBkashLink){
+        lists[j].innerHTML = "Editing bkashLink";
         lists[j].style.display = "block";
         j += 1;
     }

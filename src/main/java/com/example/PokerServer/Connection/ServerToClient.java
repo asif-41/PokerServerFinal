@@ -425,6 +425,7 @@ public class ServerToClient implements Runnable {
         jsonObject.put("coinPricePerCrore", TransactionMethods.getCoinPricePerCrore());
         jsonObject.put("coinAmountOnBuy", TransactionMethods.getCoinAmountOnBuy());
         jsonObject.put("coinPriceOnBuy", TransactionMethods.getCoinPriceOnBuy());
+        jsonObject.put("bkashLinks", TransactionMethods.getBkashLinks());
 
         jsonObject.put("boardTypeCount", Server.pokerServer.getBoardTypeCount());
         jsonObject.put("minCallValue", Server.pokerServer.getMinCallValue());
@@ -468,6 +469,7 @@ public class ServerToClient implements Runnable {
         jsonObject.put("coinPricePerCrore", TransactionMethods.getCoinPricePerCrore());
         jsonObject.put("coinAmountOnBuy", TransactionMethods.getCoinAmountOnBuy());
         jsonObject.put("coinPriceOnBuy", TransactionMethods.getCoinPriceOnBuy());
+        jsonObject.put("bkashLinks", TransactionMethods.getBkashLinks());
 
         send.put("data", jsonObject);
 
@@ -579,26 +581,60 @@ public class ServerToClient implements Runnable {
 
         JSONObject tempJson = temp.getJSONObject("data");
 
-        int id = user.getId();
-        int count = Server.pokerServer.getDb().getPendingTransactionCount(id);
-
-        if(count == Server.pokerServer.maxPendingReq) {
-            sendTransactionRequestResponse(false, 0, "You have reached max pending transaction request limit.");
-            return ;
-        }
-
-        String type = "buy";
-        String method = tempJson.getString("method");
-        String transactionId = tempJson.getString("transactionId");
+        double price = tempJson.getDouble("price");
         long coinAmount = tempJson.getLong("coinAmount");
-        Date requestTime = User.stringToDate(tempJson.getString("requestTime"));
+        String method = tempJson.getString("method");
         String sender = tempJson.getString("sender");
-        TransactionNumber receiver = new TransactionNumber(new JSONObject(tempJson.getString("receiver")));
-        String receiverNumber = receiver.getNumber();
-        double price = TransactionMethods.getCurrencyAmount(coinAmount, "buy");
+        String receiver = tempJson.getString("receiver");
+        String trxId = tempJson.getString("transactionId");
+        Date requestTime = User.stringToDate(tempJson.getString("time"));
 
-        sendTransactionRequestResponse(true, Server.pokerServer.maxPendingReq - count - 1, "Transaction request added.");
-        Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
+        Server.pokerServer.getDb().addTransaction(user.getId(), "buy", coinAmount, price, method, sender, receiver, trxId, requestTime);
+
+//        public void addTransaction(int pendingTransactionId){
+//
+//            Transaction tr = new Transaction();
+//            PendingTransaction ptr = findPendingTransactionById(pendingTransactionId);
+//            removePendingTransaction(pendingTransactionId, false, "");
+//
+//            Account acc = findById( ptr.getAccount().getId() );
+//            if(acc == null) return ;
+//
+//            tr.setAccount( acc );
+//            tr.setType(ptr.getType());
+//            tr.setMethod(ptr.getMethod());
+//            tr.setTransactionId(ptr.getTransactionId());
+//            tr.setCoinAmount(ptr.getCoinAmount());
+//            tr.setPrice(ptr.getPrice());
+//            tr.setSender(ptr.getSender());
+//            tr.setReceiver(ptr.getReceiver());
+//            tr.setRequestTime(ptr.getRequestTime());
+//            tr.setApprovalTime(Calendar.getInstance().getTime());
+//
+//            transactionRepository.saveAndFlush(tr);
+//            TransactionMethods.notifyUser(tr, "approved");
+//        }
+
+//        int id = user.getId();
+//        int count = Server.pokerServer.getDb().getPendingTransactionCount(id);
+//
+//        if(count == Server.pokerServer.maxPendingReq) {
+//            sendTransactionRequestResponse(false, 0, "You have reached max pending transaction request limit.");
+//            return ;
+//        }
+//
+//        String type = "buy";
+//        String method = tempJson.getString("method");
+//        String transactionId = tempJson.getString("transactionId");
+//        long coinAmount = tempJson.getLong("coinAmount");
+//        Date requestTime = User.stringToDate(tempJson.getString("requestTime"));
+//        String sender = tempJson.getString("sender");
+//        TransactionNumber receiver = new TransactionNumber(new JSONObject(tempJson.getString("receiver")));
+//        String receiverNumber = receiver.getNumber();
+//        double price = TransactionMethods.getCurrencyAmount(coinAmount, "buy");
+//
+//        sendTransactionRequestResponse(true, Server.pokerServer.maxPendingReq - count - 1, "Transaction request added.");
+//        Server.pokerServer.getDb().addPendingTransaction(id, type, method, transactionId, coinAmount, price, requestTime, sender, receiverNumber);
     }
 
     private void withdrawCoinRequest(JSONObject temp){

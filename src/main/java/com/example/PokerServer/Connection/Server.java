@@ -109,7 +109,7 @@ public class Server {
                   int minCoinWithdraw, double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
-                  String[] botNames, int maxBotLimit, boolean printError) {
+                  String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks) {
 
         this.printError = printError;
 
@@ -127,6 +127,7 @@ public class Server {
         TransactionMethods.setCoinPricePerCrore(coinPricePerCrore);
         TransactionMethods.setCoinAmountOnBuy(coinAmountOnBuy);
         TransactionMethods.setCoinPriceOnBuy(coinPriceOnBuy);
+        TransactionMethods.setBkashLinks(bkashLinks);
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
@@ -1223,12 +1224,15 @@ public class Server {
                     int loc = Integer.parseInt(map.get("buyPackageId" + i));
                     long amount = Long.parseLong(map.get("coinAmountOnBuy" + loc));
                     double price = Double.parseDouble(map.get("coinPriceOnBuy" + loc));
+                    String bkashLink = String.valueOf(map.get("bkashLink" + loc));
 
-                    if(amount < 0) continue;;
-                    if(price < 0) continue;;
+                    if(amount < 0) continue;
+                    if(price < 0) continue;
+                    if(bkashLink.equals("")) continue;
 
                     TransactionMethods.getCoinPriceOnBuy()[loc] = price;
                     TransactionMethods.getCoinAmountOnBuy()[loc] = amount;
+                    TransactionMethods.getBkashLinks()[loc] = bkashLink;
                 }catch (Exception e){
 
                     if(Server.pokerServer.printError){

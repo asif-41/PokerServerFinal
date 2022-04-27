@@ -20,11 +20,11 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-8.0.0.out";
+    private static String terminalPath = "terminal-9.0.0.out";
     private static String imagePath = "images/";
 
     private static boolean showButton = true;
-    private static int version = 8;
+    private static int version = 9;
 
     private static String host = "140.82.0.55";
     private static int port = 1112;
@@ -60,13 +60,28 @@ public class PokerServerApplication {
 
         int leastPlayerCount = 2;
 
-        Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, hiddenStatus, 10000000, 100000000,
+        Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, hiddenStatus,
+                10000000, 100000000,
                 leastPlayerCount, 5, 1, 120, port, host, 10000, 500000,
                 10, 50000, 100000, 60, 2, 10,
                 minCoinWithdraw, coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, showButton, version, imageCount,
                 2000, 5000, 3, 3, 2000, 10000, 5,
-                botNames, 10000, true);
+                botNames, 10000, true, getBkashLinks());
+    }
+
+    public static String[] getBkashLinks(){
+
+        String[] ret = new String[6];
+
+        ret[0] = "https://shop.bkash.com/ms-bhuiya-traders01914957284/pay/bdt100/JIkVJa";
+        ret[1] = "https://shop.bkash.com/ms-bhuiya-traders01914957284/pay/bdt150/Hg0JPS";
+        ret[2] = "https://shop.bkash.com/ms-bhuiya-traders01914957284/pay/bdt295/ttsrrp";
+        ret[3] = "https://shop.bkash.com/ms-bhuiya-traders01914957284/pay/bdt590/JWs3f6";
+        ret[4] = "https://shop.bkash.com/ms-bhuiya-traders01914957284/pay/bdt1480/n7kdlY";
+        ret[5] = "https://shop.bkash.com/ms-bhuiya-traders01914957284/pay/bdt2950/CHS38D";
+
+        return ret;
     }
 
 

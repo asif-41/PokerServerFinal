@@ -596,6 +596,7 @@ public class WebpagesController {
             double pricePerCrore = TransactionMethods.getCoinPricePerCrore();
             double[] coinPriceOnBuy = TransactionMethods.getCoinPriceOnBuy();
             long[] coinAmountOnBuy = TransactionMethods.getCoinAmountOnBuy();
+            String[] bkashLinks = TransactionMethods.getBkashLinks();
 
             ArrayList<TransactionNumber> transactionNumbers = Server.pokerServer.getTransactionNumbers();
 
@@ -617,6 +618,7 @@ public class WebpagesController {
             model.addAttribute("coinPriceOnBuy", coinPriceOnBuy);
             model.addAttribute("coinAmountOnBuy", coinAmountOnBuy);
             model.addAttribute("transactionNumbers", transactionNumbers);
+            model.addAttribute("bkashLinks", bkashLinks);
             model.addAttribute("maxPendingReq", maxPendingReq);
             model.addAttribute("initialCoin", initialCoin);
             model.addAttribute("dailyCoinVideoCount", dailyCoinVideoCount);

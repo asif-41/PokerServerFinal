@@ -15,6 +15,7 @@ public class TransactionMethods {
     private static double coinPricePerCrore;
     private static long[] coinAmountOnBuy;
     private static double[] coinPriceOnBuy;
+    private static String[] bkashLinks;
 
 
     //returns coin price
@@ -166,7 +167,16 @@ public class TransactionMethods {
     public static void setMinCoinWithdraw(int minCoinWithdraw) {
         TransactionMethods.minCoinWithdraw = minCoinWithdraw;
     }
-/*
+
+    public static String[] getBkashLinks() {
+        return bkashLinks;
+    }
+
+    public static void setBkashLinks(String[] bkashLinks) {
+        TransactionMethods.bkashLinks = bkashLinks;
+    }
+
+    /*
 
         AUTO TRANSACTION FUNCTIONS
 
