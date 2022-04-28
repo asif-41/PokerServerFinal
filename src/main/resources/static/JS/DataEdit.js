@@ -354,12 +354,14 @@ window.onload = function() {
                     var minEntryValueRow = document.getElementById('minEntryValueRow');
                     var maxEntryValueRow = document.getElementById('maxEntryValueRow');
                     var mcrValueRow = document.getElementById('mcrValueRow');
+                    var botPercentageRow = document.getElementById('botPercentageRow');
                     var hiddenStatusRow = document.getElementById('hiddenStatusRow');
 
                     var minCallValueCol = minCallValueRow.getElementsByTagName('td')[i];
                     var minEntryValueCol = minEntryValueRow.getElementsByTagName('td')[i];
                     var maxEntryValueCol = maxEntryValueRow.getElementsByTagName('td')[i];
                     var mcrValueCol = mcrValueRow.getElementsByTagName('td')[i];
+                    var botPercentageCol = botPercentageRow.getElementsByTagName('td')[i];
                     var hiddenStatusCol = hiddenStatusRow.getElementsByTagName('td')[i];
 
                     inputs[0].value = (i + 1);
@@ -367,7 +369,8 @@ window.onload = function() {
                     inputs[2].value = minEntryValueCol.innerText;
                     inputs[3].value = maxEntryValueCol.innerText;
                     inputs[4].value = mcrValueCol.innerText;
-                    inputs[5].value = hiddenStatusCol.innerText;
+                    inputs[5].value = botPercentageCol.innerText;
+                    inputs[6].value = hiddenStatusCol.innerText;
                 }
 
             }
@@ -385,6 +388,7 @@ window.onload = function() {
                     var minEntryValueRow = document.getElementById('minEntryValueRow');
                     var maxEntryValueRow = document.getElementById('maxEntryValueRow');
                     var mcrValueRow = document.getElementById('mcrValueRow');
+                    var botPercentageRow = document.getElementById('botPercentageRow');
                     var hiddenStatusRow = document.getElementById('hiddenStatusRow');
 
                     var id = i;
@@ -393,6 +397,7 @@ window.onload = function() {
                     var minEntryValueCol = minEntryValueRow.getElementsByTagName('td')[id];
                     var maxEntryValueCol = maxEntryValueRow.getElementsByTagName('td')[id];
                     var mcrValueCol = mcrValueRow.getElementsByTagName('td')[id];
+                    var botPercentageCol = botPercentageRow.getElementsByTagName('td')[id];
                     var hiddenStatusCol = hiddenStatusRow.getElementsByTagName('td')[id];
 
                     var dec = false;
@@ -400,6 +405,7 @@ window.onload = function() {
                     var curMinEntryValue;
                     var curMaxEntryValue;
                     var curMCRValue;
+                    var curBotPercentage;
                     var curHiddenStatusValue;
 
                     var savePrevMinCallValue = minCallValueCol.childNodes[1];
@@ -438,6 +444,15 @@ window.onload = function() {
                     }
                     else curMCRValue = mcrValueCol.innerText;
 
+                    var savePrevBotPercentage = botPercentageCol.childNodes[1];
+                    if(savePrevBotPercentage.value != "-1"){
+                        curBotPercentage = savePrevBotPercentage.value;
+                        savePrevBotPercentage.value = -1;
+                        botPercentageCol.childNodes[0].nodeValue = curBotPercentage;
+                        dec = true;
+                    }
+                    else curMCRValue = mcrValueCol.innerText;
+
                     var savePrevHiddenStatusValue = hiddenStatusCol.childNodes[1];
                     if(savePrevHiddenStatusValue.value != "-1"){
                         curHiddenStatusValue = savePrevHiddenStatusValue.value;
@@ -469,7 +484,8 @@ window.onload = function() {
                     targets[2].value = curMinEntryValue;
                     targets[3].value = curMaxEntryValue;
                     targets[4].value = curMCRValue;
-                    targets[5].value = curHiddenStatusValue;
+                    targets[5].value = curBotPercentage;
+                    targets[6].value = curHiddenStatusValue;
 
                     for(var j=0; j<targets.length; j++) targets[j].disabled = true;
 
@@ -492,28 +508,33 @@ function boardDataSaveClick(){
     var minEntryValue = inputs[2].value;
     var maxEntryValue = inputs[3].value;
     var mcrValue = inputs[4].value;
-    var hiddenStatusValue = inputs[5].value;
+    var botPercentage = inputs[5].value;
+    var hiddenStatusValue = inputs[6].value;
 
     var minCallValueRow = document.getElementById('minCallValueRow');
     var minEntryValueRow = document.getElementById('minEntryValueRow');
     var maxEntryValueRow = document.getElementById('maxEntryValueRow');
     var mcrValueRow = document.getElementById('mcrValueRow');
+    var botPercentageRow = document.getElementById('botPercentageRow');
     var hiddenStatusRow = document.getElementById('hiddenStatusRow');
 
     var minCallValueCol = minCallValueRow.getElementsByTagName('td')[id];
     var minEntryValueCol = minEntryValueRow.getElementsByTagName('td')[id];
     var maxEntryValueCol = maxEntryValueRow.getElementsByTagName('td')[id];
     var mcrValueCol = mcrValueRow.getElementsByTagName('td')[id];
+    var botPercentageCol = botPercentageRow.getElementsByTagName('td')[id];
     var hiddenStatusCol = hiddenStatusRow.getElementsByTagName('td')[id];
 
     var curMinCallValue = minCallValueCol.innerText;
     var curMinEntryValue = minEntryValueCol.innerText;
     var curMaxEntryValue = maxEntryValueCol.innerText;
     var curMCRValue = mcrValueCol.innerText;
+    var curBotPercentage = botPercentageCol.innerText;
     var curHiddenStatus = hiddenStatusCol.innerText;
 
     if( ! ( minCallValue != curMinCallValue || minEntryValue != curMinEntryValue ||
-            maxEntryValue != curMaxEntryValue || mcrValue != curMCRValue || hiddenStatusValue != curHiddenStatus ) ) return ;
+            maxEntryValue != curMaxEntryValue || mcrValue != curMCRValue || botPercentage != curBotPercentage ||
+            hiddenStatusValue != curHiddenStatus ) ) return ;
 
     var cnt = document.getElementById('boardDataEditCount');
     cnt.value = parseInt( cnt.value ) + 1;
@@ -536,6 +557,10 @@ function boardDataSaveClick(){
     var savePrevMCRValue = mcrValueCol.childNodes[1];
     savePrevMCRValue.value = curMCRValue;
     mcrValueCol.childNodes[0].nodeValue = mcrValue;
+
+    var savePrevBotPercentage = botPercentageCol.childNodes[1];
+    savePrevBotPercentage.value = curBotPercentage;
+    botPercentageCol.childNodes[0].nodeValue = botPercentage;
 
     var savePrevHiddenStatusValue = hiddenStatusCol.childNodes[1];
     savePrevHiddenStatusValue.value = curHiddenStatus;
@@ -572,10 +597,16 @@ function boardDataSaveClick(){
         targets[4].value = mcrValue;
         j += 1;
     }
+    if(botPercentage != curBotPercentage){
+        lists[j].innerHTML = "Editing bot percentage";
+        lists[j].style.display = "block";
+        targets[5].value = botPercentage;
+        j += 1;
+    }
     if(hiddenStatusValue != curHiddenStatus){
         lists[j].innerHTML = "Editing hidden status";
         lists[j].style.display = "block";
-        targets[5].value = hiddenStatusValue;
+        targets[6].value = hiddenStatusValue;
         j += 1;
     }
 

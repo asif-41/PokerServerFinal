@@ -607,6 +607,8 @@ public class WebpagesController {
             long FreeLoginCoin = Server.pokerServer.getFreeLoginCoin();
             long minCoinWithdraw = 10000000 * TransactionMethods.getMinCoinWithdraw();
 
+            double[] botPercentages = Server.pokerServer.getBotPercentages();
+
             model.addAttribute("boardTypeCount", boardTypeCount);
             model.addAttribute("minCallValue", minCallValue);
             model.addAttribute("minEntryValue", minEntryValue);
@@ -619,6 +621,7 @@ public class WebpagesController {
             model.addAttribute("coinAmountOnBuy", coinAmountOnBuy);
             model.addAttribute("transactionNumbers", transactionNumbers);
             model.addAttribute("bkashLinks", bkashLinks);
+            model.addAttribute("botPercentages", botPercentages);
             model.addAttribute("maxPendingReq", maxPendingReq);
             model.addAttribute("initialCoin", initialCoin);
             model.addAttribute("dailyCoinVideoCount", dailyCoinVideoCount);
@@ -651,6 +654,8 @@ public class WebpagesController {
             }
 
         }
+
+        //System.out.println(data);
 
         String[] Data = data.split("&");
         Hashtable map = new Hashtable<String, String>();

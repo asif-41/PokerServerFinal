@@ -105,7 +105,6 @@ public class BotClient extends ServerToClient {
 
     @Override
     public void run() {
-
         System.out. println("A bot has been created");
     }
 
@@ -255,17 +254,12 @@ public class BotClient extends ServerToClient {
 
     private void decideAction(){
 
-        roundAt++;
+        int key = Server.pokerServer.getBoardKey(gameThread.getBoardType());
+        double perc = Server.pokerServer.getBotPercentages()[key];
 
-        if(roundAt > roundCount){
-            roundCount++;             //  2-4
-            if(roundCount > 4 || roundCount < 2) roundCount = 2;
+        int rnd = Randomizer.one(100) + 1;
 
-            loseAt = Randomizer.one(roundCount) + 1;           //  1-roundCount
-            roundAt = 1;
-        }
-
-        if(roundAt == loseAt){
+        if(rnd > perc){
             doWin = false;
             loseCallCount = 0;
         }
@@ -280,6 +274,32 @@ public class BotClient extends ServerToClient {
 
             aggression = k;
         }
+
+//        roundAt++;
+//
+//        if(roundAt > roundCount){
+//            roundCount++;             //  2-4
+//            if(roundCount > 4 || roundCount < 2) roundCount = 2;
+//
+//            loseAt = Randomizer.one(roundCount) + 1;           //  1-roundCount
+//            roundAt = 1;
+//        }
+//
+//        if(roundAt == loseAt){
+//            doWin = false;
+//            loseCallCount = 0;
+//        }
+//        else{
+//            doWin = true;
+//
+//            int k = -1;
+//            do{
+//                k = Randomizer.one(2) + 1;
+//            }
+//            while(k == aggression);
+//
+//            aggression = k;
+//        }
     }
 
 
@@ -983,9 +1003,7 @@ public class BotClient extends ServerToClient {
         return gameThread;
     }
 
-    public void setGameThread(GameThread gameThread) {
-        this.gameThread = gameThread;
-    }
+    public void setGameThread(GameThread gameThread) { this.gameThread = gameThread; }
 
 
     //==============================================================================

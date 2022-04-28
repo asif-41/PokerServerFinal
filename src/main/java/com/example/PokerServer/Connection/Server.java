@@ -89,6 +89,10 @@ public class Server {
     private int reloginAllowTime;
 
     public boolean printError;
+
+    private double[] botPercentages;
+
+
     //====================================================
 
 
@@ -109,7 +113,7 @@ public class Server {
                   int minCoinWithdraw, double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
-                  String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks) {
+                  String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks, double[] botPercentages) {
 
         this.printError = printError;
 
@@ -128,6 +132,8 @@ public class Server {
         TransactionMethods.setCoinAmountOnBuy(coinAmountOnBuy);
         TransactionMethods.setCoinPriceOnBuy(coinPriceOnBuy);
         TransactionMethods.setBkashLinks(bkashLinks);
+
+        this.botPercentages = botPercentages;
 
         this.waitingRoomWaitAtStart = waitingRoomWaitAtStart;
         this.delayInStartingGame = delayInStartingGame;
@@ -1303,18 +1309,21 @@ public class Server {
                     long minEntryValue = Long.parseLong(map.get("minEntryValue" + loc));
                     long maxEntryValue = Long.parseLong(map.get("maxEntryValue" + loc));
                     long mcr = Long.parseLong(map.get("mcr" + loc));
+                    double botPercentage = Double.parseDouble(map.get("botPercentage" + loc));
                     String hiddenStatus = map.get("hiddenStatus" + loc).toLowerCase();
 
                     if(minCallValue < 0) continue;
                     if(minEntryValue < 0) continue;
                     if(maxEntryValue < minEntryValue) continue;
                     if(mcr < 0) continue;
+                    if(botPercentage < 0.0 || botPercentage > 100.0) continue;
                     if( ! (hiddenStatus.equals("true") || hiddenStatus.equals("false") )) continue;
 
                     this.minCallValue[loc] = minCallValue;
                     this.minEntryValue[loc] = minEntryValue;
                     this.maxEntryValue[loc] = maxEntryValue;
                     this.mcr[loc] = mcr;
+                    this.botPercentages[loc] = botPercentage;
                     this.hiddenStatus[loc] = Boolean.parseBoolean(hiddenStatus);
 
                 }catch (Exception e){
@@ -1648,6 +1657,10 @@ public class Server {
 
     public boolean[] getHiddenStatus() {
         return hiddenStatus;
+    }
+
+    public double[] getBotPercentages() {
+        return botPercentages;
     }
 
     //================================================================================================================================================

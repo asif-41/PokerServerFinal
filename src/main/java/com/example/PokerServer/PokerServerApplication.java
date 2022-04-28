@@ -67,7 +67,13 @@ public class PokerServerApplication {
                 minCoinWithdraw, coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, showButton, version, imageCount,
                 2000, 5000, 3, 3, 2000, 10000, 5,
-                botNames, 10000, true, getBkashLinks());
+                botNames, 10000, true, getBkashLinks(), getBotPercentages());
+    }
+
+
+
+    public static double[] getBotPercentages(){
+        return new double[]{80, 80, 50, 80, 80, 80, 80, 80, 80, 80};
     }
 
     public static String[] getBkashLinks(){
