@@ -24,7 +24,7 @@ public class PokerServerApplication {
     private static String imagePath = "images/";
 
     private static boolean showButton = true;
-    private static int version = 9;
+    private static int version = 10;
 
     private static String host = "140.82.0.55";
     private static int port = 1112;

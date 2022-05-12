@@ -654,6 +654,7 @@ public class GameThread implements Runnable, Comparable {
             ret = k;
             break;
         }
+
         return ret;
     }
 
@@ -1428,11 +1429,19 @@ public class GameThread implements Runnable, Comparable {
 
             if(min > max) min = max;
 
-            temp.put("cost", min);
-            temp.put("maxCost", max);
-            temp.put("stepSize", incr);
+            if(min != 0){
+                temp.put("cost", min);
+                temp.put("maxCost", max);
+                temp.put("stepSize", incr);
 
-            array.put(temp);
+                array.put(temp);
+            }
+            else{
+                temp.put("name", "AllIn");
+                temp.put("cost", tempUser.getBoardCoin());
+
+                array.put(temp);
+            }
         }
         else {
             temp = new JSONObject();
@@ -1687,6 +1696,7 @@ public class GameThread implements Runnable, Comparable {
     //
     //
     //==================================================================================================================
+
 
     private void endRound() {
 
@@ -2783,6 +2793,15 @@ public class GameThread implements Runnable, Comparable {
 
     public boolean isHasBot() {
         return hasBot;
+    }
+
+
+    public int getCardShowed() {
+        return cardShowed;
+    }
+
+    public void setCardShowed(int cardShowed) {
+        this.cardShowed = cardShowed;
     }
 
     //==================================================================================================================

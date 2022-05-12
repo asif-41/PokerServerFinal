@@ -543,27 +543,26 @@ public class BotClient extends ServerToClient {
             if(gameThread.getCycleCount() == 1){
 
                 if(check != -1) choice = check;
-                else if(call != -1) {
-
-                    if(callCost > 2*gameThread.getMinCallValue()) choice = fold;
-                    else choice = call;
+                else if(call != -1 && gameThread.getCardShowed() < 5) {
+                    choice = call;
+//                    if(callCost > 2*gameThread.getMinCallValue()) choice = fold;
+//                    else choice = call;
                 }
                 else choice = fold;
             }
             else{
                 if(check != -1) choice = check;
-                else if(call != -1){
+                else if(call != -1 && gameThread.getCardShowed() < 5) {
+                    choice = call;
 
-                    if(gameThread.isHasAnyoneRaised()){
 
-                        if(gameThread.getRoundCall() > 2*gameThread.getMinCallValue()) choice = fold;
-                        else if(loseCallCount < 1) {
-                            choice = call;
-                            loseCallCount++;
-                        }
-                        else choice = fold;
-                    }
-                    else choice = fold;
+//                        if(gameThread.getRoundCall() > 2*gameThread.getMinCallValue()) choice = fold;
+//                        else if(loseCallCount < 1) {
+//                            choice = call;
+//                            loseCallCount++;
+//                        }
+//                        else choice = fold;
+
                 }
                 else choice = fold;
             }
