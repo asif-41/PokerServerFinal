@@ -1,7 +1,7 @@
 FOR DEPLOYMENT, EDIT THESE::
 
 1.  Image location to: images/
-2.  Terminal location to: terminal-9.0.0.out
+2.  Terminal location to: terminal-10.0.0.out
 3.  Database        name: pokerdb
                     password: PokerServerPa$$w0RD
 4.  Port: 1112

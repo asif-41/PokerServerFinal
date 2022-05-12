@@ -20,7 +20,7 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-9.0.0.out";
+    private static String terminalPath = "terminal-10.0.0.out";
     private static String imagePath = "images/";
 
     private static boolean showButton = true;
