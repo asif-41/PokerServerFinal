@@ -124,7 +124,6 @@ public class WebpagesController {
         RedirectView redirectView = new RedirectView();
 
         if(authorizeAdmin2(username, password)){
-
             Server.pokerServer.getDb().editAccount(map);
             redirectView.setUrl("showAccounts?username=" + PokerServerApplication.getUsername() + "&password=" + PokerServerApplication.getPassword() + "&page=" + map.get("page"));
         }

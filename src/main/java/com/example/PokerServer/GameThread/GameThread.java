@@ -735,10 +735,8 @@ public class GameThread implements Runnable, Comparable {
 
             ServerToClient s = inGamePlayers[i];
 
-            boolean send = ! s.getUser().isBot();
-
             s.leaveGameRoom();
-            if(send) kickFromRoomRequest(i);
+            if(s.getUser() != null && !s.getUser().isBot()) kickFromRoomRequest(i);
         }
         Server.pokerServer.removeGameThread(this);
     }

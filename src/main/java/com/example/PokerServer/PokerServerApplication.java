@@ -55,8 +55,10 @@ public class PokerServerApplication {
         long mcr[] = {0, 0, 2500000, 7000000, 15000000, 40000000, 100000000, 150000000, 400000000, 1000000000};
         boolean hiddenStatus[] = {true, true, true, true, true, true, true, true, true, true};
 
-        String[] botNames = {"Daniel", "Jordan", "Santa", "Tommy", "Nadir", "Aladin", "Cowboy", "Zlatan", "Roy", "Will", "Jewel", "Khalid",
-                             "Drogon", "Jack", "Karim", "Robin", "Barbosa", "Taylor", "Beyonce", "Katy", "Swann", "Justin", "Ahmed", "Elizabeth"};
+        String[] botNames = {"Fardin Soumo", "Rony Bhuiya", "Mohsin khan", "Rakib Ali", "Jibon Bsl", "Najmul Mahbub", "Rubel Islam", "Shoisob Mahmud",
+                             "Nure Alam", "Imrul kabir", "Yousuf Pathan", "Mashrafee", "Farhan ul islam", "Joy khan", "Zubaer khan", "Mehedi Hasan",
+                             "Atikul Islam", "Shanjida Haque", "Farjana Yeasmin", "Sadia Afreen", "Sheikh Marjia", "Ayon Bin Kabir", "Lemon Ali",
+                             "Urbi Das"};
 
         int leastPlayerCount = 2;
 
