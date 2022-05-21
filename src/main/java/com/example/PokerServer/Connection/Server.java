@@ -884,9 +884,8 @@ public class Server {
 
         if (b != null && b.getUser() != null){
 
-            removeFromGameThread(b);
-
             int nameCode = b.getUser().getId();
+            removeFromGameThread(b);
             botIds.remove((Integer) nameCode);
         }
         botClients.remove(b);
