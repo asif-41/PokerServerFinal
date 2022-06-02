@@ -3,11 +3,14 @@ package com.example.PokerServer.Connection;
 import com.example.PokerServer.GameThread.GameThread;
 import com.example.PokerServer.GameThread.WaitingRoom;
 import com.example.PokerServer.Objects.*;
+import com.example.PokerServer.PokerServerApplication;
 import com.example.PokerServer.db.DB;
 import com.example.PokerServer.db.DBFactory;
 import org.json.JSONObject;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 
 public class Server {
@@ -961,29 +964,59 @@ public class Server {
     public void forceLogoutAll(){
 
         while(loggedInUsers.size() != 0){
-
-            ServerToClient x = (ServerToClient) loggedInUsers.get(0);
-            if(x != null) x.forceLogout("Updates are coming from server! please relogin");
+            try{
+                ServerToClient x = (ServerToClient) loggedInUsers.get(0);
+                if(x != null) x.forceLogout("Updates are coming from server! please relogin");
+            }catch (Exception e){
+                System.out.println("Error in force logout user logout");
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
+            }
         }
 
         while(botClients.size() != 0){
-
-            BotClient b = (BotClient) botClients.get(0);
-            if(b != null) b.forceLogout("hehe");
+            try{
+                BotClient b = (BotClient) botClients.get(0);
+                if(b != null) b.forceLogout("hehe");
+            }catch (Exception e){
+                System.out.println("Error in force logout bot logout");
+                if(Server.pokerServer.printError){
+                    e.printStackTrace(System.out);
+                    System.out.println();
+                }
+            }
         }
 
         for(int i=0; i<boardTypeCount; i++){
             while(gameThreads[i].size() != 0){
-                GameThread g = (GameThread) gameThreads[i].get(0);
-                if(g != null) g.closeRoom();
+                try{
+                    GameThread g = (GameThread) gameThreads[i].get(0);
+                    if(g != null) g.closeRoom();
+                }catch (Exception e){
+                    System.out.println("Error in force logout game closing");
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
+                }
             }
             gameThreads[i].clear();
         }
 
         for(int i=0; i<boardTypeCount; i++){
             while(waitingRoom[i].size() != 0){
-                WaitingRoom w = (WaitingRoom) waitingRoom[i].get(0);
-                if(w != null) w.closeEverything();
+                try{
+                    WaitingRoom w = (WaitingRoom) waitingRoom[i].get(0);
+                    if(w != null) w.closeEverything();
+                }catch (Exception e){
+                    System.out.println("Error in force logout waiting room closing");
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
+                }
             }
             waitingRoom[i].clear();
         }
@@ -1047,6 +1080,35 @@ public class Server {
                 break;
             }
         }
+    }
+
+    public void clearTerminal(){
+        File inp = new File(PokerServerApplication.getTerminalPath());
+        try{
+            Scanner sc = new Scanner(inp);
+            ArrayList strings = new ArrayList<String>();
+
+            for(int i=0; i<PokerServerApplication.getClearTill(); i++){
+                String xd = sc.nextLine();
+                strings.add(xd);
+            }
+
+            FileWriter fw = new FileWriter(inp, false);
+            for(Object x : strings){
+                String xx = (String) x;
+                fw.write(xx + "\n");
+            }
+            fw.close();
+
+        }catch (Exception e){
+            System.out.println("Error in clearing terminal");
+
+            if(Server.pokerServer.printError){
+                e.printStackTrace(System.out);
+                System.out.println();
+            }
+        }
+
     }
 
     //================================================================================

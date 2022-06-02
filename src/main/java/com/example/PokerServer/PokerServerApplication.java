@@ -20,20 +20,21 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-10.0.0.out";
-    private static String imagePath = "images/";
+    private static String terminalPath = "././././Files/terminal.out";
+    private static String imagePath = "././././Files/images/";
 
     private static boolean showButton = true;
     private static int version = 10;
 
-    private static String host = "140.82.0.55";
+    //private static String host = "140.82.0.55";
     private static int port = 1112;
 
-    private static int imageCount = 24;
+    private static int imageCount = 48;
+    private static int clearTill = 34;
 
 
 
-    //private static String host = "localhost";
+    private static String host = "localhost";
 
     public static void main(String[] args) {
 
@@ -58,8 +59,11 @@ public class PokerServerApplication {
         String[] botNames = {"Fardin Soumo", "Rony Bhuiya", "Mohsin khan", "Rakib Ali", "Jibon Bsl", "Najmul Mahbub", "Rubel Islam", "Shoisob Mahmud",
                              "Nure Alam", "Imrul kabir", "Yousuf Pathan", "Mashrafee", "Farhan ul islam", "Joy khan", "Zubaer khan", "Mehedi Hasan",
                              "Atikul Islam", "Shanjida Haque", "Farjana Yeasmin", "Sadia Afreen", "Sheikh Marjia", "Ayon Bin Kabir", "Lemon Ali",
-                             "Urbi Das"};
-
+                             "Urbi Das",
+                             "Al Rabby Bsl", "Al Riad", "Md Gaddafi", "Rezvi Kabir", "Al Mamun", "Sharif Ahmed", "Milu Rahman", "Feroz Shahi",
+                             "Saddam hossain", "Sayed hasan", "Loban Hussain", "Shafiqul Islam", "Wahidunnabi Sagar", "Rakibujjamam Rakib", "Al Mubin Rony",
+                             "Raton khan", "Surovi Akter", "Mina Rahman", "Mukta Khatun", "Jannatul", "Redwanul Haque", "Boss Dulal",
+                             "Bipasha bsl"};
         int leastPlayerCount = 2;
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, hiddenStatus,
@@ -126,5 +130,9 @@ public class PokerServerApplication {
 
     public static String getImagePath() {
         return imagePath;
+    }
+
+    public static int getClearTill() {
+        return clearTill;
     }
 }

@@ -378,6 +378,7 @@ public class User {
     public static JSONObject UserToJson(User user) {
 
         JSONObject temp = new JSONObject();
+        if(user == null) return temp;
 
         temp.put("id", user.getId());
         temp.put("username", user.getUsername());
@@ -448,6 +449,7 @@ public class User {
     public static JSONObject UserToJsonInGame(User user) {
 
         JSONObject temp = new JSONObject();
+        if(user == null) return temp;
 
         temp.put("gameId", user.gameId);
         temp.put("gameCode", user.gameCode);
@@ -611,7 +613,6 @@ public class User {
     public static void loadGameRoomData(User user, JSONObject jsonObject) {
 
         JSONObject data = jsonObject.getJSONObject("data");
-
         if(user == null) return ;
 
         user.roundCount = data.getInt("roundCount");

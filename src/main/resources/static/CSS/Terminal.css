@@ -15,3 +15,7 @@ body {
 pre{
       display: inline-grid;
 }
+
+output{
+      color: white;
+}
