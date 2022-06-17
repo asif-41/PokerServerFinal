@@ -10,4 +10,9 @@ FOR DEPLOYMENT, EDIT THESE::
 7.  Host of page: 140.82.0.55
 
 
-changes:
+install:
+java
+postgres
+mvn
+allow server port
+
