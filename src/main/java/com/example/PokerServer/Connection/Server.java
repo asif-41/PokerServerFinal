@@ -96,6 +96,11 @@ public class Server {
     private double[] botPercentages;
 
 
+
+    //  16-08-2022
+    private int cardTillBotWin;
+    private int cardTillPlayerWin;
+
     //====================================================
 
 
@@ -116,7 +121,8 @@ public class Server {
                   int minCoinWithdraw, double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
                   long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
-                  String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks, double[] botPercentages) {
+                  String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks, double[] botPercentages,
+                  int cardTillBotWin, int cardTillPlayerWin) {
 
         this.printError = printError;
 
@@ -208,6 +214,12 @@ public class Server {
         allowLogin = true;
         loginDelay = null;
         this.delayLoginOnForce = delayLoginOnForce;
+
+
+
+        //  16-08-2022
+        this.cardTillBotWin = cardTillBotWin;
+        this.cardTillPlayerWin = cardTillPlayerWin;
     }
 
     //========================================================================================
@@ -1722,6 +1734,14 @@ public class Server {
 
     public double[] getBotPercentages() {
         return botPercentages;
+    }
+
+    public int getCardTillBotWin() {
+        return cardTillBotWin;
+    }
+
+    public int getCardTillPlayerWin() {
+        return cardTillPlayerWin;
     }
 
     //================================================================================================================================================

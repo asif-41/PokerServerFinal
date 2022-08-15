@@ -55,6 +55,10 @@ public class BotClient extends ServerToClient {
     private long raiseValue;                            //      1 mane minimum value, 2 mane mid value, 3 mane max value
     private int loseCallCount;
 
+
+    //  16-08-2022
+    private int cardTill = 4;
+
     //============================================================
     //
     //============================================================
@@ -76,6 +80,9 @@ public class BotClient extends ServerToClient {
         aggression1Temp = 0;
         raiseValue = 0;
         loseCallCount = 0;
+
+        //  16-08-2022
+        cardTill = 4;
     }
 
     public BotClient() {
@@ -150,6 +157,8 @@ public class BotClient extends ServerToClient {
 
             return ;
         }
+
+        //  Client er incoming msg
 
         if (jsonIncoming.get("requestType").equals("GameRoom")) {
 
@@ -251,59 +260,6 @@ public class BotClient extends ServerToClient {
     //             AI
     //
     //==============================================================================
-
-    private void decideAction(){
-
-        int key = Server.pokerServer.getBoardKey(gameThread.getBoardType());
-        double perc = Server.pokerServer.getBotPercentages()[key];
-
-        int rnd = Randomizer.one(100) + 1;
-
-        if(rnd > perc){
-            doWin = false;
-            loseCallCount = 0;
-        }
-        else{
-            doWin = true;
-
-            int k = -1;
-            do{
-                k = Randomizer.one(2) + 1;
-            }
-            while(k == aggression);
-
-            aggression = k;
-        }
-
-//        roundAt++;
-//
-//        if(roundAt > roundCount){
-//            roundCount++;             //  2-4
-//            if(roundCount > 4 || roundCount < 2) roundCount = 2;
-//
-//            loseAt = Randomizer.one(roundCount) + 1;           //  1-roundCount
-//            roundAt = 1;
-//        }
-//
-//        if(roundAt == loseAt){
-//            doWin = false;
-//            loseCallCount = 0;
-//        }
-//        else{
-//            doWin = true;
-//
-//            int k = -1;
-//            do{
-//                k = Randomizer.one(2) + 1;
-//            }
-//            while(k == aggression);
-//
-//            aggression = k;
-//        }
-    }
-
-
-
 
     private int getWinner(String[] powers){
 
@@ -511,6 +467,7 @@ public class BotClient extends ServerToClient {
         }
     }
 
+    //  cardTillPlayerWin
     private int chooseOption(JSONArray jsonArray){
 
         int choice = -1;
@@ -543,7 +500,7 @@ public class BotClient extends ServerToClient {
             if(gameThread.getCycleCount() == 1){
 
                 if(check != -1) choice = check;
-                else if(call != -1 && gameThread.getCardShowed() < 5) {
+                else if(call != -1 && gameThread.getCardShowed() <= cardTill) {
                     choice = call;
 //                    if(callCost > 2*gameThread.getMinCallValue()) choice = fold;
 //                    else choice = call;
@@ -552,7 +509,7 @@ public class BotClient extends ServerToClient {
             }
             else{
                 if(check != -1) choice = check;
-                else if(call != -1 && gameThread.getCardShowed() < 5) {
+                else if(call != -1 && gameThread.getCardShowed() <= cardTill) {
                     choice = call;
 
 
@@ -758,7 +715,8 @@ public class BotClient extends ServerToClient {
 
     private void roundStart(){
 
-        decideAction();
+        //cardTill = 4;
+        //decideAction();
         biasCards();
     }
 
@@ -1004,6 +962,29 @@ public class BotClient extends ServerToClient {
 
     public void setGameThread(GameThread gameThread) { this.gameThread = gameThread; }
 
+    public int getCardTill() {
+        return cardTill;
+    }
+
+    public void setCardTill(int cardTill) {
+        this.cardTill = cardTill;
+    }
+
+    public boolean isDoWin() {
+        return doWin;
+    }
+
+    public void setDoWin(boolean doWin) {
+        this.doWin = doWin;
+    }
+
+    public int getAggression() {
+        return aggression;
+    }
+
+    public void setAggression(int aggression) {
+        this.aggression = aggression;
+    }
 
     //==============================================================================
     //

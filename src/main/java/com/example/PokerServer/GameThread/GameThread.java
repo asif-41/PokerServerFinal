@@ -1084,6 +1084,11 @@ public class GameThread implements Runnable, Comparable {
         sendPlayersDataToAll();
 
         loadCards();
+
+        // 16-08-2022
+        manageBots();
+        //  16-08-2022
+
         roundStartMsg();
 
         sendPlayerCardsToClient();
@@ -2487,6 +2492,92 @@ public class GameThread implements Runnable, Comparable {
 
 
 
+
+
+    //==================================================================================================================
+    //
+    //          GAMETHREAD AS BOT MANAGER   16-08-2022
+    //
+    //==================================================================================================================
+
+    private void manageBots(){
+        if(! hasBot) return ;
+
+        BotClient b = (BotClient) inGamePlayers[botLoc];
+
+        ArrayList ret = decideAction(b.getAggression());
+
+        boolean decision = (Boolean) ret.get(0);
+        int aggr = (Integer) ret.get(1);
+
+
+        b.setDoWin(decision);
+        b.setAggression(aggr);
+
+        if(decision) b.setCardTill(Server.pokerServer.getCardTillBotWin());
+        else b.setCardTill(Server.pokerServer.getCardTillPlayerWin());
+    }
+
+    //  return decision, then aggression
+    private ArrayList decideAction(int curAggression){
+
+        boolean doWin;
+        int aggression = curAggression;
+
+        int key = Server.pokerServer.getBoardKey(boardType);
+        double perc = Server.pokerServer.getBotPercentages()[key];
+
+        int rnd = Randomizer.one(100) + 1;
+
+        if(rnd > perc){
+            doWin = false;
+//            loseCallCount = 0;
+        }
+        else{
+            doWin = true;
+
+            int k = -1;
+            do{
+                k = Randomizer.one(2) + 1;
+            }
+            while(k == curAggression);
+
+            aggression = k;
+        }
+
+        //  return boolean and int pair
+        ArrayList ret = new ArrayList();
+        ret.add(doWin);
+        ret.add(aggression);
+
+        return ret;
+
+//        roundAt++;
+//
+//        if(roundAt > roundCount){
+//            roundCount++;             //  2-4
+//            if(roundCount > 4 || roundCount < 2) roundCount = 2;
+//
+//            loseAt = Randomizer.one(roundCount) + 1;           //  1-roundCount
+//            roundAt = 1;
+//        }
+//
+//        if(roundAt == loseAt){
+//            doWin = false;
+//            loseCallCount = 0;
+//        }
+//        else{
+//            doWin = true;
+//
+//            int k = -1;
+//            do{
+//                k = Randomizer.one(2) + 1;
+//            }
+//            while(k == aggression);
+//
+//            aggression = k;
+//        }
+    }
 
 
 

@@ -7,6 +7,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 @RestController
@@ -22,18 +23,22 @@ public class PokerServerApplication {
 
     private static String terminalPath = "terminal-10.0.0.out";
     private static String imagePath = "images/";
+    private static String host = "140.82.0.55";
 
     private static boolean showButton = true;
     private static int version = 10;
 
-    private static String host = "140.82.0.55";
     private static int port = 1112;
 
     private static int imageCount = 48;
     private static int clearTill = 34;
 
+    private static int leastPlayerCount = 2;
 
 
+
+//    private static String terminalPath = "Files/terminal.out";
+//    private static String imagePath = "Files/images/";
 //    private static String host = "localhost";
 
     public static void main(String[] args) {
@@ -64,7 +69,6 @@ public class PokerServerApplication {
                              "Saddam hossain", "Sayed hasan", "Loban Hussain", "Shafiqul Islam", "Wahidunnabi Sagar", "Rakibujjamam Rakib", "Al Mubin Rony",
                              "Raton khan", "Surovi Akter", "Mina Rahman", "Mukta Khatun", "Jannatul", "Redwanul Haque", "Boss Dulal",
                              "Bipasha bsl"};
-        int leastPlayerCount = 2;
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, hiddenStatus,
                 10000000, 100000000,
@@ -72,8 +76,8 @@ public class PokerServerApplication {
                 10, 50000, 100000, 60, 2, 10,
                 minCoinWithdraw, coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, showButton, version, imageCount,
-                2000, 5000, 3, 3, 2000, 10000, 5,
-                botNames, 10000, true, getBkashLinks(), getBotPercentages());
+                2000, 3000, 2, 2, 2000, 10000, 5,
+                botNames, 10000, true, getBkashLinks(), getBotPercentages(), 4, 3);
     }
 
 
