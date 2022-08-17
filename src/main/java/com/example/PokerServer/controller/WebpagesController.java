@@ -674,6 +674,8 @@ public class WebpagesController {
             model.addAttribute("eachVideoCoin", eachVideoCoin);
             model.addAttribute("FreeLoginCoin", FreeLoginCoin);
             model.addAttribute("delayLoginOnForce", Server.pokerServer.getDelayLoginOnForce());
+            model.addAttribute("leastPlayerCount", Server.pokerServer.getLeastPlayerCount());
+            model.addAttribute("waitOnWin", Server.pokerServer.getEachWinLevelWait());
             model.addAttribute("version", Server.pokerServer.getVersion());
             model.addAttribute("showButton", Server.pokerServer.isShowButton());
             model.addAttribute("username", PokerServerApplication.getUsername());
@@ -701,7 +703,7 @@ public class WebpagesController {
 
         }
 
-        //System.out.println(data);
+//        System.out.println(data);
 
         String[] Data = data.split("&");
         Hashtable map = new Hashtable<String, String>();

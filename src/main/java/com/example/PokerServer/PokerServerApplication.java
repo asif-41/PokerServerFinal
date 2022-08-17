@@ -30,11 +30,12 @@ public class PokerServerApplication {
 
     private static int port = 1112;
 
-    private static int imageCount = 48;
+    private static int imageCount = 24;
     private static int clearTill = 34;
 
     private static int leastPlayerCount = 2;
 
+    private static boolean printError = true;
 
 
 //    private static String terminalPath = "Files/terminal.out";
@@ -68,7 +69,9 @@ public class PokerServerApplication {
                              "Al Rabby Bsl", "Al Riad", "Md Gaddafi", "Rezvi Kabir", "Al Mamun", "Sharif Ahmed", "Milu Rahman", "Feroz Shahi",
                              "Saddam hossain", "Sayed hasan", "Loban Hussain", "Shafiqul Islam", "Wahidunnabi Sagar", "Rakibujjamam Rakib", "Al Mubin Rony",
                              "Raton khan", "Surovi Akter", "Mina Rahman", "Mukta Khatun", "Jannatul", "Redwanul Haque", "Boss Dulal",
-                             "Bipasha bsl"};
+                             "Bipasha bsl",
+                             "Jibon", "Bishnu das", "Sourov", "Iqbal khan", "Mollah", "Polok", "Parvez", "Babu", "Susmoy", "Khokon",
+                             "Astab", "Anamul", "Amirul", "Golam kibria", "Monju", "Shihad", "Roni khan", "Chasi karim", "Mredul", "Hridoy"};
 
         Server.pokerServer = new Server(boardTypeCount, boardType, minEntryValue, maxEntryValue, minCallValue, mcr, hiddenStatus,
                 10000000, 100000000,
@@ -77,7 +80,7 @@ public class PokerServerApplication {
                 minCoinWithdraw, coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, showButton, version, imageCount,
                 2000, 3000, 2, 2, 2000, 10000, 5,
-                botNames, 10000, true, getBkashLinks(), getBotPercentages(), 4, 3);
+                botNames, 10000, printError, getBkashLinks(), getBotPercentages(), 4, 3, 3.5);
     }
 
 

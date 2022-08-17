@@ -212,9 +212,10 @@ public class User {
 
     public static User makeBotUser(int id, long startCoin){
 
+        int imageId = Randomizer.one(Server.pokerServer.imageCount) + 1;
+        int nameId = Randomizer.one(Server.pokerServer.botnameCount);
 
-        int imageId = Randomizer.one(24) + 1;
-        String username = Server.pokerServer.botNames[imageId-1];
+        String username = Server.pokerServer.botNames[nameId];
         String imageLink = "http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id=" + imageId;
 
         int roundsPlayed = getRoundsPlayed(startCoin);

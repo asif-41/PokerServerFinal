@@ -826,6 +826,14 @@ function otherDataSaveClick(){
             x += "Editing show buttons";
             targets[i+1].value = inputs[i].value;
         }
+        else if(i == 8){
+            x += "Editing least player count";
+            targets[i+1].value = inputs[i].value;
+        }
+        else if(i == 9){
+            x += "Editing wait on win";
+            targets[i+1].value = inputs[i].value;
+        }
 
         lists[j].innerHTML = x;
         lists[j].style.display = "block";

@@ -312,6 +312,8 @@
                         <th>Delay Login On Force</th>
                         <th>Version</th>
                         <th>Show Button</th>
+                        <th>Least Player Count</th>
+                        <th>Wait On Win</th>
                         <th>New Data</th>
                         <th>Action</th>
                     </tr>
@@ -351,7 +353,19 @@
                             <input type="hidden" value="-1" disabled />
                         </td>
                         <td>
+                            [( ${leastPlayerCount} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
+                            [( ${waitOnWin} )]
+                            <input type="hidden" value="-1" disabled />
+                        </td>
+                        <td>
                             <ul class="list-group">
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
+                                <li class="list-group-item bg-dark" style="display:none"></li>
                                 <li class="list-group-item bg-dark" style="display:none"></li>
                                 <li class="list-group-item bg-dark" style="display:none"></li>
                                 <li class="list-group-item bg-dark" style="display:none"></li>
@@ -369,6 +383,8 @@
                             <input type="hidden" name="delayLoginOnForce" value="-1" disabled />
                             <input type="hidden" name="version" value="-1" disabled />
                             <input type="hidden" name="showButton" value="-1" disabled />
+                            <input type="hidden" name="leastPlayerCount" value="-1" disabled />
+                            <input type="hidden" name="waitOnWin" value="-1" disabled />
                         </td>
                         <td>
                             <button type="button" class="OtherTableEdit btn btn-primary btn-sm mb-3" data-toggle="modal" data-target="#otherTableModal" style="margin:5px">Edit</button>
@@ -706,6 +722,14 @@
                         <div class="form-group">
                             <label>Show Button</label>
                             <input type="text" name="showButton" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Least Player Count</label>
+                            <input type="text" name="leastPlayerCount" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label>Wait On Win</label>
+                            <input type="text" name="waitOnWin" class="form-control" />
                         </div>
                     </div>
 

@@ -73,6 +73,7 @@ public class Server {
     public int version;
 
     public int imageCount;
+    public int botnameCount;
 
 
 
@@ -101,6 +102,8 @@ public class Server {
     private int cardTillBotWin;
     private int cardTillPlayerWin;
 
+    public double eachWinLevelWait;
+
     //====================================================
 
 
@@ -122,7 +125,7 @@ public class Server {
                   long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
                   String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks, double[] botPercentages,
-                  int cardTillBotWin, int cardTillPlayerWin) {
+                  int cardTillBotWin, int cardTillPlayerWin, double eachWinLevelWait) {
 
         this.printError = printError;
 
@@ -132,6 +135,7 @@ public class Server {
         this.version = version;
         this.showButton = showButton;
         this.imageCount = imageCount;
+
 
         this.connectionCheckDelay = connectionCheckDelay;
         this.connectionResponseDelay = connectionResponseDelay;
@@ -185,6 +189,7 @@ public class Server {
         this.botTurnDelayMax = botTurnDelayMax;
         this.addBotDelay = addBotDelay;
         this.deleteBotBeforeRound = deleteBotBeforeRound;
+        this.botnameCount = botNames.length;
 
         waitingRoom = new ArrayList[boardTypeCount];
         gameThreads = new ArrayList[boardTypeCount];
@@ -220,6 +225,7 @@ public class Server {
         //  16-08-2022
         this.cardTillBotWin = cardTillBotWin;
         this.cardTillPlayerWin = cardTillPlayerWin;
+        this.eachWinLevelWait = eachWinLevelWait;
     }
 
     //========================================================================================
@@ -1238,6 +1244,32 @@ public class Server {
                         System.out.println();
                     }
                 }
+
+                try{
+                    int v = Integer.parseInt(map.get("leastPlayerCount"));
+                    if(v != -1) leastPlayerCount = v;
+                }catch (Exception e){
+                    System.out.println("Error in converting data of hashmap in basic data edit(least player count)");
+                    System.out.println("Error -> " + e);
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
+                }
+
+                try{
+                    double v = Double.parseDouble(map.get("waitOnWin"));
+                    if(v != -1) eachWinLevelWait = v;
+                }catch (Exception e){
+                    System.out.println("Error in converting data of hashmap in basic data edit(wait on win)");
+                    System.out.println("Error -> " + e);
+
+                    if(Server.pokerServer.printError){
+                        e.printStackTrace(System.out);
+                        System.out.println();
+                    }
+                }
             }
 
         }catch (Exception e){
@@ -1248,6 +1280,7 @@ public class Server {
                     System.out.println();
             }
         }
+
 
         try{
             int wc = Integer.parseInt(map.get("withdrawCount"));
@@ -1742,6 +1775,10 @@ public class Server {
 
     public int getCardTillPlayerWin() {
         return cardTillPlayerWin;
+    }
+
+    public double getEachWinLevelWait() {
+        return eachWinLevelWait;
     }
 
     //================================================================================================================================================

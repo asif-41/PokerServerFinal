@@ -150,15 +150,19 @@ public class GameThread implements Runnable, Comparable {
     private ArrayList[] winnerLevelAmount;                     //  RESULT FOUND AT THIS LEVEL WHILE CHECKING POWER STRING
 
     private int maxWinLevelCount;
-    private boolean hasBot;
-    private int botLoc;
-    private int deletingBot;
 
     private int deductingBlinds;
     private boolean waitingAtEnd;
 
     private boolean nullAtGamuButtons;
     //  INDICATES IF WE NEED A KICKER OR NOT
+
+
+    private boolean hasBot;
+    private int botLoc;
+    private int deletingBot;
+
+    // 16-08-2022
 
     //==================================================================================================================
     //
@@ -2413,7 +2417,7 @@ public class GameThread implements Runnable, Comparable {
 
         sendMessageToAll(send.toString());
 
-        double v = 3.5 * (double) maxWinLevelCount;
+        double v = Server.pokerServer.eachWinLevelWait * (double) maxWinLevelCount;
         waitGame( v );
     }
 

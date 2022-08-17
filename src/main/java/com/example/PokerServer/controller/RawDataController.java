@@ -55,7 +55,7 @@ public class RawDataController {
         int index = Integer.parseInt(id);
 
         final ByteArrayResource inputStream = new ByteArrayResource(Files.readAllBytes(Paths.get(
-                PokerServerApplication.getImagePath() + id + ".JPG"
+                PokerServerApplication.getImagePath() + id + ".jpeg"
         )));
         return ResponseEntity
                 .status(HttpStatus.OK)
