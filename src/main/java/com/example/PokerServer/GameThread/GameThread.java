@@ -158,11 +158,16 @@ public class GameThread implements Runnable, Comparable {
     //  INDICATES IF WE NEED A KICKER OR NOT
 
 
-    private boolean hasBot;
-    private int botLoc;
-    private int deletingBot;
+//    private boolean hasBot;
+//    private int botLoc;
+//    private int deletingBot;
+
 
     // 16-08-2022
+
+    private int botCount;
+    private ArrayList botLocs;
+    private int deletingBot;
 
     //==================================================================================================================
     //
@@ -193,8 +198,10 @@ public class GameThread implements Runnable, Comparable {
         this.boardType = boardType;
         this.maxPlayerCount = maxPlayerCount;
 
-        hasBot = false;
-        botLoc = -1;
+//        hasBot = false;
+//        botLoc = -1;
+        botCount = 0;
+        botLocs = new ArrayList<Integer>();
         deletingBot = -1;
         initializeGameThread(clients);
 
@@ -236,8 +243,13 @@ public class GameThread implements Runnable, Comparable {
             inGamePlayers[i].setWaitingRoom(null);
             inGamePlayers[i].setLastGameCode(gameCode);
 
-            hasBot |= inGamePlayers[i].getUser().isBot();
-            if(inGamePlayers[i].getUser().isBot()) botLoc = i;
+//            hasBot |= inGamePlayers[i].getUser().isBot();
+//            if(inGamePlayers[i].getUser().isBot()) botLoc = i;
+
+            if(inGamePlayers[i].getUser().isBot()) {
+                botCount++;
+                botLocs.add(i);
+            }
         }
         playerCount = s.size();
 
@@ -543,10 +555,15 @@ public class GameThread implements Runnable, Comparable {
 
     private synchronized void tryAddBot(){
 
-        if(isPrivate) return ;
-        if(hasBot || gameRunning || activeCountInRound >= Server.pokerServer.getLeastPlayerCount()) return;
-        if(playerCount == maxPlayerCount) return ;
+        if(isPrivate || gameRunning) return ;
         if(Server.pokerServer.getMaxBotLimit() <= Server.pokerServer.botIds.size()) return ;
+
+//        if(hasBot || gameRunning || activeCountInRound >= Server.pokerServer.getLeastPlayerCount()) return;
+//        if(activeCountInRound >= Server.pokerServer.getLeastPlayerCount()) return;
+        if(playerCount > Server.pokerServer.getLeastPlayerCount()){
+            if(playerCount == maxPlayerCount) return;
+            else if(activeCountInRound >=2 ) return ;
+        }
 
         int key = Server.pokerServer.getBoardKey(boardType);
         BotClient b = Server.pokerServer.makeBotClient(key);
@@ -555,15 +572,16 @@ public class GameThread implements Runnable, Comparable {
 
     private void tryRemoveBot(){
 
-        if(hasBot){
+        if(botCount != 0){
 
-            if(activeCountInRound>Server.pokerServer.getLeastPlayerCount()
-                || (activeCountInRound == Server.pokerServer.getLeastPlayerCount() && !isActiveInRoom[botLoc])){
+//            if(activeCountInRound>Server.pokerServer.getLeastPlayerCount()
+//                || (activeCountInRound == Server.pokerServer.getLeastPlayerCount() && !isActiveInRoom[botLoc])){
+            if(playerCount > Server.pokerServer.getLeastPlayerCount()){
 
                 if(deletingBot == -1) deletingBot = Randomizer.one(Server.pokerServer.deleteBotBeforeRound) + 1;
                 else deletingBot--;
 
-                if(deletingBot == 0) exitGameResponse(inGamePlayers[botLoc]);
+                if(deletingBot == 0) exitGameResponse(inGamePlayers[ (Integer) botLocs.get(0) ]);
             }
         }
         else deletingBot = -1;
@@ -589,8 +607,10 @@ public class GameThread implements Runnable, Comparable {
         }
 
         if(s.getUser().isBot()){
-            hasBot = true;
-            botLoc = loc;
+//            hasBot = true;
+//            botLoc = loc;
+            botLocs.add(loc);
+            botCount++;
         }
 
         playerCalls[loc] = "New";
@@ -666,14 +686,21 @@ public class GameThread implements Runnable, Comparable {
 
     public synchronized void exitGameResponse(ServerToClient s) {
 
-        if(s.getUser().isBot()){
-            hasBot = false;
-            botLoc = -1;
-            deletingBot = -1;
-        }
-
         int seatPosition = s.getUser().getSeatPosition();
         User tempUser = s.getUser();
+
+        if(tempUser.isBot()){
+
+            for(int i=0; i<botLocs.size(); i++){
+                int k = (Integer) botLocs.get(i);
+                if(k == seatPosition){
+                    botLocs.remove(i);
+                    break;
+                }
+            }
+            botCount--;
+            deletingBot = -1;
+        }
 
         if (gameRunning) {
             tempUser.setTotalCallCount(tempUser.getTotalCallCount() + 1);
@@ -1039,7 +1066,8 @@ public class GameThread implements Runnable, Comparable {
             }
         }
 
-        if (activeCountInRound < Server.pokerServer.getLeastPlayerCount()) {
+        //if (activeCountInRound < Server.pokerServer.getLeastPlayerCount()) {
+        if (activeCountInRound < 2 || playerCount == botCount) {
 
             gameRunning = false;
             waitingAtEnd = false;
@@ -1056,6 +1084,8 @@ public class GameThread implements Runnable, Comparable {
                 }
             }, Server.pokerServer.waitingToCloseDelay);
 
+            if(playerCount == botCount) return;
+
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -1068,7 +1098,9 @@ public class GameThread implements Runnable, Comparable {
         }
 
         if (closeTimer != null) closeTimer.cancel();
-        tryRemoveBot();         //activeCountInRound >= 2
+
+        if(playerCount < Server.pokerServer.getLeastPlayerCount()) tryAddBot();
+        if(playerCount > Server.pokerServer.getLeastPlayerCount()) tryRemoveBot();
 
         cycleCount = 1;
         turnCount = 0;
@@ -1147,6 +1179,19 @@ public class GameThread implements Runnable, Comparable {
             tempUser.getPlayerCards().add(a);
             tempUser.getPlayerCards().add(b);
         }
+
+//        System.out.println("Card print:");
+//        for (int i = 0, k = 0; i < maxPlayerCount; i++) {
+//
+//            if (inGamePlayers[i] == null) continue;
+//            if (isActiveInRoom[i] == false) continue;
+//
+//            ServerToClient temp = inGamePlayers[i];
+//            User tempUser = temp.getUser();
+//
+//            System.out.println("USer " + i + " " + tempUser.getUsername());
+//            System.out.println(tempUser.getPlayerCards().get(0) + " " + tempUser.getPlayerCards().get(1));
+//        }
     }
 
     private void showMoreCards() {
@@ -2504,22 +2549,68 @@ public class GameThread implements Runnable, Comparable {
     //
     //==================================================================================================================
 
+    private int curAggression = 0;
+
     private void manageBots(){
-        if(! hasBot) return ;
+        if(botCount == 0) return ;
 
-        BotClient b = (BotClient) inGamePlayers[botLoc];
+        ArrayList activeBots = new ArrayList<Integer>();
+        for(int i=0; i<botCount; i++){
+            int k = (Integer) botLocs.get(i);
+            if(inGamePlayers[k] == null) continue;
 
-        ArrayList ret = decideAction(b.getAggression());
+            if(isActiveInRound[k]) activeBots.add(k);
+        }
+
+//        for(int i=0; i<botCount; i++){
+//            int kk = (Integer) botLocs.get(i);
+//            System.out.println("Index: " + kk + " " + isActiveInRoom[kk] + " " + isActiveInRound[kk] + " " + isPlaying[kk] + " " + inGamePlayers[kk].getUser().getUsername());
+//        }
+//        BotClient b = (BotClient) inGamePlayers[botLoc];
+
+        //  action decide
+
+        ArrayList ret = decideAction(curAggression);
 
         boolean decision = (Boolean) ret.get(0);
         int aggr = (Integer) ret.get(1);
 
+        for(int i=0; i<botLocs.size(); i++){
+            int k = (Integer) botLocs.get(i);
+            BotClient b = (BotClient) inGamePlayers[k];
 
-        b.setDoWin(decision);
-        b.setAggression(aggr);
+            b.setDoWin(false);
+            b.setCardTill(Server.pokerServer.getCardTillPlayerWin());
+        }
+        if(activeBots.size() == 0) return;
 
-        if(decision) b.setCardTill(Server.pokerServer.getCardTillBotWin());
-        else b.setCardTill(Server.pokerServer.getCardTillPlayerWin());
+        int customWinner = -1;
+
+        if(decision){
+            int loc = Randomizer.one(activeBots.size());
+            customWinner = (Integer) activeBots.get(loc);
+            BotClient b = (BotClient) inGamePlayers[customWinner];
+
+            b.setDoWin(true);
+            b.setAggression(aggr);
+            b.setCardTill(Server.pokerServer.getCardTillBotWin());
+
+            curAggression = aggr;
+        }
+
+//        System.out.println("target winner: " + customWinner);
+        //  biasing cards
+        biasCards(customWinner);
+//
+//
+//        b.setDoWin(decision);
+//        b.setAggression(aggr);
+//
+//        if(decision) b.setCardTill(Server.pokerServer.getCardTillBotWin());
+//        else b.setCardTill(Server.pokerServer.getCardTillPlayerWin());
+
+//        System.out.println("Ebar bot jitbe: " + decision + " aggression: " + aggr);
+//        System.out.println("Ami line 2566 e, gameThread!\n");
     }
 
     //  return decision, then aggression
@@ -2583,7 +2674,225 @@ public class GameThread implements Runnable, Comparable {
 //        }
     }
 
+    private void biasCards(int winnerLoc){
 
+//        if(gameThread == null) return ;
+//        int botLoc = gameThread.getBotLoc();
+
+        ArrayList<Card> boardCards = getBoardCards();
+        ArrayList<Card[]> playerCards = getPlayerCards();
+
+        ArrayList temp = new ArrayList<Card>();
+        for(Card x : boardCards) temp.add(x);
+
+        temp.add(null);
+        temp.add(null);
+
+        String[] powers = new String[playerCards.size()];
+        for(int i=0; i<powers.length; i++){
+
+            if(playerCards.get(i) == null) powers[i] = "";
+            else {
+                temp.set(temp.size()-2, playerCards.get(i)[0]);
+                temp.set(temp.size()-1, playerCards.get(i)[1]);
+
+                powers[i] = Card.getPower(temp);
+            }
+        }
+
+        int k = getWinner(powers);
+
+//        System.out.println("Winner " + k);
+
+        if(winnerLoc != -1){
+
+            if(k != winnerLoc){
+                User a = getPlayer(k);
+
+                BotClient b = (BotClient) inGamePlayers[winnerLoc];
+                User user = b.getUser();
+
+                ArrayList tempCards = user.getPlayerCards();
+                ArrayList tempCards2 = a.getPlayerCards();
+
+                a.setPlayerCards(tempCards);
+                user.setPlayerCards(tempCards2);
+            }
+        }
+        else{
+            ServerToClient s = inGamePlayers[k];
+
+            if(s.getUser().isBot()){
+                User a = null;
+
+                for(int i=0; i<inGamePlayers.length; i++){
+                    ServerToClient ss = inGamePlayers[i];
+                    if(! ss.getUser().isBot()) {
+                        a = ss.getUser();
+                        break;
+                    }
+                }
+                User user = s.getUser();
+
+                ArrayList tempCards = user.getPlayerCards();
+                ArrayList tempCards2 = a.getPlayerCards();
+
+                a.setPlayerCards(tempCards);
+                user.setPlayerCards(tempCards2);
+            }
+        }
+    }
+
+    private int getWinner(String[] powers){
+
+        int winner = -1;
+
+        int maxCnt = 0;
+        int maxVal;
+        int maxPos;
+
+        int curVal;
+        int curPos;
+
+        String[][] splittedPowers = new String[powers.length][];
+        for(int i=0; i<powers.length; i++) splittedPowers[i] = powers[i].split("\\.");
+
+        int[] checker = new int[powers.length];
+
+        for(int i=0; i<checker.length; i++) {
+            checker[i] = 1;
+            if(powers[i].equals("")) checker[i] = 0;
+        }
+
+        for(int level=0; level<6; level++){
+
+            curPos = -1;
+            curVal = -1;
+            maxVal = -1;
+            maxPos = -1;
+
+            for(int i=0; i<checker.length; i++){
+
+                if(checker[i] == 0) continue;
+
+                if(splittedPowers[i][level].charAt(0) == '('){
+
+                    Card temp = new Card(splittedPowers[i][level]);
+
+                    curVal = temp.getValue();
+                    curPos = temp.getLocation();
+                }
+                else curVal = Integer.valueOf(splittedPowers[i][level]);
+
+                if(curVal > maxVal){
+                    maxVal = curVal;
+                    maxPos = curPos;
+                }
+                else if(curVal == maxVal && curPos > maxPos) maxPos = curPos;
+            }
+
+            winner = -1;
+            maxCnt = 0;
+
+            for(int i=0; i<checker.length; i++){
+                if(checker[i] == 0) continue;
+
+                if(splittedPowers[i][level].charAt(0) == '('){
+
+                    Card temp = new Card(splittedPowers[i][level]);
+
+                    curVal = temp.getValue();
+                    curPos = temp.getLocation();
+                }
+                else curVal = Integer.valueOf(splittedPowers[i][level]);
+
+                if(curVal == maxVal && curPos == maxPos) {
+                    maxCnt++;
+                    winner = i;
+                }
+                else checker[i] = 0;
+            }
+
+            if(maxCnt == 1) break;
+        }
+
+        return winner;
+    }
+
+    private int getLoser(String[] powers){
+
+        int loser = -1;
+
+        int minCnt = 0;
+        int minVal;
+        int minPos;
+
+        int curVal;
+        int curPos;
+
+        String[][] splittedPowers = new String[powers.length][];
+        for(int i=0; i<powers.length; i++) splittedPowers[i] = powers[i].split("\\.");
+
+        int[] checker = new int[powers.length];
+
+        for(int i=0; i<checker.length; i++) {
+            checker[i] = 1;
+            if(powers[i].equals("")) checker[i] = 0;
+        }
+
+        for(int level=0; level<6; level++){
+
+            curPos = -1;
+            curVal = -1;
+            minVal = 100;
+            minPos = 100;
+
+            for(int i=0; i<checker.length; i++){
+
+                if(checker[i] == 0) continue;
+
+                if(splittedPowers[i][level].charAt(0) == '('){
+
+                    Card temp = new Card(splittedPowers[i][level]);
+
+                    curVal = temp.getValue();
+                    curPos = temp.getLocation();
+                }
+                else curVal = Integer.valueOf(splittedPowers[i][level]);
+
+                if(curVal < minVal){
+                    minVal = curVal;
+                    minPos = curPos;
+                }
+                else if(curVal == minVal && curPos < minPos) minPos = curPos;
+            }
+
+            loser = -1;
+            minCnt = 0;
+
+            for(int i=0; i<checker.length; i++){
+                if(checker[i] == 0) continue;
+
+                if(splittedPowers[i][level].charAt(0) == '('){
+
+                    Card temp = new Card(splittedPowers[i][level]);
+
+                    curVal = temp.getValue();
+                    curPos = temp.getLocation();
+                }
+                else curVal = Integer.valueOf(splittedPowers[i][level]);
+
+                if(curVal == minVal && curPos == minPos) {
+                    minCnt++;
+                    loser = i;
+                }
+                else checker[i] = 0;
+            }
+
+            if(minCnt == 1) break;
+        }
+        return loser;
+    }
 
 
 
@@ -2707,7 +3016,9 @@ public class GameThread implements Runnable, Comparable {
                 ", boardType='" + boardType + '\'' +
                 ", minCallValue=" + minCallValue +
                 ", minEntryValue=" + minEntryValue +
-                ", hasBot=" + hasBot +
+//                ", hasBot=" + hasBot +
+                " botCount=" + botCount +
+                " botlocs=" + botLocs.toString() +
                 ", playerCount=" + playerCount +
                 ", maxPlayerCount=" + maxPlayerCount +
                 ", isPrivate=" + isPrivate +
@@ -2759,7 +3070,11 @@ public class GameThread implements Runnable, Comparable {
         ret += "Min Entry Value: " + ( (double) minEntryValue / 100000 ) + "lac\n";
         ret += "Min Call Value: " + ( (double) minCallValue / 100000 ) + "lac\n";
         ret += "Player Count: " + playerCount + "\n";
-        ret += "Has bot: " + hasBot + "\n";
+        ret += "Bot count: " + botCount + "\n";
+        ret += "Bot locs: ";
+        for(Object x : botLocs) ret += x + " ";
+        ret += "\n";
+
         ret += "Players: " + "\n";
 
 
@@ -2865,6 +3180,12 @@ public class GameThread implements Runnable, Comparable {
 
             if(inGamePlayers[i] == null) ret.add(null);
             else{
+                if(! isActiveInRound[i]) {
+                    ret.add(null);
+                    continue;
+                }
+//                System.out.println("Ekhane error khay! " + i);
+
                 Card[] temp = new Card[2];
                 temp[0] = (Card) inGamePlayers[i].getUser().getPlayerCards().get(0);
                 temp[1] = (Card) inGamePlayers[i].getUser().getPlayerCards().get(1);
@@ -2875,19 +3196,23 @@ public class GameThread implements Runnable, Comparable {
         return ret;
     }
 
-    public int getBotLoc() {
-        return botLoc;
-    }
+//    public int getBotLoc() {
+//        return botLoc;
+//    }
 
     public User getPlayer(int i){
         if(inGamePlayers[i] == null) return null;
         else return inGamePlayers[i].getUser();
     }
 
-    public boolean isHasBot() {
-        return hasBot;
-    }
+//    public boolean isHasBot() {
+//        return hasBot;
+//    }
 
+
+    public int getBotCount() {
+        return botCount;
+    }
 
     public int getCardShowed() {
         return cardShowed;

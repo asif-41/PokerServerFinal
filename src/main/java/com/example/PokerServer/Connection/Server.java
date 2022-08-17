@@ -698,8 +698,14 @@ public class Server {
                         queueTimeCount[i].remove(0);
                     }
 
-                    BotClient botClient = makeBotClient(i);
-                    temp.add(botClient);
+                    int c = leastPlayerCount - temp.size();
+                    for(int j=0; j<c; j++){
+                        BotClient botClient = makeBotClient(i);
+                        temp.add(botClient);
+                    }
+//
+//                    BotClient botClient = makeBotClient(i);
+//                    temp.add(botClient);
 
                     makeGameThread(temp, i);
                     temp.clear();
@@ -739,7 +745,7 @@ public class Server {
 
                     if(gg.isPrivate()) continue;
                     else if(gg.getPlayerCount() == 0) continue;
-                    else if(gg.getPlayerCount() == 1 && gg.isHasBot()) continue;
+                    else if(gg.getPlayerCount() == gg.getBotCount()) continue;
                     else if(gg.getPlayerCount() == gg.getMaxPlayerCount()) break;
 
                     if(gg.getGameCode() == s.getLastGameCode()) loc = gg;

@@ -25,22 +25,25 @@ public class PokerServerApplication {
     private static String imagePath = "images/";
     private static String host = "140.82.0.55";
 
-    private static boolean showButton = true;
-    private static int version = 10;
-
-    private static int port = 1112;
-
-    private static int imageCount = 24;
-    private static int clearTill = 34;
-
-    private static int leastPlayerCount = 2;
-
-    private static boolean printError = true;
-
-
 //    private static String terminalPath = "Files/terminal.out";
 //    private static String imagePath = "Files/images/";
 //    private static String host = "localhost";
+
+
+    private static int port = 1112;
+
+
+    private static boolean showButton = true;
+    private static int version = 10;
+    private static int imageCount = 24;
+    private static int clearTill = 34;
+    private static boolean printError = true;
+
+    private static int leastPlayerCount = 3;
+
+
+
+
 
     public static void main(String[] args) {
 
@@ -79,7 +82,7 @@ public class PokerServerApplication {
                 10, 50000, 100000, 60, 2, 10,
                 minCoinWithdraw, coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
                 5000, showButton, version, imageCount,
-                2000, 3000, 2, 2, 2000, 10000, 5,
+                2000, 3000, 2, 1, 2000, 10000, 5,
                 botNames, 10000, printError, getBkashLinks(), getBotPercentages(), 4, 3, 3.5);
     }
 
