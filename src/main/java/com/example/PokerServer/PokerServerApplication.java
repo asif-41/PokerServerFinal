@@ -21,7 +21,7 @@ public class PokerServerApplication {
     private static String editUsername = "admin";
     private static String editPassword = "11223";
 
-    private static String terminalPath = "terminal-10.0.0.out";
+    private static String terminalPath = "terminal-11.0.0.out";
     private static String imagePath = "images/";
     private static String host = "140.82.0.55";
 
@@ -33,13 +33,15 @@ public class PokerServerApplication {
     private static int port = 1112;
 
 
-    private static boolean showButton = true;
-    private static int version = 10;
-    private static int imageCount = 24;
+    private static boolean showButton = false;
+    private static int version = 11;
     private static int clearTill = 34;
     private static boolean printError = true;
 
     private static int leastPlayerCount = 3;
+
+    private static int femaleImageCount = 5;
+    private static int maleImageCount = 19;
 
 
 
@@ -65,14 +67,14 @@ public class PokerServerApplication {
         long mcr[] = {0, 0, 2500000, 7000000, 15000000, 40000000, 100000000, 150000000, 400000000, 1000000000};
         boolean hiddenStatus[] = {true, true, true, true, true, true, true, true, true, true};
 
-        String[] botNames = {"Fardin Soumo", "Rony Bhuiya", "Mohsin khan", "Rakib Ali", "Jibon Bsl", "Najmul Mahbub", "Rubel Islam", "Shoisob Mahmud",
+        String[] femaleBotNames = {"Shanjida Haque", "Farjana Yeasmin", "Sadia Afreen", "Sheikh Marjia", "Urbi Das",
+                                   "Surovi Akter", "Mina Rahman", "Mukta Khatun", "Jannatul", "Bipasha bsl",};
+        String[] maleBotNames = {"Fardin Soumo", "Rony Bhuiya", "Mohsin khan", "Rakib Ali", "Jibon Bsl", "Najmul Mahbub", "Rubel Islam", "Shoisob Mahmud",
                              "Nure Alam", "Imrul kabir", "Yousuf Pathan", "Mashrafee", "Farhan ul islam", "Joy khan", "Zubaer khan", "Mehedi Hasan",
-                             "Atikul Islam", "Shanjida Haque", "Farjana Yeasmin", "Sadia Afreen", "Sheikh Marjia", "Ayon Bin Kabir", "Lemon Ali",
-                             "Urbi Das",
+                             "Atikul Islam", "Ayon Bin Kabir", "Lemon Ali",
                              "Al Rabby Bsl", "Al Riad", "Md Gaddafi", "Rezvi Kabir", "Al Mamun", "Sharif Ahmed", "Milu Rahman", "Feroz Shahi",
                              "Saddam hossain", "Sayed hasan", "Loban Hussain", "Shafiqul Islam", "Wahidunnabi Sagar", "Rakibujjamam Rakib", "Al Mubin Rony",
-                             "Raton khan", "Surovi Akter", "Mina Rahman", "Mukta Khatun", "Jannatul", "Redwanul Haque", "Boss Dulal",
-                             "Bipasha bsl",
+                             "Raton khan", "Redwanul Haque", "Boss Dulal",
                              "Jibon", "Bishnu das", "Sourov", "Iqbal khan", "Mollah", "Polok", "Parvez", "Babu", "Susmoy", "Khokon",
                              "Astab", "Anamul", "Amirul", "Golam kibria", "Monju", "Shihad", "Roni khan", "Chasi karim", "Mredul", "Hridoy"};
 
@@ -81,9 +83,9 @@ public class PokerServerApplication {
                 leastPlayerCount, 5, 1, 120, port, host, 10000, 500000,
                 10, 50000, 100000, 60, 2, 10,
                 minCoinWithdraw, coinPricePerCrore, coinAmountOnBuy, coinPriceOnBuy, getTransactionNumbers(), 30000, 15000,
-                5000, showButton, version, imageCount,
-                2000, 3000, 2, 1, 2000, 10000, 5,
-                botNames, 10000, printError, getBkashLinks(), getBotPercentages(), 4, 3, 3.5);
+                5000, showButton, version, maleImageCount, femaleImageCount,
+                2000, 3000, 1, 1, 2000, 10000, 5,
+                maleBotNames, femaleBotNames, 10000, printError, getBkashLinks(), getBotPercentages(), 4, 3, 3.5);
     }
 
 

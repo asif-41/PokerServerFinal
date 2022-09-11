@@ -11,6 +11,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Server {
@@ -72,14 +73,19 @@ public class Server {
     public boolean showButton;
     public int version;
 
-    public int imageCount;
-    public int botnameCount;
+    public int maleImageCount;
+    public int femaleImageCount;
+
+//    public int imageCount;
+//    public int botnameCount;
 
 
 
     private int maxBotLimit;
     private ArrayList botClients;
-    public String[] botNames;
+    public String[] maleBotNames;
+    public String[] femaleBotNames;
+//    public String[] botNames;
     public ArrayList botIds;
 
     public long botTurnDelayMin;
@@ -122,9 +128,9 @@ public class Server {
                   int queueWaitLimit, int port, String host, int maxGuestLimit, long initialCoin, int dailyCoinVideoCount, long eachVideoCoin, long freeLoginCoin,
                   int waitingRoomWaitAtStart, int delayInStartingGame, int maxPendingReq,
                   int minCoinWithdraw, double coinPricePerCrore, long[] coinAmountOnBuy, double[] coinPriceOnBuy, ArrayList<TransactionNumber> transactionNumbers, long delayLoginOnForce,
-                  long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int imageCount,
+                  long connectionCheckDelay, long connectionResponseDelay, boolean showButton, int version, int maleImageCount, int femaleImageCount,
                   long botTurnDelayMin, long botTurnDelayMax, long addBotDelay, int deleteBotBeforeRound, long queueIteratorDelay, long waitingToCloseDelay, int reloginAllowTime,
-                  String[] botNames, int maxBotLimit, boolean printError, String[] bkashLinks, double[] botPercentages,
+                  String[] maleBotNames, String[] femaleBotNames, int maxBotLimit, boolean printError, String[] bkashLinks, double[] botPercentages,
                   int cardTillBotWin, int cardTillPlayerWin, double eachWinLevelWait) {
 
         this.printError = printError;
@@ -134,7 +140,9 @@ public class Server {
 
         this.version = version;
         this.showButton = showButton;
-        this.imageCount = imageCount;
+//        this.imageCount = imageCount;
+        this.maleImageCount = maleImageCount;
+        this.femaleImageCount = femaleImageCount;
 
 
         this.connectionCheckDelay = connectionCheckDelay;
@@ -181,7 +189,9 @@ public class Server {
         casualConnections = new ArrayList<ServerToClient>();
         loggedInUsers = new ArrayList<ServerToClient>();
 
-        this.botNames = botNames;
+//        this.botNames = botNames;
+        this.maleBotNames = maleBotNames;
+        this.femaleBotNames = femaleBotNames;
         botIds = new ArrayList<Integer>();
         this.maxBotLimit = maxBotLimit;
         botClients = new ArrayList<BotClient>();
@@ -189,7 +199,7 @@ public class Server {
         this.botTurnDelayMax = botTurnDelayMax;
         this.addBotDelay = addBotDelay;
         this.deleteBotBeforeRound = deleteBotBeforeRound;
-        this.botnameCount = botNames.length;
+//        this.botnameCount = botNames.length;
 
         waitingRoom = new ArrayList[boardTypeCount];
         gameThreads = new ArrayList[boardTypeCount];
@@ -281,7 +291,7 @@ public class Server {
         return ret;
     }
 
-    private User makeBotUser(int boardKey) {
+    private User makeBotUser(int boardKey, ArrayList bots) {
 
         long startCoin = getBotStartCoin(boardKey);
         long boardCoin = getBotBoardCoin(startCoin, boardKey);
@@ -289,18 +299,23 @@ public class Server {
         int id = Randomizer.randomUnique(botIds, maxBotLimit) + 20000;
         botIds.add(id);
 
-        User user = User.makeBotUser(id, startCoin);
+        ArrayList botNames = new ArrayList<String>();
+        for (int i = 0; i < bots.size(); i++) {
+            botNames.add( ((BotClient) bots.get(i)).getUser().getUsername() );
+        }
+
+        User user = User.makeBotUser(id, startCoin, botNames);
         user.initializeGameData(-1, -1, boardType[boardKey], minEntryValue[boardKey], minCallValue[boardKey], -1, -1, boardCoin);
 
         user.setBot(true);
         return user;
     }
 
-    public BotClient makeBotClient(int boardKey) {
+    public BotClient makeBotClient(int boardKey, ArrayList bots) {
 
         if(botIds.size() == maxBotLimit) return null;
 
-        User botUser = makeBotUser(boardKey);
+        User botUser = makeBotUser(boardKey, bots);
         BotClient botClient = new BotClient(botUser);
 
         botClients.add(botClient);
@@ -699,16 +714,19 @@ public class Server {
                     }
 
                     int c = leastPlayerCount - temp.size();
+                    ArrayList botTemp = new ArrayList<ServerToClient>();
                     for(int j=0; j<c; j++){
-                        BotClient botClient = makeBotClient(i);
-                        temp.add(botClient);
+                        BotClient botClient = makeBotClient(i, botTemp);
+                        botTemp.add(botClient);
                     }
 //
 //                    BotClient botClient = makeBotClient(i);
 //                    temp.add(botClient);
 
+                    temp.addAll(botTemp);
                     makeGameThread(temp, i);
                     temp.clear();
+                    botTemp.clear();
                 }
                 i++;
                 continue;
@@ -1737,10 +1755,6 @@ public class Server {
 
     public void setConnectionResponseDelay(long connectionResponseDelay) {
         this.connectionResponseDelay = connectionResponseDelay;
-    }
-
-    public int getImageCount() {
-        return imageCount;
     }
 
     public boolean isShowButton() {

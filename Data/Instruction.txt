@@ -6,7 +6,7 @@ FOR DEPLOYMENT, EDIT THESE::
                     password: PokerServerPa$$w0RD
 4.  Port: 1112
 5.  Button show: true (in webpage)
-6.  Version: 10 (in webpage)
+6.  Version: 11 (in webpage)
 7.  Host of page: 140.82.0.55
 
 
@@ -15,9 +15,6 @@ java
 postgres
 mvn
 allow server port
-
-
-
 
 link lagbe
 image lagbe

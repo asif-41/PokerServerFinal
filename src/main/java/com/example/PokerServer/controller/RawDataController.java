@@ -86,7 +86,7 @@ public class RawDataController {
     @RequestMapping("/images")
     public String showImages(Model model){
 
-        model.addAttribute("imageCount", Server.pokerServer.getImageCount());
+        model.addAttribute("imageCount", Server.pokerServer.maleImageCount + Server.pokerServer.femaleImageCount);
         model.addAttribute("location", "http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id=");
 
         return "Images";

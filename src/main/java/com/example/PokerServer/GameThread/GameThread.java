@@ -154,7 +154,7 @@ public class GameThread implements Runnable, Comparable {
     private int deductingBlinds;
     private boolean waitingAtEnd;
 
-    private boolean nullAtGamuButtons;
+    private boolean nullAtGameButtons;
     //  INDICATES IF WE NEED A KICKER OR NOT
 
 
@@ -566,7 +566,12 @@ public class GameThread implements Runnable, Comparable {
         }
 
         int key = Server.pokerServer.getBoardKey(boardType);
-        BotClient b = Server.pokerServer.makeBotClient(key);
+        ArrayList temp = new ArrayList<ServerToClient>();
+        for(int i=0; i<botLocs.size(); i++){
+            temp.add(inGamePlayers[ (int) botLocs.get(i)]);
+        }
+
+        BotClient b = Server.pokerServer.makeBotClient(key, temp);
         addInGameThread(b);
     }
 
@@ -1017,10 +1022,10 @@ public class GameThread implements Runnable, Comparable {
 
                 sendShowNextTurnInfo();
 
-                nullAtGamuButtons = false;
+                nullAtGameButtons = false;
                 JSONObject j = enableGameButtons();
 
-                if(! nullAtGamuButtons) {
+                if(!nullAtGameButtons) {
                     sendPlayersDataToAll();
                     sendEnableGameButtons(j);
                 }
@@ -1442,7 +1447,7 @@ public class GameThread implements Runnable, Comparable {
         JSONObject temp;
 
         if(inGamePlayers[roundIteratorSeat] == null || inGamePlayers[roundIteratorSeat].getUser() == null) {
-            nullAtGamuButtons = true;
+            nullAtGameButtons = true;
             return send;
         }
         User tempUser = inGamePlayers[roundIteratorSeat].getUser();

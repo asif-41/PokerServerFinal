@@ -210,13 +210,41 @@ public class User {
         return ret;
     }
 
-    public static User makeBotUser(int id, long startCoin){
+    public static User makeBotUser(int id, long startCoin, ArrayList botnames){
 
-        int imageId = Randomizer.one(Server.pokerServer.imageCount) + 1;
-        int nameId = Randomizer.one(Server.pokerServer.botnameCount);
+        ////////////////// 12-9-22 ///////////////////////
 
-        String username = Server.pokerServer.botNames[nameId];
+        int gender = -1, imageId = -1;
+        String name = "";
+
+        //  gender 0 mane male
+
+        while(true){
+            gender = Randomizer.one(2);
+
+            if(gender == 0) name = Server.pokerServer.maleBotNames[ Randomizer.one(Server.pokerServer.maleBotNames.length) ];
+            else name = Server.pokerServer.femaleBotNames[ Randomizer.one(Server.pokerServer.femaleBotNames.length) ];
+
+            boolean okay = true;
+            for(int i=0; i<botnames.size(); i++){
+                if(name.equals(botnames.get(i))){
+                    okay = false;
+                    break;
+                }
+            }
+            if(! okay) continue;
+
+            if(gender == 0) imageId = Randomizer.one(Server.pokerServer.maleImageCount) + Server.pokerServer.femaleImageCount+1;
+            else imageId = Randomizer.one(Server.pokerServer.femaleImageCount) + 1;
+
+            break;
+        }
+        String username = name;
         String imageLink = "http://" + Server.pokerServer.getHost() + ":" + Server.pokerServer.getPort() + "/image?id=" + imageId;
+
+        System.out.println("Bot " + id + " created with name " + username + " and image " + imageLink);
+        /////////////////// 12-9-22 //////////////////////
+
 
         int roundsPlayed = getRoundsPlayed(startCoin);
         int roundsWon = Randomizer.one(roundsPlayed/2) + roundsPlayed/2;
