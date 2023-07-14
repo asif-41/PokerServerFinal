@@ -6,7 +6,7 @@ FOR DEPLOYMENT, EDIT THESE::
                     password: PokerServerPa$$w0RD
 4.  Port: 1112
 5.  Button show: true (in webpage)
-6.  Version: 11 (in webpage)
+6.  Version: 12 (in webpage)
 7.  Host of page: 52.62.121.232
 
 
